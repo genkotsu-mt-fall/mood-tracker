@@ -9,7 +9,9 @@
     "@types/bun": "latest",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^9.26.0",
     "husky": "^9.1.7",
+    "prettier": "^3.5.3",
     "semantic-release": "^24.2.3"
   },
   "peerDependencies": {
