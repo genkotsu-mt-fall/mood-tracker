@@ -1,0 +1,28 @@
+{
+  "name": "/workspace",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@types/bun": "latest",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^9.1.7",
+    "semantic-release": "^24.2.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "scripts": {
+    "cm": "cz",
+    "prepare": "husky",
+    "commitlint": "commitlint --edit"
+  }
+}

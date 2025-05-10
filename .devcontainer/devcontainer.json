@@ -1,0 +1,32 @@
+{
+    "name": "Mood-Tracker",
+    "dockerComposeFile": ["docker-compose.yml", "docker-compose.override.yml"],
+    "service": "app",
+    "workspaceFolder": "/workspace",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bradlc.vscode-tailwindcss",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "yoavbls.pretty-ts-errors",
+                "orta.vscode-jest",
+                "prisma.prisma",
+                "mikestead.dotenv",
+                "vscode-conventional-commits",
+                "ms-ossdata.vscode-postgresql"
+            ],
+            "settings": {
+                "editor.formatOnSave": true,
+                "[typescript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "editor.codeActionsOnSave": {
+                    "source.fixAll.eslint": "explicit"
+                }
+            }
+        }
+    },
+    "forwardPorts": [2222, 3000, 5173],
+    "postCreateCommand": "bun install --cwd backend && bun install --cwd frontend"
+}
