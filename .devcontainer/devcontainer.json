@@ -13,8 +13,7 @@
                 "orta.vscode-jest",
                 "prisma.prisma",
                 "mikestead.dotenv",
-                "vscode-conventional-commits",
-                "ms-ossdata.vscode-postgresql"
+                "vivaxy.vscode-conventional-commits",
             ],
             "settings": {
                 "editor.formatOnSave": true,
@@ -27,6 +26,6 @@
             }
         }
     },
-    "forwardPorts": [2222, 3000, 5173],
+    "forwardPorts": [3000, 5173],
     "postCreateCommand": "bun install --cwd backend && bun install --cwd frontend"
 }
