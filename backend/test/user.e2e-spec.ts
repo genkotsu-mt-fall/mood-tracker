@@ -23,7 +23,13 @@ describe('UserController (e2e)', () => {
   }
 
   interface UserResponses {
-    body: [UserBody];
+    body: {
+      data: UserBody[];
+      total: number;
+      page: number;
+      limit: number;
+      hasNextPage: boolean;
+    };
   }
 
   interface UserBody {
@@ -50,8 +56,8 @@ describe('UserController (e2e)', () => {
       .get('/user')
       .expect(200);
 
-    expect(Array.isArray(response.body)).toBe(true);
-    expect(response.body.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.body.data)).toBe(true);
+    expect(response.body.data.length).toBeGreaterThan(0);
   });
 
   it('GET /user/:id - should return a single user', async () => {
