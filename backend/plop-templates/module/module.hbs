@@ -1,0 +1,34 @@
+import { Module } from '@nestjs/common';
+import { {{pascalCase name}}Controller } from './controller/{{kebabCase name}}.controller';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { Create{{pascalCase name}}UseCase } from './use-case/create-{{kebabCase name}}.use-case';
+import { FindAll{{pascalCase name}}sUseCase } from './use-case/find-all-{{kebabCase name}}s.use-case';
+import { Find{{pascalCase name}}ByIdUseCase } from './use-case/find-{{kebabCase name}}-by-id.use-case';
+import { Update{{pascalCase name}}UseCase } from './use-case/update-{{kebabCase name}}.use-case';
+import { Delete{{pascalCase name}}UseCase } from './use-case/delete-{{kebabCase name}}.use-case';
+import { {{pascalCase name}}Repository } from './repository/{{kebabCase name}}.repository';
+import { Prisma{{pascalCase name}}Repository } from './repository/prisma-{{kebabCase name}}.repository';
+
+@Module({
+  imports: [PrismaModule],
+  providers: [
+    Create{{pascalCase name}}UseCase,
+    FindAll{{pascalCase name}}sUseCase,
+    Find{{pascalCase name}}ByIdUseCase,
+    Update{{pascalCase name}}UseCase,
+    Delete{{pascalCase name}}UseCase,
+    {
+      provide: {{pascalCase name}}Repository,
+      useClass: Prisma{{pascalCase name}}Repository,
+    },
+  ],
+  controllers: [{{pascalCase name}}Controller],
+  exports: [
+    Create{{pascalCase name}}UseCase,
+    FindAll{{pascalCase name}}sUseCase,
+    Find{{pascalCase name}}ByIdUseCase,
+    Update{{pascalCase name}}UseCase,
+    Delete{{pascalCase name}}UseCase,
+  ],
+})
+export class {{pascalCase name}}Module {}

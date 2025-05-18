@@ -1,0 +1,12 @@
+import { {{pascalCase name}}Entity } from '../entity/{{kebabCase name}}.entity';
+
+export class {{pascalCase name}}ResponseDto {
+  constructor(entity: {{pascalCase name}}Entity) {
+    this.id = entity.id;
+    // 必要に応じてフィールドを追加してください
+    this.name = entity.name;
+  }
+
+  id: string;
+  name?: string;
+}

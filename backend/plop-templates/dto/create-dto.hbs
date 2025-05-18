@@ -1,0 +1,12 @@
+import { IsString, IsOptional } from 'class-validator';
+
+export class Create{{pascalCase name}}Dto {
+  // 例: バリデーションルールを追加してください
+
+  @IsString()
+  exampleField: string;
+
+  @IsOptional()
+  @IsString()
+  optionalField?: string;
+}

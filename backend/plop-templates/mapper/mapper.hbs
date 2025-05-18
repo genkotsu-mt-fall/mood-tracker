@@ -1,0 +1,11 @@
+import { {{pascalCase name}} as Prisma{{pascalCase name}} } from '@prisma/client';
+import { {{pascalCase name}}Entity } from '../entity/{{kebabCase name}}.entity';
+
+export function to{{pascalCase name}}Entity(data: Prisma{{pascalCase name}}): {{pascalCase name}}Entity {
+  return new {{pascalCase name}}Entity(
+    data.id,
+    data.email,
+    data.name ?? undefined
+    // 必要に応じてフィールドを追加・修正してください
+  );
+}

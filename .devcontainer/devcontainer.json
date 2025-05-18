@@ -20,6 +20,9 @@
                 "[typescript]": {
                     "editor.defaultFormatter": "esbenp.prettier-vscode"
                 },
+                "[handlebars]": {
+                    "editor.formatOnSave": false
+                },
                 "editor.codeActionsOnSave": {
                     "source.fixAll.eslint": "explicit"
                 }

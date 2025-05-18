@@ -1,0 +1,18 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { {{pascalCase name}}Repository } from '../repository/{{kebabCase name}}.repository';
+import { Update{{pascalCase name}}Dto } from '../dto/update-{{kebabCase name}}.dto';
+import { {{pascalCase name}}Entity } from '../entity/{{kebabCase name}}.entity';
+import { ErrorMessage } from 'src/common/errors/error.messages';
+
+@Injectable()
+export class Update{{pascalCase name}}UseCase {
+  constructor(private readonly {{camelCase name}}Repo: {{pascalCase name}}Repository) {}
+
+  async execute(id: string, data: Update{{pascalCase name}}Dto): Promise<{{pascalCase name}}Entity> {
+    const item = await this.{{camelCase name}}Repo.findById(id);
+    if (!item) {
+      throw new NotFoundException(ErrorMessage.{{pascalCase name}}NotFound(id));
+    }
+    return await this.{{camelCase name}}Repo.update(id, data);
+  }
+}

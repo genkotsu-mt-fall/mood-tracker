@@ -1,0 +1,16 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { {{pascalCase name}}Repository } from '../repository/{{kebabCase name}}.repository';
+import { ErrorMessage } from 'src/common/errors/error.messages';
+
+@Injectable()
+export class Find{{pascalCase name}}ByIdUseCase {
+  constructor(private readonly {{camelCase name}}Repo: {{pascalCase name}}Repository) {}
+
+  async execute(id: string) {
+    const item = await this.{{camelCase name}}Repo.findById(id);
+    if (!item) {
+      throw new NotFoundException(ErrorMessage.{{pascalCase name}}NotFound(id));
+    }
+    return item;
+  }
+}

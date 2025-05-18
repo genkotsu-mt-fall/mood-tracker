@@ -1,0 +1,29 @@
+import { Injectable } from '@nestjs/common';
+import { {{pascalCase name}}Entity } from '../entity/{{kebabCase name}}.entity';
+import { {{pascalCase name}}Repository } from '../repository/{{kebabCase name}}.repository';
+
+@Injectable()
+export class FindAll{{pascalCase name}}sUseCase {
+  constructor(private readonly {{camelCase name}}Repo: {{pascalCase name}}Repository) {}
+
+  async execute({ page, limit }: { page: number; limit: number }): Promise<{
+    data: {{pascalCase name}}Entity[];
+    total: number;
+    page: number;
+    limit: number;
+    hasNextPage: boolean;
+  }> {
+    const skip = (page - 1) * limit;
+    const { data, total } = await this.{{camelCase name}}Repo.findAllWithCount({
+      skip,
+      take: limit,
+    });
+    return {
+      data,
+      total,
+      page,
+      limit,
+      hasNextPage: skip + data.length < total,
+    };
+  }
+}

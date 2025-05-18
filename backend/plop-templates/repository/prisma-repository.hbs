@@ -1,0 +1,43 @@
+import { PrismaService } from 'src/prisma/prisma.service';
+import { {{pascalCase name}}Repository } from './{{kebabCase name}}.repository';
+import { {{pascalCase name}}Entity } from '../entity/{{kebabCase name}}.entity';
+import { Create{{pascalCase name}}Dto } from '../dto/create-{{kebabCase name}}.dto';
+import { Injectable } from '@nestjs/common';
+import { to{{pascalCase name}}Entity } from '../mapper/{{kebabCase name}}.mapper';
+import { Update{{pascalCase name}}Dto } from '../dto/update-{{kebabCase name}}.dto';
+
+@Injectable()
+export class Prisma{{pascalCase name}}Repository implements {{pascalCase name}}Repository {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(data: Create{{pascalCase name}}Dto): Promise<{{pascalCase name}}Entity> {
+    const item = await this.prisma.{{camelCase name}}.create({ data });
+    return to{{pascalCase name}}Entity(item);
+  }
+
+  async findAllWithCount(pagination: { skip: number; take: number }): Promise<{ data: {{pascalCase name}}Entity[]; total: number }> {
+    const { skip, take } = pagination;
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.{{camelCase name}}.findMany({ skip, take }),
+      this.prisma.{{camelCase name}}.count(),
+    ]);
+    return {
+      data: items.map(to{{pascalCase name}}Entity),
+      total,
+    };
+  }
+
+  async findById(id: string): Promise<{{pascalCase name}}Entity | null> {
+    const item = await this.prisma.{{camelCase name}}.findUnique({ where: { id } });
+    return item ? to{{pascalCase name}}Entity(item) : null;
+  }
+
+  async update(id: string, data: Update{{pascalCase name}}Dto): Promise<{{pascalCase name}}Entity> {
+    const item = await this.prisma.{{camelCase name}}.update({ where: { id }, data });
+    return to{{pascalCase name}}Entity(item);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.{{camelCase name}}.delete({ where: { id } });
+  }
+}

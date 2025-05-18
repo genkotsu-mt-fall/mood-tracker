@@ -1,0 +1,20 @@
+import { Create{{pascalCase name}}Dto } from '../dto/create-{{kebabCase name}}.dto';
+import { Update{{pascalCase name}}Dto } from '../dto/update-{{kebabCase name}}.dto';
+import { {{pascalCase name}}Entity } from '../entity/{{kebabCase name}}.entity';
+
+export abstract class {{pascalCase name}}Repository {
+  // abstract findByEmail(email: string): Promise<{{pascalCase name}}Entity | null>;
+
+  abstract create(data: Create{{pascalCase name}}Dto): Promise<{{pascalCase name}}Entity>;
+
+  abstract findAllWithCount(pagination: {
+    skip: number;
+    take: number;
+  }): Promise<{ data: {{pascalCase name}}Entity[]; total: number }>;
+
+  abstract findById(id: string): Promise<{{pascalCase name}}Entity | null>;
+
+  abstract update(id: string, data: Update{{pascalCase name}}Dto): Promise<{{pascalCase name}}Entity>;
+
+  abstract delete(id: string): Promise<void>;
+}
