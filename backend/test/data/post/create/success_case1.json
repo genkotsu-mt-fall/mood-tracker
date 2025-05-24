@@ -1,0 +1,34 @@
+{
+  "mood": "happy",
+  "intensity": 80,
+  "body": "今日はとても良い日だった！",
+  "emoji": "😊",
+  "privacyJson": {
+    "visibility": "followers",
+    "allow_users": [],
+    "deny_users": [],
+    "allow_groups": [],
+    "group_visibility_mode": "any",
+    "followers_only": true,
+    "follow_back_only": false,
+    "min_follow_days": 3,
+    "max_follow_days": 30,
+    "viewable_time_range": {
+      "start": "08:00",
+      "end": "20:00"
+    },
+    "visible_until": "2025-12-31T23:59:59.000Z",
+    "visible_after": "2025-01-01T00:00:00.000Z",
+    "comment_activity_filter": {
+      "within_days": 7,
+      "min_comments": 3
+    },
+    "device_types": ["mobile", "desktop"]
+  },
+  "followersOnly": true,
+  "followBackOnly": false,
+  "minFollowDays": 5,
+  "visibleUntil": "2025-12-31T23:59:59.000Z",
+  "visibleAfter": "2025-01-01T00:00:00.000Z",
+  "crisisFlag": false
+}

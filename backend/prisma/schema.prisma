@@ -15,17 +15,57 @@ datasource db {
 }
 
 model User {
-  id    String  @id @default(uuid()) @db.Uuid
-  email String  @unique
-  name  String?
-  posts Post[]
+  id             String  @id @default(uuid()) @db.Uuid
+  email          String  @unique
+  name           String?
+  hashedPassword String
+  posts          Post[]
 }
 
 model Post {
-  id        String  @id @default(uuid()) @db.Uuid
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  String  @db.Uuid
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id])
+
+  /// 気分を表すキーワード（例: "happy", "sad" など）
+  mood String?
+
+  /// 気分の強さ（1〜10 などの数値スコア）
+  intensity Int?
+
+  /// 投稿本文
+  body String
+
+  /// 気分に対応する絵文字（例: 😊）
+  emoji String?
+
+  /// 使用された投稿テンプレートのID
+  templateId String? @db.Uuid
+
+  /// 公開設定情報（フォロワー限定・ブロックリストなど）をJSON形式で保持
+  privacyJson Json?
+
+  /// フォロワー限定かどうかのフラグ
+  followersOnly Boolean
+
+  /// 相互フォロワー限定かどうかのフラグ
+  followBackOnly Boolean
+
+  /// 投稿閲覧に必要な最小フォロー日数
+  minFollowDays Int?
+
+  /// 投稿が表示される終了日時（指定があれば時限公開）
+  visibleUntil DateTime?
+
+  /// 投稿が表示される開始日時（予約投稿機能）
+  visibleAfter DateTime?
+
+  /// 緊急フラグ（自傷等の兆候があるなど注意を要する場合にtrue）
+  crisisFlag Boolean
+
+  /// 投稿作成日時（デフォルト: 現在時刻）
+  createdAt DateTime @default(now())
+
+  /// 投稿更新日時
+  updatedAt DateTime @updatedAt
 }

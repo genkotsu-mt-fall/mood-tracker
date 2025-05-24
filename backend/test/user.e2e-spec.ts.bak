@@ -1,0 +1,90 @@
+// import { INestApplication } from '@nestjs/common';
+// import { Test } from '@nestjs/testing';
+// import { AppModule } from './../src/app.module';
+// import * as request from 'supertest';
+
+// describe('UserController (e2e)', () => {
+//   let app: INestApplication;
+//   let createdUserId: string;
+
+//   beforeAll(async () => {
+//     const moduleFixture = await Test.createTestingModule({
+//       imports: [AppModule],
+//     }).compile();
+
+//     app = moduleFixture.createNestApplication();
+//     await app.init();
+//   });
+
+//   afterAll(async () => {});
+
+//   interface UserResponse {
+//     body: UserBody;
+//   }
+
+//   interface UserResponses {
+//     body: {
+//       data: UserBody[];
+//       total: number;
+//       page: number;
+//       limit: number;
+//       hasNextPage: boolean;
+//     };
+//   }
+
+//   interface UserBody {
+//     id: string;
+//     name: string;
+//     email: string;
+//   }
+
+//   it('POST /user - should create a user', async () => {
+//     const response: UserResponse = await request(app.getHttpServer())
+//       .post('/user')
+//       .send({ email: 'test@example.com', name: 'tester' })
+//       .expect(201);
+
+//     expect(response.body).toHaveProperty('id');
+//     expect(response.body.email).toBe('test@example.com');
+//     expect(response.body.name).toBe('tester');
+
+//     createdUserId = response.body.id;
+//   });
+
+//   it('GET /user - should return array of users', async () => {
+//     const response: UserResponses = await request(app.getHttpServer())
+//       .get('/user')
+//       .expect(200);
+
+//     expect(Array.isArray(response.body.data)).toBe(true);
+//     expect(response.body.data.length).toBeGreaterThan(0);
+//   });
+
+//   it('GET /user/:id - should return a single user', async () => {
+//     const response: UserResponse = await request(app.getHttpServer())
+//       .get(`/user/${createdUserId}`)
+//       .expect(200);
+
+//     expect(response.body).toHaveProperty('id', createdUserId);
+//   });
+
+//   it('PUT /user/:id - should update the user', async () => {
+//     const response: UserResponse = await request(app.getHttpServer())
+//       .put(`/user/${createdUserId}`)
+//       .send({ name: 'updated tester' })
+//       .expect(200);
+
+//     expect(response.body).toHaveProperty('id', createdUserId);
+//     expect(response.body.name).toBe('updated tester');
+//   });
+
+//   it('DELETE /user/:id - should delete the user', async () => {
+//     await request(app.getHttpServer())
+//       .delete(`/user/${createdUserId}`)
+//       .expect(200);
+
+//     await request(app.getHttpServer())
+//       .get(`/user/${createdUserId}`)
+//       .expect(404);
+//   });
+// });

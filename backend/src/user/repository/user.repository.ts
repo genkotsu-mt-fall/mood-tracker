@@ -1,10 +1,12 @@
-import { CreateUserDto } from '../dto/create_user.dto';
+// import { CreateUserDto } from '../dto/create_user.dto';
 import { UpdateUserDto } from '../dto/update_user.dto';
 import { UserEntity } from '../entity/user.entity';
+import { CreateUserInput } from '../type/create-user-input.type';
 
 export abstract class UserRepository {
-  //   findByEmail(email: string): Promise<UserEntity | null>;
-  abstract create(data: CreateUserDto): Promise<UserEntity>;
+  abstract findByEmail(email: string): Promise<UserEntity | null>;
+
+  abstract create(data: CreateUserInput): Promise<UserEntity>;
 
   abstract findAllWithCount(pagenation: {
     skip: number;

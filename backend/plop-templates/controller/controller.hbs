@@ -1,52 +1,60 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  Param,
-  ParseUUIDPipe,
   Post,
   Put,
+  Delete,
+  Param,
+  Body,
   Query,
   UsePipes,
   ValidationPipe,
+  ParseUUIDPipe,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { Create{{pascalCase name}}Dto } from '../dto/create_{{kebabCase name}}.dto';
 import { Update{{pascalCase name}}Dto } from '../dto/update_{{kebabCase name}}.dto';
-import { CreateUserUseCase } from '../use-case/create-user.use-case';
-import { UserResponseDto } from '../dto/user-response.dto';
-import { UserEntity } from '../entity/user.entity';
-import { FindAllUserUseCase } from '../use-case/find-all-users.use-case';
-import { FindUserByIdUseCase } from '../use-case/find-user-by-id.use-case';
-import { UpdateUserUseCase } from '../use-case/update-user.use-case';
-import { DeleteUserUseCase } from '../use-case/delete-user.use-case';
+import { Create{{pascalCase name}}UseCase } from '../use-case/create-{{kebabCase name}}.use-case';
+import { FindAll{{pascalCase name}}sUseCase } from '../use-case/find-all-{{kebabCase name}}s.use-case';
+import { Find{{pascalCase name}}ByIdUseCase } from '../use-case/find-{{kebabCase name}}-by-id.use-case';
+import { Update{{pascalCase name}}UseCase } from '../use-case/update-{{kebabCase name}}.use-case';
+import { Delete{{pascalCase name}}UseCase } from '../use-case/delete-{{kebabCase name}}.use-case';
+import { {{pascalCase name}}ResponseDto } from '../dto/{{kebabCase name}}_response.dto';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { PaginatedResponseDto } from 'src/common/response/paginated-response.dto';
 
-@Controller('user')
-export class UserController {
+@Controller('{{kebabCase name}}')
+export class {{pascalCase name}}Controller {
   constructor(
-    private readonly createUserUseCase: CreateUserUseCase,
-    private readonly findAllUserUseCase: FindAllUserUseCase,
-    private readonly findUserByIdUseCase: FindUserByIdUseCase,
-    private readonly updateUserUseCase: UpdateUserUseCase,
-    private readonly deleteUserUseCase: DeleteUserUseCase,
+    private readonly create{{pascalCase name}}UseCase: Create{{pascalCase name}}UseCase,
+    private readonly findAll{{pascalCase name}}UseCase: FindAll{{pascalCase name}}sUseCase,
+    private readonly find{{pascalCase name}}ByIdUseCase: Find{{pascalCase name}}ByIdUseCase,
+    private readonly update{{pascalCase name}}UseCase: Update{{pascalCase name}}UseCase,
+    private readonly delete{{pascalCase name}}UseCase: Delete{{pascalCase name}}UseCase,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() userData: CreateUserDto) {
-    const user: UserEntity = await this.createUserUseCase.execute(userData);
-    return new UserResponseDto(user);
+  async create(
+    @Request() req: { user: { id: string } },
+    @Body() dto: Create{{pascalCase name}}Dto,
+  ): Promise<{{pascalCase name}}ResponseDto> {
+    const result = await this.create{{pascalCase name}}UseCase.execute(req.user.id, dto);
+    return new {{pascalCase name}}ResponseDto(result);
   }
 
   @Get()
   @UsePipes(new ValidationPipe({ transform: true }))
-  async findAll(@Query() query: PaginationQueryDto) {
+  async findAll(
+    @Query() query: PaginationQueryDto,
+  ): Promise<PaginatedResponseDto<{{pascalCase name}}ResponseDto>> {
     const { page, limit } = query;
-    const result = await this.findAllUserUseCase.execute({ page, limit });
+    const result = await this.findAll{{pascalCase name}}UseCase.execute({ page, limit });
 
-    return new PaginatedResponseDto<UserResponseDto>({
-      data: result.data.map((user) => new UserResponseDto(user)),
+    return new PaginatedResponseDto<{{pascalCase name}}ResponseDto>({
+      data: result.data.map((item) => new {{pascalCase name}}ResponseDto(item)),
       total: result.total,
       page: result.page,
       limit: result.limit,
@@ -55,23 +63,27 @@ export class UserController {
   }
 
   @Get(':id')
-  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    const user = await this.findUserByIdUseCase.execute(id);
-    return new UserResponseDto(user);
+  async findOne(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): Promise<{{pascalCase name}}ResponseDto> {
+    const result = await this.find{{pascalCase name}}ByIdUseCase.execute(id);
+    return new {{pascalCase name}}ResponseDto(result);
   }
 
   @Put(':id')
   async update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-    @Body() userData: UpdateUserDto,
-  ) {
-    const user = await this.updateUserUseCase.execute(id, userData);
-    return new UserResponseDto(user);
+    @Body() dto: Update{{pascalCase name}}Dto,
+  ): Promise<{{pascalCase name}}ResponseDto> {
+    const result = await this.update{{pascalCase name}}UseCase.execute(id, dto);
+    return new {{pascalCase name}}ResponseDto(result);
   }
 
   @Delete(':id')
-  async remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    await this.deleteUserUseCase.execute(id);
-    return { message: 'User deleted successfully' };
+  async remove(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): Promise<{ message: string }> {
+    await this.delete{{pascalCase name}}UseCase.execute(id);
+    return { message: '{{pascalCase name}} deleted successfully' };
   }
 }
