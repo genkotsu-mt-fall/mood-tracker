@@ -45,6 +45,12 @@ export default function (plop) {
       template: 'plop-templates/entity/entity.hbs',
     },
     {
+      name: 'guard',
+      description: 'Owner Guard を生成',
+      path: 'src/{{kebabCase name}}/guard/{{kebabCase name}}-owner.guard.ts',
+      template: 'plop-templates/guard/owner.guard.hbs',
+    },
+    {
       name: 'mapper',
       description: 'Mapper を生成',
       path: 'src/{{kebabCase name}}/mapper/{{kebabCase name}}.mapper.ts',
@@ -109,7 +115,7 @@ export default function (plop) {
     });
   });
 
-  // ✅ まとめて出力する「all」ジェネレータ追加
+  // ✅ 一括生成ジェネレータ
   plop.setGenerator('all', {
     description: 'すべての構成ファイルをまとめて生成',
     prompts: prompt,

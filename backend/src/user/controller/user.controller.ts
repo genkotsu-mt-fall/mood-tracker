@@ -1,27 +1,27 @@
 import {
-  Body,
+  // Body,
   Controller,
   // Delete,
-  // Get,
-  // Param,
-  // ParseUUIDPipe,
+  Get,
+  Param,
+  ParseUUIDPipe,
   // Post,
   // Put,
-  // Query,
-  // UsePipes,
-  // ValidationPipe,
+  Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 // import { CreateUserDto } from '../dto/create_user.dto';
 // import { UpdateUserDto } from '../dto/update_user.dto';
 import { CreateUserUseCase } from '../use-case/create-user.use-case';
-// import { UserResponseDto } from '../dto/user-response.dto';
+import { UserResponseDto } from '../dto/user-response.dto';
 // import { UserEntity } from '../entity/user.entity';
 import { FindAllUserUseCase } from '../use-case/find-all-users.use-case';
 import { FindUserByIdUseCase } from '../use-case/find-user-by-id.use-case';
 import { UpdateUserUseCase } from '../use-case/update-user.use-case';
 import { DeleteUserUseCase } from '../use-case/delete-user.use-case';
-// import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
-// import { PaginatedResponseDto } from 'src/common/response/paginated-response.dto';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { PaginatedResponseDto } from 'src/common/response/paginated-response.dto';
 
 @Controller('user')
 export class UserController {
@@ -39,26 +39,26 @@ export class UserController {
   //   return new UserResponseDto(user);
   // }
 
-  // @Get()
-  // @UsePipes(new ValidationPipe({ transform: true }))
-  // async findAll(@Query() query: PaginationQueryDto) {
-  //   const { page, limit } = query;
-  //   const result = await this.findAllUserUseCase.execute({ page, limit });
+  @Get()
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async findAll(@Query() query: PaginationQueryDto) {
+    const { page, limit } = query;
+    const result = await this.findAllUserUseCase.execute({ page, limit });
 
-  //   return new PaginatedResponseDto<UserResponseDto>({
-  //     data: result.data.map((user) => new UserResponseDto(user)),
-  //     total: result.total,
-  //     page: result.page,
-  //     limit: result.limit,
-  //     hasNextPage: result.hasNextPage,
-  //   });
-  // }
+    return new PaginatedResponseDto<UserResponseDto>({
+      data: result.data.map((user) => new UserResponseDto(user)),
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      hasNextPage: result.hasNextPage,
+    });
+  }
 
-  // @Get(':id')
-  // async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-  //   const user = await this.findUserByIdUseCase.execute(id);
-  //   return new UserResponseDto(user);
-  // }
+  @Get(':id')
+  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    const user = await this.findUserByIdUseCase.execute(id);
+    return new UserResponseDto(user);
+  }
 
   // @Put(':id')
   // async update(

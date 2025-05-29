@@ -1,0 +1,26 @@
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+import { AuthenticatedRequest } from 'src/auth/type/auth-request';
+import { Find{{pascalCase name}}ByIdUseCase } from '../use-case/find-{{kebabCase name}}-by-id.use-case';
+
+@Injectable()
+export class {{pascalCase name}}OwnerGuard implements CanActivate {
+  constructor(private readonly find{{pascalCase name}}ByIdUseCase: Find{{pascalCase name}}ByIdUseCase) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request: AuthenticatedRequest = context.switchToHttp().getRequest();
+    const userId = request.user.id;
+    const {{camelCase name}}Id = request.params.id;
+
+    const item = await this.find{{pascalCase name}}ByIdUseCase.execute({{camelCase name}}Id);
+    if (item.userId !== userId) {
+      throw new ForbiddenException('You are not allowed to modify this {{pascalCase name}}');
+    }
+
+    return true;
+  }
+}

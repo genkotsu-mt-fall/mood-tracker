@@ -1,13 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProductDto } from '../dto/create-product.dto';
-import { ProductEntity } from '../entity/product.entity';
-import { ProductRepository } from '../repository/product.repository';
+import { Create{{pascalCase name}}Dto } from '../dto/create_{{kebabCase name}}.dto';
+import { {{pascalCase name}}Entity } from '../entity/{{kebabCase name}}.entity';
+import { {{pascalCase name}}Repository } from '../repository/{{kebabCase name}}.repository';
 
 @Injectable()
-export class CreateProductUseCase {
-  constructor(private readonly productRepo: ProductRepository) {}
+export class Create{{pascalCase name}}UseCase {
+  constructor(
+    private readonly {{camelCase name}}Repo: {{pascalCase name}}Repository,
+  ) {}
 
-  async execute(dto: CreateProductDto): Promise<ProductEntity> {
-    return await this.productRepo.create(dto);
+  async execute(
+    // 必要に応じてユーザーIDなど追加
+    userId: string,
+    dto: Create{{pascalCase name}}Dto,
+  ): Promise<{{pascalCase name}}Entity> {
+    // 必要に応じて事前バリデーションや加工
+    return await this.{{camelCase name}}Repo.create(userId, dto);
   }
 }

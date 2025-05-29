@@ -20,6 +20,78 @@ model User {
   name           String?
   hashedPassword String
   posts          Post[]
+
+  /// このユーザがフォローしている他のユーザとの関係
+  /// await prisma.user.findUnique({
+  ///   where: { id: userId },
+  ///   include: {
+  ///     following: {
+  ///       include: { followee: true } //フォロワー側のユーザ情報を取得
+  ///     }
+  ///   }
+  ///})
+  following Follow[] @relation("UserFollowing")
+
+  /// このユーザをフォローしている他のユーザとの関係
+  /// await prisma.user.findUnique({
+  ///   where: { id: userId },
+  ///   include: {
+  ///     followers: {
+  ///       include: { follower: true } //フォロー先のユーザ情報を取得
+  ///     }
+  ///   }
+  ///})
+  followers Follow[] @relation("UserFollowers")
+
+  groups       Group[]
+  groupMembers GroupMember[]
+}
+
+model Follow {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// フォローする側のユーザID（自分）
+  follower_id String @db.Uuid
+  follower    User   @relation("UserFollowing", fields: [follower_id], references: [id])
+
+  /// フォローされる側のユーザID（相手）
+  followee_id String @db.Uuid
+  followee    User   @relation("UserFollowers", fields: [followee_id], references: [id])
+
+  /// フォローした日時
+  followed_at DateTime @default(now())
+
+  @@unique([follower_id, followee_id])
+}
+
+model Group {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  created_at DateTime @default(now())
+
+  /// グループを作成したユーザのID(=グループの所有者)
+  user_id String @db.Uuid
+  user    User   @relation(fields: [user_id], references: [id])
+
+  /// このグループに所属しているユーザたち（GroupMember 経由）
+  members GroupMember[]
+}
+
+model GroupMember {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// メンバーがこのグループに追加された日時
+  added_at DateTime @default(now())
+
+  /// 所属しているグループのID
+  group_id String @db.Uuid
+  group    Group  @relation(fields: [group_id], references: [id])
+
+  /// 所属しているユーザのID（＝メンバーID）
+  member_id String @db.Uuid
+  member    User   @relation(fields: [member_id], references: [id])
+
+  @@unique([group_id, member_id])
 }
 
 model Post {

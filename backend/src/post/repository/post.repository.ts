@@ -3,8 +3,6 @@ import { UpdatePostDto } from '../dto/update_post.dto';
 import { PostEntity } from '../entity/post.entity';
 
 export abstract class PostRepository {
-  // abstract findByEmail(email: string): Promise<PostEntity | null>;
-
   abstract create(userId: string, dto: CreatePostDto): Promise<PostEntity>;
 
   abstract findAllWithCount(pagination: {
