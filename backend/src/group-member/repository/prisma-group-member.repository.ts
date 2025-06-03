@@ -9,6 +9,7 @@ import {
 } from '../mapper/group-member.mapper';
 import { GroupMemberWithGroupOwnerEntity } from '../entity/group-member-with-group-owner.entity';
 import { ErrorMessage } from 'src/common/errors/error.messages';
+import { GroupMembershipCollection } from '../entity/group-membership.collection';
 
 @Injectable()
 export class PrismaGroupMemberRepository implements GroupMemberRepository {
@@ -44,6 +45,16 @@ export class PrismaGroupMemberRepository implements GroupMemberRepository {
   async findById(id: string): Promise<GroupMemberEntity | null> {
     const item = await this.prisma.groupMember.findUnique({ where: { id } });
     return item ? toGroupMemberEntity(item) : null;
+  }
+
+  async findGroupIdsByMemberId(
+    userId: string,
+  ): Promise<GroupMembershipCollection | null> {
+    const items = await this.prisma.groupMember.findMany({
+      where: { member_id: userId },
+      select: { group_id: true, member_id: true },
+    });
+    return items ? GroupMembershipCollection.fromPrimitives(items) : null;
   }
 
   /**

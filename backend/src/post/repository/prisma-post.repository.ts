@@ -15,8 +15,6 @@ export class PrismaPostRepository implements PostRepository {
       ...dto,
       userId,
       privacyJson: dto.privacyJson ?? undefined,
-      visibleUntil: dto.visibleUntil ? new Date(dto.visibleUntil) : null,
-      visibleAfter: dto.visibleAfter ? new Date(dto.visibleAfter) : null,
     };
     const item = await this.prisma.post.create({ data });
     return toPostEntity(item);

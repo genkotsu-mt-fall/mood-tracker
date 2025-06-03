@@ -16,7 +16,7 @@ export class PostOwnerGuard implements CanActivate {
     const userId = request.user.id;
     const postId = request.params.id;
 
-    const post = await this.findPostByIdUseCase.execute(postId);
+    const post = await this.findPostByIdUseCase.execute(userId, postId);
     if (post.userId !== userId) {
       throw new ForbiddenException('You are not allowed to modify this post');
     }

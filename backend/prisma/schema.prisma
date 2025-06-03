@@ -117,21 +117,6 @@ model Post {
   /// 公開設定情報（フォロワー限定・ブロックリストなど）をJSON形式で保持
   privacyJson Json?
 
-  /// フォロワー限定かどうかのフラグ
-  followersOnly Boolean
-
-  /// 相互フォロワー限定かどうかのフラグ
-  followBackOnly Boolean
-
-  /// 投稿閲覧に必要な最小フォロー日数
-  minFollowDays Int?
-
-  /// 投稿が表示される終了日時（指定があれば時限公開）
-  visibleUntil DateTime?
-
-  /// 投稿が表示される開始日時（予約投稿機能）
-  visibleAfter DateTime?
-
   /// 緊急フラグ（自傷等の兆候があるなど注意を要する場合にtrue）
   crisisFlag Boolean
 

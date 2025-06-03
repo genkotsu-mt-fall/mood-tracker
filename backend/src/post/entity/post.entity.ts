@@ -37,31 +37,6 @@ export class PostEntity {
     public readonly privacyJson: PrivacySetting | null,
 
     /**
-     * フォロワー限定公開かどうかのフラグ
-     */
-    public readonly followersOnly: boolean,
-
-    /**
-     * 相互フォローの相手のみに公開かどうか
-     */
-    public readonly followBackOnly: boolean,
-
-    /**
-     * 投稿を閲覧するために必要な最小フォロー日数（null なら制限なし）
-     */
-    public readonly minFollowDays: number | null,
-
-    /**
-     * 投稿の表示期限（null の場合は無期限）
-     */
-    public readonly visibleUntil: Date | null,
-
-    /**
-     * 投稿の公開開始日時（null の場合は即時公開）
-     */
-    public readonly visibleAfter: Date | null,
-
-    /**
      * 緊急性のある投稿（自傷の可能性など）かどうか
      */
     public readonly crisisFlag: boolean,

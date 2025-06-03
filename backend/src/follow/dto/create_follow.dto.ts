@@ -11,5 +11,5 @@ export class CreateFollowDto {
    */
   @IsNotEmpty()
   @IsUUID()
-  followeeId: string;
+  followeeId!: string;
 }

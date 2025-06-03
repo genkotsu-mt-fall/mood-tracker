@@ -1,6 +1,7 @@
 import { CreateGroupMemberDto } from '../dto/create_group-member.dto';
 import { GroupMemberWithGroupOwnerEntity } from '../entity/group-member-with-group-owner.entity';
 import { GroupMemberEntity } from '../entity/group-member.entity';
+import { GroupMembershipCollection } from '../entity/group-membership.collection';
 
 export abstract class GroupMemberRepository {
   abstract create(
@@ -14,6 +15,10 @@ export abstract class GroupMemberRepository {
   }): Promise<{ data: GroupMemberEntity[]; total: number }>;
 
   abstract findById(id: string): Promise<GroupMemberEntity | null>;
+
+  abstract findGroupIdsByMemberId(
+    userId: string,
+  ): Promise<GroupMembershipCollection | null>;
 
   abstract loadWithGroupOwnerById(
     id: string,

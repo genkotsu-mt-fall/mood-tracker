@@ -1,6 +1,6 @@
 export type PrivacySetting = {
   /** 公開範囲: カスタム、全体公開、フォロワー限定など */
-  visibility?: 'custom' | 'public' | 'followers';
+  // visibility?: 'custom' | 'public';
 
   /** 特定のユーザーのみ表示許可（ユーザーID配列） */
   allow_users?: string[];

@@ -1,7 +1,5 @@
 import {
   IsBoolean,
-  IsDateString,
-  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -23,7 +21,7 @@ export class CreatePostDto {
 
   @IsString()
   @IsNotEmpty()
-  body: string;
+  body!: string;
 
   @IsOptional()
   @IsString()
@@ -42,33 +40,8 @@ export class CreatePostDto {
   privacyJson?: PrivacySetting;
 
   /**
-   * true の場合は「フォロワーのみ閲覧可」
-   */
-  @IsBoolean()
-  followersOnly: boolean;
-
-  /**
-   * true の場合は「相互フォローのみ閲覧可」
-   */
-  @IsBoolean()
-  followBackOnly: boolean;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  minFollowDays?: number;
-
-  @IsOptional()
-  @IsDateString()
-  visibleUntil?: string;
-
-  @IsOptional()
-  @IsDateString()
-  visibleAfter?: string;
-
-  /**
    * 緊急性あり（例: 自傷の可能性など）なら true
    */
   @IsBoolean()
-  crisisFlag: boolean;
+  crisisFlag!: boolean;
 }

@@ -47,28 +47,35 @@ export class PostController {
     return new PostResponseDto(result);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   @UsePipes(new ValidationPipe({ transform: true }))
   async findAll(
+    @CurrentUser() user: UserEntity,
     @Query() query: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<PostResponseDto>> {
     const { page, limit } = query;
-    const result = await this.findAllPostUseCase.execute({ page, limit });
+    const result = await this.findAllPostUseCase.execute(user.id, {
+      page,
+      limit,
+    });
 
     return new PaginatedResponseDto<PostResponseDto>({
       data: result.data.map((item) => new PostResponseDto(item)),
-      total: result.total,
+      // total: result.total,
       page: result.page,
       limit: result.limit,
       hasNextPage: result.hasNextPage,
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(
+    @CurrentUser() user: UserEntity,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<PostResponseDto> {
-    const result = await this.findPostByIdUseCase.execute(id);
+    const result = await this.findPostByIdUseCase.execute(user.id, id);
     return new PostResponseDto(result);
   }
 

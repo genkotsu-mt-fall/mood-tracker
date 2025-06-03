@@ -4,7 +4,7 @@ import { BadRequestException } from '@nestjs/common';
 
 export const PrivacySettingSchema = z
   .object({
-    visibility: z.enum(['custom', 'public', 'followers']),
+    // visibility: z.enum(['custom', 'public']),
     allow_users: z.array(z.string()),
     deny_users: z.array(z.string()),
     allow_groups: z.array(z.string()),
