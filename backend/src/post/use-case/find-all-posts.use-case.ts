@@ -25,7 +25,12 @@ export class FindAllPostsUseCase {
     const visiblePosts: PostEntity[] = [];
     let offset = 0;
 
+    let loopCount = 0;
+    const MAX_LOOP = 100;
+
     while (visiblePosts.length < limit) {
+      if (++loopCount > MAX_LOOP) break;
+
       const nextBatchSize = this.estimateNextBatchSize(
         limit - visiblePosts.length,
       );

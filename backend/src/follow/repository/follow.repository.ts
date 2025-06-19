@@ -5,10 +5,10 @@ import { FollowEntity } from '../entity/follow.entity';
 export abstract class FollowRepository {
   abstract create(userId: string, dto: CreateFollowDto): Promise<FollowEntity>;
 
-  abstract findAllWithCount(pagination: {
-    skip: number;
-    take: number;
-  }): Promise<{ data: FollowEntity[]; total: number }>;
+  // abstract findAllWithCount(pagination: {
+  //   skip: number;
+  //   take: number;
+  // }): Promise<{ data: FollowEntity[]; total: number }>;
 
   abstract findById(id: string): Promise<FollowEntity | null>;
 

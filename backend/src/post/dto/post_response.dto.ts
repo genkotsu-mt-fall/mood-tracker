@@ -18,13 +18,13 @@ export class PostResponseDto {
 
   id: string;
   userId: string;
-  mood: string | null;
-  intensity: number | null;
   body: string;
-  emoji: string | null;
-  templateId: string | null;
-  privacyJson: PrivacySetting | null;
-  crisisFlag: boolean;
   createdAt: Date;
   updatedAt: Date;
+  crisisFlag: boolean;
+  mood?: string;
+  intensity?: number;
+  emoji?: string;
+  templateId?: string;
+  privacyJson?: PrivacySetting;
 }

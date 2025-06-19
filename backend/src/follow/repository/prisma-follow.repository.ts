@@ -18,20 +18,20 @@ export class PrismaFollowRepository implements FollowRepository {
     return toFollowEntity(item);
   }
 
-  async findAllWithCount(pagination: {
-    skip: number;
-    take: number;
-  }): Promise<{ data: FollowEntity[]; total: number }> {
-    const { skip, take } = pagination;
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.follow.findMany({ skip, take }),
-      this.prisma.follow.count(),
-    ]);
-    return {
-      data: items.map(toFollowEntity),
-      total,
-    };
-  }
+  // async findAllWithCount(pagination: {
+  //   skip: number;
+  //   take: number;
+  // }): Promise<{ data: FollowEntity[]; total: number }> {
+  //   const { skip, take } = pagination;
+  //   const [items, total] = await this.prisma.$transaction([
+  //     this.prisma.follow.findMany({ skip, take }),
+  //     this.prisma.follow.count(),
+  //   ]);
+  //   return {
+  //     data: items.map(toFollowEntity),
+  //     total,
+  //   };
+  // }
 
   async findById(id: string): Promise<FollowEntity | null> {
     const item = await this.prisma.follow.findUnique({ where: { id } });

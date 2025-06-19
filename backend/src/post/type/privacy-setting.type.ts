@@ -47,8 +47,8 @@ export type PrivacySetting = {
    * コメントアクティビティに基づく制限（例: 最近よくコメントしている人だけに見せる）
    */
   comment_activity_filter?: {
-    within_days: number;
-    min_comments: number;
+    within_days?: number;
+    min_comments?: number;
   };
 
   /** アクセスを許可するデバイスの種類 */

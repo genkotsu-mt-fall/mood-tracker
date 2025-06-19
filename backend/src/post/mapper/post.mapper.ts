@@ -3,17 +3,17 @@ import { PostEntity } from '../entity/post.entity';
 import { PrivacySetting } from '../type/privacy-setting.type';
 
 export function toPostEntity(data: PrismaPost): PostEntity {
-  return new PostEntity(
-    data.id,
-    data.userId,
-    data.mood,
-    data.intensity,
-    data.body,
-    data.emoji,
-    data.templateId,
-    data.privacyJson as PrivacySetting | null,
-    data.crisisFlag,
-    data.createdAt,
-    data.updatedAt,
-  );
+  return new PostEntity({
+    id: data.id,
+    userId: data.userId,
+    body: data.body,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+    crisisFlag: data.crisisFlag ?? false,
+    mood: data.mood ?? undefined,
+    intensity: data.intensity ?? undefined,
+    emoji: data.emoji ?? undefined,
+    templateId: data.templateId ?? undefined,
+    privacyJson: (data.privacyJson as PrivacySetting) ?? undefined,
+  });
 }

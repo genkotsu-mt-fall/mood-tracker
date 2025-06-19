@@ -5,6 +5,8 @@ export class AllowUserRule implements ViewRule {
   type = 'allow' as const;
 
   evaluate(ctx: VisibilityContext): boolean {
-    return ctx.setting.allow_users?.includes(ctx.viewerId) ?? false;
+    const { allow_users } = ctx.setting;
+    if (!allow_users) return true;
+    return allow_users.includes(ctx.viewerId);
   }
 }

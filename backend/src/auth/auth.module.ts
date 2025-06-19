@@ -6,14 +6,18 @@ import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { LocalStrategy } from './strategy/local.strategy';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
-import { PrismaService } from 'src/prisma/prisma.service';
+// import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaUserRepository } from 'src/user/repository/prisma-user.repository';
 import { CreateUserUseCase } from 'src/user/use-case/create-user.use-case';
 import { UserRepository } from 'src/user/repository/user.repository';
 import { SecureUserRepository } from 'src/user/repository/secure/secure-user.repository';
+import { UserModule } from 'src/user/user.module';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
   imports: [
+    PrismaModule,
+    UserModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService): JwtModuleOptions => ({
@@ -27,10 +31,10 @@ import { SecureUserRepository } from 'src/user/repository/secure/secure-user.rep
   controllers: [AuthController],
   providers: [
     AuthService,
+    JwtAuthGuard,
     JwtStrategy,
     LocalStrategy,
-    JwtAuthGuard,
-    PrismaService,
+    // PrismaService,
     PrismaUserRepository,
     CreateUserUseCase,
     {

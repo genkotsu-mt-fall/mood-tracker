@@ -8,7 +8,7 @@ export async function evaluateVisibility(
   for (const rule of rules) {
     const result = await rule.evaluate(ctx);
     if (rule.type === 'deny' && result === true) return false;
-    if (rule.type === 'allow' && result === true) return true;
+    if (rule.type === 'allow' && result === false) return false;
   }
-  return false;
+  return true;
 }

@@ -13,6 +13,33 @@ export interface TestAuthedResponse extends request.Response {
   };
 }
 
+export interface TestAuthedMeResponse extends request.Response {
+  body: {
+    id: string;
+    email: string;
+    name?: string;
+  };
+}
+
+export const createAndLoginUser = async (
+  prefix: string,
+  app: INestApplication,
+) => {
+  const user = createUniqueUser(prefix);
+  const token = await signupAndLogin(app, user);
+  return { user, token };
+};
+
+export const getUser = async (
+  app: INestApplication,
+  token: string,
+): Promise<TestAuthedMeResponse> => {
+  return await request(app.getHttpServer())
+    .get('/auth/me')
+    .set(setToken(token))
+    .expect(200);
+};
+
 export const createUniqueUser = (prefix: string): User => ({
   email: `${prefix}-${Date.now()}@example.com`,
   password: `password123`,

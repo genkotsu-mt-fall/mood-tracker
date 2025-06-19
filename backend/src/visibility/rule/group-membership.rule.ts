@@ -9,6 +9,7 @@ import { GroupMembershipCollection } from 'src/group-member/entity/group-members
  * - I/O を伴うため必要な場合にのみインスタンス化される（shouldEvaluate）。
  */
 export class GroupMembershipRule implements ViewRule {
+  // ToDo: deny_groups も有ったほうが便利
   constructor(private readonly useCase: FindGroupIdsByMemberIdUseCase) {}
   type = 'allow' as const;
 
@@ -21,18 +22,30 @@ export class GroupMembershipRule implements ViewRule {
 
   static shouldEvaluate(ctx: VisibilityContext): boolean {
     const { allow_groups, group_visibility_mode } = ctx.setting;
-    return !!(allow_groups?.length && group_visibility_mode);
+    return !!(
+      allow_groups?.length &&
+      (group_visibility_mode === 'all' || group_visibility_mode === 'any')
+    );
   }
 
   private evaluateGroupVisibility(
     memberships: GroupMembershipCollection,
     ctx: VisibilityContext,
   ): boolean {
+    // ToDo: allow_groups と group_visibility_mode が相関関係なら、
+    //       フロントエンドが迷わないように
+    //       zodスキーマの superRefine() を追加したほうがいい。
     const groupVisibilityMode = ctx.setting.group_visibility_mode!;
     const allowGroups = ctx.setting.allow_groups!;
 
-    return groupVisibilityMode === 'all'
-      ? memberships.belongsAll(allowGroups)
-      : memberships.belongsAny(allowGroups);
+    if (groupVisibilityMode === 'all') {
+      return memberships.belongsAll(allowGroups);
+    }
+
+    if (groupVisibilityMode === 'any') {
+      return memberships.belongsAny(allowGroups);
+    }
+
+    return false;
   }
 }
