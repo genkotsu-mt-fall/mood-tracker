@@ -5,9 +5,9 @@ import {
   Delete,
   Param,
   Body,
-  Query,
-  UsePipes,
-  ValidationPipe,
+  // Query,
+  // UsePipes,
+  // ValidationPipe,
   ParseUUIDPipe,
   UseGuards,
   Request,
@@ -19,8 +19,8 @@ import { FindAllGroupMembersUseCase } from '../use-case/find-all-group-members.u
 import { FindGroupMemberByIdUseCase } from '../use-case/find-group-member-by-id.use-case';
 import { DeleteGroupMemberUseCase } from '../use-case/delete-group-member.use-case';
 import { GroupMemberResponseDto } from '../dto/group-member_response.dto';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
-import { PaginatedResponseDto } from 'src/common/response/paginated-response.dto';
+// import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+// import { PaginatedResponseDto } from 'src/common/response/paginated-response.dto';
 import { GroupMemberOwnerGuard } from '../guard/group-member-owner.guard';
 
 @Controller('group-member')
@@ -45,26 +45,28 @@ export class GroupMemberController {
     return new GroupMemberResponseDto(result);
   }
 
-  @Get()
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async findAll(
-    @Query() query: PaginationQueryDto,
-  ): Promise<PaginatedResponseDto<GroupMemberResponseDto>> {
-    const { page, limit } = query;
-    const result = await this.findAllGroupMemberUseCase.execute({
-      page,
-      limit,
-    });
+  // @UseGuards(JwtAuthGuard)
+  // @Get()
+  // @UsePipes(new ValidationPipe({ transform: true }))
+  // async findAll(
+  //   @Query() query: PaginationQueryDto,
+  // ): Promise<PaginatedResponseDto<GroupMemberResponseDto>> {
+  //   const { page, limit } = query;
+  //   const result = await this.findAllGroupMemberUseCase.execute({
+  //     page,
+  //     limit,
+  //   });
 
-    return new PaginatedResponseDto<GroupMemberResponseDto>({
-      data: result.data.map((item) => new GroupMemberResponseDto(item)),
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      hasNextPage: result.hasNextPage,
-    });
-  }
+  //   return new PaginatedResponseDto<GroupMemberResponseDto>({
+  //     data: result.data.map((item) => new GroupMemberResponseDto(item)),
+  //     total: result.total,
+  //     page: result.page,
+  //     limit: result.limit,
+  //     hasNextPage: result.hasNextPage,
+  //   });
+  // }
 
+  @UseGuards(JwtAuthGuard, GroupMemberOwnerGuard)
   @Get(':id')
   async findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,

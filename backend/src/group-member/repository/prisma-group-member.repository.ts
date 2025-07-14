@@ -2,7 +2,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { GroupMemberRepository } from './group-member.repository';
 import { GroupMemberEntity } from '../entity/group-member.entity';
 import { CreateGroupMemberDto } from '../dto/create_group-member.dto';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   toGroupMemberEntity,
   toGroupMemberWithGroupOwner,
@@ -10,6 +14,7 @@ import {
 import { GroupMemberWithGroupOwnerEntity } from '../entity/group-member-with-group-owner.entity';
 import { ErrorMessage } from 'src/common/errors/error.messages';
 import { GroupMembershipCollection } from '../entity/group-membership.collection';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PrismaGroupMemberRepository implements GroupMemberRepository {
@@ -23,8 +28,20 @@ export class PrismaGroupMemberRepository implements GroupMemberRepository {
       group_id: dto.groupId,
       member_id: dto.memberId,
     };
-    const item = await this.prisma.groupMember.create({ data });
-    return toGroupMemberEntity(item);
+    try {
+      const item = await this.prisma.groupMember.create({ data });
+      return toGroupMemberEntity(item);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new BadRequestException(
+          'このユーザーはすでにグループに参加しています',
+        );
+      }
+      throw error;
+    }
   }
 
   async findAllWithCount(pagination: {

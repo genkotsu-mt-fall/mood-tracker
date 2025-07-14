@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  UseGuards,
   // Post,
   // Put,
   // Query,
@@ -18,6 +19,7 @@ import { UserResponseDto } from '../dto/user-response.dto';
 // import { UserEntity } from '../entity/user.entity';
 // import { FindAllUserUseCase } from '../use-case/find-all-users.use-case';
 import { FindUserByIdUseCase } from '../use-case/find-user-by-id.use-case';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 // import { UpdateUserUseCase } from '../use-case/update-user.use-case';
 // import { DeleteUserUseCase } from '../use-case/delete-user.use-case';
 // import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
@@ -54,6 +56,7 @@ export class UserController {
   //   });
   // }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     const user = await this.findUserByIdUseCase.execute(id);

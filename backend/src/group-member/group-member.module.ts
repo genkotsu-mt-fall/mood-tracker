@@ -11,9 +11,11 @@ import { AuthModule } from 'src/auth/auth.module';
 import { GroupMemberOwnerGuard } from './guard/group-member-owner.guard';
 import { FindGroupIdsByMemberIdUseCase } from './use-case/find-group-ids-by-member-id.usecase';
 import { LoadGroupMemberWithGroupOwnerUseCase } from './use-case/load-group-member-with-group-owner.use-case';
+import { UserModule } from 'src/user/user.module';
+import { GroupModule } from 'src/group/group.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule],
+  imports: [PrismaModule, AuthModule, UserModule, GroupModule],
   providers: [
     GroupMemberOwnerGuard,
     CreateGroupMemberUseCase,

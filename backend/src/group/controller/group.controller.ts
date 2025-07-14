@@ -46,6 +46,7 @@ export class GroupController {
     return new GroupResponseDto(result);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   @UsePipes(new ValidationPipe({ transform: true }))
   async findAll(
@@ -63,6 +64,7 @@ export class GroupController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,

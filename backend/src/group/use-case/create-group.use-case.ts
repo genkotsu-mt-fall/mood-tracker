@@ -7,12 +7,7 @@ import { GroupRepository } from '../repository/group.repository';
 export class CreateGroupUseCase {
   constructor(private readonly groupRepo: GroupRepository) {}
 
-  async execute(
-    // 必要に応じてユーザーIDなど追加
-    userId: string,
-    dto: CreateGroupDto,
-  ): Promise<GroupEntity> {
-    // 必要に応じて事前バリデーションや加工
+  async execute(userId: string, dto: CreateGroupDto): Promise<GroupEntity> {
     return await this.groupRepo.create(userId, dto);
   }
 }
