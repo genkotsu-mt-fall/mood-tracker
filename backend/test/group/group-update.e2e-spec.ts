@@ -1,101 +1,75 @@
-import * as request from 'supertest';
-import { INestApplication } from '@nestjs/common';
-import { createGroup } from '../../test/utils/group-helper';
-import { setupE2EApp } from '../../test/utils/setup-e2e-app';
-import { createAndLoginUser, setToken } from '../../test/utils/auth-helper';
+import { AppBootstrapper } from '../../test/bootstrap/app-bootstrapper';
+import { GroupUseCase } from '../../test/usecases/group.usecase';
+import { GroupClient } from '../../test/clients/group.client';
+import { UserFactory } from '../../test/factories/user.factory';
 
 describe('GroupController (PUT /group/:id)', () => {
-  let app: INestApplication;
   const prefix = 'group_update';
-  const groupName = 'test group';
+  const updatedGroupName = 'updated test group';
 
   beforeAll(async () => {
-    app = await setupE2EApp();
+    await AppBootstrapper.init();
   });
 
   afterAll(async () => {
-    await app.close();
+    await AppBootstrapper.shutdown();
   });
 
   it('should update the group name if user is owner', async () => {
-    const { groupOwnerToken, groupRes } = await createGroup(
-      prefix,
-      app,
-      groupName,
+    const { group, groupOwner } = await GroupUseCase.createGroup(prefix);
+    const res = await GroupClient.update(
+      groupOwner.accessToken,
+      group.id,
+      updatedGroupName,
     );
-
-    const groupId = groupRes.id;
-
-    const res = await request(app.getHttpServer())
-      .put(`/group/${groupId}`)
-      .set(setToken(groupOwnerToken))
-      .send({ name: 'updated test group' })
-      .expect(200);
+    expect(res.status).toBe(200);
 
     const body = res.body as { id: string; name: string };
-    expect(body).toHaveProperty('id', groupId);
+    expect(body).toHaveProperty('id', group.id);
     expect(body.name).toBe('updated test group');
   });
 
   it('should return 401 if no token is provided', async () => {
-    const { groupRes } = await createGroup(prefix, app, groupName);
-
-    const groupId = groupRes.id;
-
-    await request(app.getHttpServer())
-      .put(`/group/${groupId}`)
-      .send({ name: 'updated test group' })
-      .expect(401);
+    const { group } = await GroupUseCase.createGroup(prefix);
+    const res = await GroupClient.update('', group.id, updatedGroupName);
+    expect(res.status).toBe(401);
   });
 
   it('should return 403 if user is not the owner', async () => {
-    const { groupRes } = await createGroup(prefix, app, groupName);
-    const { token: anotherUserToken } = await createAndLoginUser(prefix, app);
-
-    const groupId = groupRes.id;
-
-    await request(app.getHttpServer())
-      .put(`/group/${groupId}`)
-      .set(setToken(anotherUserToken))
-      .send({ name: 'updated test group by not owner' })
-      .expect(403);
+    const nonOwner = await UserFactory.create(prefix);
+    const { group } = await GroupUseCase.createGroup(prefix);
+    const res = await GroupClient.update(
+      nonOwner.accessToken,
+      group.id,
+      updatedGroupName,
+    );
+    expect(res.status).toBe(403);
   });
 
   it('should return 400 if id is not UUID', async () => {
-    const invalidGroupId = 'invalid-uuid';
-    const { token } = await createAndLoginUser(prefix, app);
-
-    await request(app.getHttpServer())
-      .put(`/group/${invalidGroupId}`)
-      .set(setToken(token))
-      .send({ name: 'updated test group' })
-      .expect(400);
+    const user = await UserFactory.create(prefix);
+    const res = await GroupClient.update(
+      user.accessToken,
+      'invalid-uuid',
+      updatedGroupName,
+    );
+    expect(res.status).toBe(400);
   });
 
   it('should return 404 if group does not exist', async () => {
     const nonExistentGroupId = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
-    const { token } = await createAndLoginUser(prefix, app);
-
-    await request(app.getHttpServer())
-      .put(`/group/${nonExistentGroupId}`)
-      .set(setToken(token))
-      .send({ name: 'updated test group' })
-      .expect(404);
+    const user = await UserFactory.create(prefix);
+    const res = await GroupClient.update(
+      user.accessToken,
+      nonExistentGroupId,
+      updatedGroupName,
+    );
+    expect(res.status).toBe(404);
   });
 
   it('should not update a group without name', async () => {
-    const { groupOwnerToken, groupRes } = await createGroup(
-      prefix,
-      app,
-      groupName,
-    );
-
-    const groupId = groupRes.id;
-
-    await request(app.getHttpServer())
-      .put(`/group/${groupId}`)
-      .set(setToken(groupOwnerToken))
-      .send({ name: '' })
-      .expect(400);
+    const { group, groupOwner } = await GroupUseCase.createGroup(prefix);
+    const res = await GroupClient.update(groupOwner.accessToken, group.id, '');
+    expect(res.status).toBe(400);
   });
 });

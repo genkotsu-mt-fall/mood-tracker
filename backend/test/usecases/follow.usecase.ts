@@ -1,5 +1,5 @@
-import { FollowClient } from 'test/clients/follow.client';
-import { UserFactory } from 'test/factories/user.factory';
+import { FollowClient } from '../../test/clients/follow.client';
+import { UserFactory } from '../../test/factories/user.factory';
 
 export class FollowUseCase {
   static async createFollowRelation(prefix: string) {

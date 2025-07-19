@@ -1,79 +1,60 @@
-import * as request from 'supertest';
-import { INestApplication } from '@nestjs/common';
-import { createGroup } from '../../test/utils/group-helper';
-import { setupE2EApp } from '../../test/utils/setup-e2e-app';
-import { createAndLoginUser, setToken } from '../../test/utils/auth-helper';
+import { AppBootstrapper } from '../../test/bootstrap/app-bootstrapper';
+import { GroupUseCase } from '../../test/usecases/group.usecase';
+import { GroupClient } from '../../test/clients/group.client';
+import { UserFactory } from '../../test/factories/user.factory';
 
 describe('GroupController (DELETE /group/:id)', () => {
-  let app: INestApplication;
   const prefix = 'group_delete';
-  const groupName = 'test group';
 
   beforeAll(async () => {
-    app = await setupE2EApp();
+    await AppBootstrapper.init();
   });
 
   afterAll(async () => {
-    await app.close();
+    await AppBootstrapper.shutdown();
   });
 
   it('should delete the group if user is owner', async () => {
-    const { groupOwnerToken, groupRes } = await createGroup(
-      prefix,
-      app,
-      groupName,
+    const { group, groupOwner } = await GroupUseCase.createGroup(prefix);
+    const deleteResponse = await GroupClient.delete(
+      groupOwner.accessToken,
+      group.id,
     );
+    expect(deleteResponse.status).toBe(200);
 
-    const groupId = groupRes.id;
-
-    await request(app.getHttpServer())
-      .delete(`/group/${groupId}`)
-      .set(setToken(groupOwnerToken))
-      .expect(200);
-
-    await request(app.getHttpServer())
-      .get(`/group/${groupId}`)
-      .set(setToken(groupOwnerToken))
-      .expect(404);
+    const nonExistentGroup = await GroupClient.get(
+      groupOwner.accessToken,
+      group.id,
+    );
+    expect(nonExistentGroup.status).toBe(404);
   });
 
   it('should return 401 if no token is provided', async () => {
-    const { groupRes } = await createGroup(prefix, app, groupName);
-
-    const groupId = groupRes.id;
-
-    await request(app.getHttpServer()).delete(`/group/${groupId}`).expect(401);
+    const { group } = await GroupUseCase.createGroup(prefix);
+    const res = await GroupClient.delete('', group.id);
+    expect(res.status).toBe(401);
   });
 
   it('should return 403 if user is not the owner', async () => {
-    const { groupRes } = await createGroup(prefix, app, groupName);
-    const { token: anotherUserToken } = await createAndLoginUser(prefix, app);
-
-    const groupId = groupRes.id;
-
-    await request(app.getHttpServer())
-      .delete(`/group/${groupId}`)
-      .set(setToken(anotherUserToken))
-      .expect(403);
+    const nonOwner = await UserFactory.create(prefix);
+    const { group } = await GroupUseCase.createGroup(prefix);
+    const res = await GroupClient.delete(nonOwner.accessToken, group.id);
+    expect(res.status).toBe(403);
   });
 
   it('should return 400 if id is not UUID', async () => {
-    const invalidGroupId = 'invalid-uuid';
-    const { token } = await createAndLoginUser(prefix, app);
-
-    await request(app.getHttpServer())
-      .delete(`/group/${invalidGroupId}`)
-      .set(setToken(token))
-      .expect(400);
+    const { groupOwner } = await GroupUseCase.createGroup(prefix);
+    const res = await GroupClient.delete(
+      groupOwner.accessToken,
+      'invalid-uuid',
+    );
+    expect(res.status).toBe(400);
   });
 
   it('should return 404 if group does not exist', async () => {
     const nonExistentGroupId = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
-    const { token } = await createAndLoginUser(prefix, app);
-
-    await request(app.getHttpServer())
-      .delete(`/group/${nonExistentGroupId}`)
-      .set(setToken(token))
-      .expect(404);
+    const user = await UserFactory.create(prefix);
+    const res = await GroupClient.delete(user.accessToken, nonExistentGroupId);
+    expect(res.status).toBe(404);
   });
 });

@@ -2,23 +2,23 @@ import * as request from 'supertest';
 import { AppBootstrapper } from '../../test/bootstrap/app-bootstrapper';
 import { setToken } from '../../test/utils/auth-helper';
 
-export class FollowClient {
-  static async follow(token: string, followeeId: string) {
+export class GroupMemberClient {
+  static async join(token: string, groupId: string, memberId: string) {
     return await request(AppBootstrapper.getApp().getHttpServer())
-      .post('/follow')
+      .post('/group-member')
       .set(setToken(token))
-      .send({ followeeId });
+      .send({ groupId, memberId });
   }
 
-  static async unfollow(token: string, followId: string) {
+  static async get(token: string, groupMemberId: string) {
     return await request(AppBootstrapper.getApp().getHttpServer())
-      .delete(`/follow/${followId}`)
+      .get(`/group-member/${groupMemberId}`)
       .set(setToken(token));
   }
 
-  static async getFollow(token: string, followId: string) {
+  static async remove(token: string, groupMemberId: string) {
     return await request(AppBootstrapper.getApp().getHttpServer())
-      .get(`/follow/${followId}`)
+      .delete(`/group-member/${groupMemberId}`)
       .set(setToken(token));
   }
 }

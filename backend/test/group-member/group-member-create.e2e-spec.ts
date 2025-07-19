@@ -1,154 +1,100 @@
-import * as request from 'supertest';
-import { INestApplication } from '@nestjs/common';
-import { setupE2EApp } from '../../test/utils/setup-e2e-app';
-import { createGroupAndAddMember } from '../../test/utils/group-member-helper';
-import {
-  createAndLoginUser,
-  getUser,
-  setToken,
-} from '../../test/utils/auth-helper';
-import { createGroup } from '../../test/utils/group-helper';
+import { AppBootstrapper } from '../../test/bootstrap/app-bootstrapper';
+import { GroupMemberUseCase } from '../../test/usecases/group-member.usecase';
+import { GroupUseCase } from '../../test/usecases/group.usecase';
+import { GroupMemberClient } from '../../test/clients/group-member.client';
+import { UserFactory } from '../../test/factories/user.factory';
 
 describe('GroupMemberController (POST /group-member)', () => {
-  let app: INestApplication;
   const prefix = 'groupMember_create';
-  const groupName = 'test group';
 
   beforeAll(async () => {
-    app = await setupE2EApp();
+    await AppBootstrapper.init();
   });
 
   afterAll(async () => {
-    await app.close();
+    await AppBootstrapper.shutdown();
   });
 
   it('should create a groupMember to another user', async () => {
-    const { token } = await createAndLoginUser(prefix, app);
-    const memberRequest = await getUser(app, token);
-    const memberId = memberRequest.body.id;
-
-    const { groupRes, groupMemberRes } = await createGroupAndAddMember(
-      prefix,
-      app,
-      groupName,
-      memberId,
-    );
-
-    expect(groupMemberRes).toHaveProperty('id');
-    expect(groupMemberRes.groupId).toBe(groupRes.id);
+    const { groupMember, group, member } =
+      await GroupMemberUseCase.createGroupAndAddMember(prefix);
+    expect(groupMember).toHaveProperty('id');
+    expect(groupMember).toHaveProperty('groupId', group.id);
+    expect(groupMember).toHaveProperty('memberId', member.profile.id);
   });
 
   it('should fail to create groupMember oneself', async () => {
-    const { groupRes, groupOwnerToken } = await createGroup(
-      prefix,
-      app,
-      groupName,
+    const { group, groupOwner } = await GroupUseCase.createGroup(prefix);
+    const res = await GroupMemberClient.join(
+      groupOwner.accessToken,
+      group.id,
+      groupOwner.profile.id,
     );
-    const groupId = groupRes.id;
-    const groupOwnerRequest = await getUser(app, groupOwnerToken);
-    const groupOwnerId = groupOwnerRequest.body.id;
-
-    await request(app.getHttpServer())
-      .post('/group-member')
-      .set(setToken(groupOwnerToken))
-      .send({ groupId, memberId: groupOwnerId })
-      .expect(400);
+    expect(res.status).toBe(400);
   });
 
   it('should not allow adding the same member to the same group more than once', async () => {
-    const { token } = await createAndLoginUser(prefix, app);
-    const memberRequest = await getUser(app, token);
-    const memberId = memberRequest.body.id;
-
-    const { groupRes, groupOwnerToken } = await createGroupAndAddMember(
-      prefix,
-      app,
-      groupName,
-      memberId,
+    const { group, groupOwner, member } =
+      await GroupMemberUseCase.createGroupAndAddMember(prefix);
+    const res = await GroupMemberClient.join(
+      groupOwner.accessToken,
+      group.id,
+      member.profile.id,
     );
 
-    await request(app.getHttpServer())
-      .post('/group-member')
-      .set(setToken(groupOwnerToken))
-      .send({ groupId: groupRes.id, memberId })
-      .expect(400);
+    expect(res.status).toBe(400);
   });
 
   it('should return 404 if memberId does not exist', async () => {
     const nonExistentMemberId = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
-
-    const { groupRes, groupOwnerToken } = await createGroup(
-      prefix,
-      app,
-      groupName,
+    const { group, groupOwner } =
+      await GroupMemberUseCase.createGroupAndAddMember(prefix);
+    const res = await GroupMemberClient.join(
+      groupOwner.accessToken,
+      group.id,
+      nonExistentMemberId,
     );
-    const groupId = groupRes.id;
-
-    await request(app.getHttpServer())
-      .post('/group-member')
-      .set(setToken(groupOwnerToken))
-      .send({ groupId, memberId: nonExistentMemberId })
-      .expect(404);
+    expect(res.status).toBe(404);
   });
 
   it('should return 404 if groupId does not exist', async () => {
     const nonExistentGroupId = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
-
-    const { token } = await createAndLoginUser(prefix, app);
-    const memberRequest = await getUser(app, token);
-    const memberId = memberRequest.body.id;
-
-    const { groupOwnerToken } = await createGroup(prefix, app, groupName);
-
-    await request(app.getHttpServer())
-      .post('/group-member')
-      .set(setToken(groupOwnerToken))
-      .send({ groupId: nonExistentGroupId, memberId })
-      .expect(404);
+    const { groupOwner } = await GroupUseCase.createGroup(prefix);
+    const member = await UserFactory.create(prefix);
+    const res = await GroupMemberClient.join(
+      groupOwner.accessToken,
+      nonExistentGroupId,
+      member.profile.id,
+    );
+    expect(res.status).toBe(404);
   });
 
   it('should return 401 if no auth token is provided', async () => {
-    const { groupRes } = await createGroup(prefix, app, groupName);
-    const groupId = groupRes.id;
-
-    const { token } = await createAndLoginUser(prefix, app);
-    const memberRequest = await getUser(app, token);
-    const memberId = memberRequest.body.id;
-
-    await request(app.getHttpServer())
-      .post('/group-member')
-      .send({ groupId, memberId })
-      .expect(401);
+    const { group } = await GroupUseCase.createGroup(prefix);
+    const member = await UserFactory.create(prefix);
+    const res = await GroupMemberClient.join('', group.id, member.profile.id);
+    expect(res.status).toBe(401);
   });
 
   it('should return 403 if user is not the owner of the group', async () => {
-    const { groupRes } = await createGroup(prefix, app, groupName);
-    const groupId = groupRes.id;
-
-    const { token: attackerToken } = await createAndLoginUser(prefix, app);
-
-    const { token } = await createAndLoginUser(prefix, app);
-    const memberRequest = await getUser(app, token);
-    const memberId = memberRequest.body.id;
-
-    await request(app.getHttpServer())
-      .post('/group-member')
-      .set(setToken(attackerToken))
-      .send({ groupId, memberId })
-      .expect(403);
+    const { group } = await GroupUseCase.createGroup(prefix);
+    const member = await UserFactory.create(prefix);
+    const nonGroupOwner = await UserFactory.create(prefix);
+    const res = await GroupMemberClient.join(
+      nonGroupOwner.accessToken,
+      group.id,
+      member.profile.id,
+    );
+    expect(res.status).toBe(403);
   });
 
   it('should return 400 if groupId is not a valid UUID', async () => {
-    const { token: groupOwnerToken } = await createAndLoginUser(prefix, app);
-
-    const { token } = await createAndLoginUser(prefix, app);
-    const memberRequest = await getUser(app, token);
-    const memberId = memberRequest.body.id;
-
-    await request(app.getHttpServer())
-      .post('/group-member')
-      .set(setToken(groupOwnerToken))
-      .send({ groupId: 'invalid-uuid', memberId })
-      .expect(400);
+    const member = await UserFactory.create(prefix);
+    const res = await GroupMemberClient.join(
+      member.accessToken,
+      'invalid-uuid',
+      member.profile.id,
+    );
+    expect(res.status).toBe(400);
   });
 });
