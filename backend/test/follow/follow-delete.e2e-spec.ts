@@ -1,7 +1,7 @@
-import { AppBootstrapper } from '../../test/bootstrap/app-bootstrapper';
-import { FollowUseCase } from '../../test/usecases/follow.usecase';
-import { FollowClient } from '../../test/clients/follow.client';
-import { UserFactory } from '../../test/factories/user.factory';
+import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
+import { FollowUseCase } from 'test/usecases/follow.usecase';
+import { FollowClient } from 'test/clients/follow.client';
+import { UserFactory } from 'test/factories/user.factory';
 
 describe('FollowController (DELETE /follow)', () => {
   const prefix = 'follower_delete';

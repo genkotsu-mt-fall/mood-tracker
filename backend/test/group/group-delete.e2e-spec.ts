@@ -1,7 +1,7 @@
-import { AppBootstrapper } from '../../test/bootstrap/app-bootstrapper';
-import { GroupUseCase } from '../../test/usecases/group.usecase';
-import { GroupClient } from '../../test/clients/group.client';
-import { UserFactory } from '../../test/factories/user.factory';
+import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
+import { GroupUseCase } from 'test/usecases/group.usecase';
+import { GroupClient } from 'test/clients/group.client';
+import { UserFactory } from 'test/factories/user.factory';
 
 describe('GroupController (DELETE /group/:id)', () => {
   const prefix = 'group_delete';

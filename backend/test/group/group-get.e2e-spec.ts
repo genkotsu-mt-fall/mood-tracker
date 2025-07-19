@@ -1,7 +1,7 @@
 import { GroupResponseDto } from 'src/group/dto/group_response.dto';
-import { AppBootstrapper } from '../../test/bootstrap/app-bootstrapper';
-import { GroupUseCase } from '../../test/usecases/group.usecase';
-import { GroupClient } from '../../test/clients/group.client';
+import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
+import { GroupUseCase } from 'test/usecases/group.usecase';
+import { GroupClient } from 'test/clients/group.client';
 
 describe('GroupController', () => {
   const prefix = 'group_get';

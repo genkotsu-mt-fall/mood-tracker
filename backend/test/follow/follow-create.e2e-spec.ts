@@ -1,7 +1,7 @@
-import { AppBootstrapper } from '../../test/bootstrap/app-bootstrapper';
-import { FollowClient } from '../../test/clients/follow.client';
-import { FollowUseCase } from '../../test/usecases/follow.usecase';
-import { UserFactory } from '../../test/factories/user.factory';
+import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
+import { FollowClient } from 'test/clients/follow.client';
+import { FollowUseCase } from 'test/usecases/follow.usecase';
+import { UserFactory } from 'test/factories/user.factory';
 
 describe('FollowController (POST /follow)', () => {
   const prefix = 'follower_create';

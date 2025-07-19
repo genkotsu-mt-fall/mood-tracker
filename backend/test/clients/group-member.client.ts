@@ -1,6 +1,6 @@
 import * as request from 'supertest';
-import { AppBootstrapper } from '../../test/bootstrap/app-bootstrapper';
-import { setToken } from '../../test/utils/auth-helper';
+import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
+import { setToken } from 'test/utils/auth-helper';
 
 export class GroupMemberClient {
   static async join(token: string, groupId: string, memberId: string) {

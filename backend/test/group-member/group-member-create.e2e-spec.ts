@@ -1,8 +1,8 @@
-import { AppBootstrapper } from '../../test/bootstrap/app-bootstrapper';
-import { GroupMemberUseCase } from '../../test/usecases/group-member.usecase';
-import { GroupUseCase } from '../../test/usecases/group.usecase';
-import { GroupMemberClient } from '../../test/clients/group-member.client';
-import { UserFactory } from '../../test/factories/user.factory';
+import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
+import { GroupMemberUseCase } from 'test/usecases/group-member.usecase';
+import { GroupUseCase } from 'test/usecases/group.usecase';
+import { GroupMemberClient } from 'test/clients/group-member.client';
+import { UserFactory } from 'test/factories/user.factory';
 
 describe('GroupMemberController (POST /group-member)', () => {
   const prefix = 'groupMember_create';

@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { setupE2EApp } from '../../test/utils/setup-e2e-app';
+import { setupE2EApp } from 'test/utils/setup-e2e-app';
 
 export class AppBootstrapper {
   private static app: INestApplication;

@@ -11,6 +11,7 @@ const config: Config = {
   setupFiles: ['<rootDir>/test/setup-env.ts'],
   moduleNameMapper: {
     '^src/(.*)$': '<rootDir>/src/$1',
+    '^test/(.*)$': '<rootDir>/test/$1',
   },
 };
 

@@ -1,6 +1,6 @@
-import { UserFactory } from '../../test/factories/user.factory';
+import { UserFactory } from 'test/factories/user.factory';
 import { GroupUseCase } from './group.usecase';
-import { GroupMemberClient } from '../../test/clients/group-member.client';
+import { GroupMemberClient } from 'test/clients/group-member.client';
 
 export class GroupMemberUseCase {
   static async joinAsMember(

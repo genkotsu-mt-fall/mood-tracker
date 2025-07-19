@@ -1,5 +1,5 @@
-import { GroupClient } from '../../test/clients/group.client';
-import { UserFactory } from '../../test/factories/user.factory';
+import { GroupClient } from 'test/clients/group.client';
+import { UserFactory } from 'test/factories/user.factory';
 
 export class GroupUseCase {
   /**
