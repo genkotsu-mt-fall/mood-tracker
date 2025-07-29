@@ -24,7 +24,7 @@ describe('Validation behavior of PrivacySettingSchema', () => {
   it('should throw default message when no zod issue message is provided', () => {
     expect(() =>
       validatePrivacySetting({ invalid_property: 'unexpected' }),
-    ).toThrow(/Unrecognized key\(s\) in object:/);
+    ).toThrow(/Unrecognized key:/);
   });
 
   //------------------------------------------------------------------------------------

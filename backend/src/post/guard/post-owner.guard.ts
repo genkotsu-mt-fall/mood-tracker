@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { AuthenticatedRequest } from 'src/auth/type/auth-request';
 import { FindPostByIdUseCase } from '../use-case/find-post-by-id.use-case';
+import { ensureValidUUID } from 'src/common/validate/uuid';
 
 @Injectable()
 export class PostOwnerGuard implements CanActivate {
@@ -15,6 +16,8 @@ export class PostOwnerGuard implements CanActivate {
     const request: AuthenticatedRequest = context.switchToHttp().getRequest();
     const userId = request.user.id;
     const postId = request.params.id;
+
+    ensureValidUUID(postId, 'Post ID');
 
     const post = await this.findPostByIdUseCase.execute(userId, postId);
     if (post.userId !== userId) {
