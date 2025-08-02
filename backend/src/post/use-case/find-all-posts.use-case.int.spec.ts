@@ -122,9 +122,9 @@ describe('EvaluateVisibilityForPost Integration test', () => {
     postRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: postData,
-        total: postData.length,
+        // total: postData.length,
       })
-      .mockResolvedValue({ data: [], total: 0 });
+      .mockResolvedValue({ data: [] /*total: 0*/ });
 
     groupMemberRepo.findGroupIdsByMemberId
       .mockResolvedValueOnce(groupData)
@@ -202,11 +202,11 @@ describe('EvaluateVisibilityForPost Integration test', () => {
     postRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: firstBatchPosts,
-        total: firstBatchPosts.length,
+        // total: firstBatchPosts.length,
       })
       .mockResolvedValueOnce({
         data: secondBatchPosts,
-        total: secondBatchPosts.length,
+        // total: secondBatchPosts.length,
       });
 
     groupMemberRepo.findGroupIdsByMemberId
@@ -253,11 +253,11 @@ describe('EvaluateVisibilityForPost Integration test', () => {
     postRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: firstBatchPosts,
-        total: firstBatchPosts.length,
+        // total: firstBatchPosts.length,
       })
       .mockResolvedValue({
         data: [],
-        total: 0,
+        // total: 0,
       });
 
     groupMemberRepo.findGroupIdsByMemberId
@@ -288,11 +288,11 @@ describe('EvaluateVisibilityForPost Integration test', () => {
     postRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: hiddenFromFirstBatch,
-        total: hiddenFromFirstBatch.length,
+        // total: hiddenFromFirstBatch.length,
       })
       .mockResolvedValue({
         data: [],
-        total: 0,
+        // total: 0,
       });
 
     groupMemberRepo.findGroupIdsByMemberId.mockResolvedValue(null);

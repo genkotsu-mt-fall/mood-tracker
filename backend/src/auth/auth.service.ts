@@ -2,15 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/user/dto/create_user.dto';
+import { UpdateUserDto } from 'src/user/dto/update_user.dto';
 import { UserEntity } from 'src/user/entity/user.entity';
 import { SecureUserRepository } from 'src/user/repository/secure/secure-user.repository';
 import { CreateUserUseCase } from 'src/user/use-case/create-user.use-case';
+import { UpdateUserUseCase } from 'src/user/use-case/update-user.use-case';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly secureUserRepo: SecureUserRepository,
-    private readonly useCase: CreateUserUseCase,
+    private readonly createUserUseCase: CreateUserUseCase,
+    private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -18,7 +21,7 @@ export class AuthService {
     /**
      * 本番運用時にはここにメールアドレスの本人確認ロジックなど必要
      */
-    return await this.useCase.execute(dto);
+    return await this.createUserUseCase.execute(dto);
   }
 
   async validateUser(
@@ -38,5 +41,12 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email };
     const access_token = await this.jwtService.signAsync(payload);
     return { access_token };
+  }
+
+  async updateCurrentUser(
+    user: UserEntity,
+    dto: UpdateUserDto,
+  ): Promise<UserEntity> {
+    return await this.updateUserUseCase.execute(user.id, dto);
   }
 }

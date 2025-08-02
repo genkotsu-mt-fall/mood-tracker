@@ -9,10 +9,10 @@ import { DeleteGroupUseCase } from './use-case/delete-group.use-case';
 import { GroupRepository } from './repository/group.repository';
 import { PrismaGroupRepository } from './repository/prisma-group.repository';
 import { GroupOwnerGuard } from './guard/group-owner.guard';
-import { AuthModule } from 'src/auth/auth.module';
+// import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule],
+  imports: [PrismaModule /*AuthModule*/],
   providers: [
     GroupOwnerGuard,
     CreateGroupUseCase,

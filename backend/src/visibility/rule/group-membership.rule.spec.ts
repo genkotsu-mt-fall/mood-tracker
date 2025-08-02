@@ -83,13 +83,13 @@ describe('GroupMembershipRule', () => {
 
     beforeEach(() => {
       repository = {
-        create: jest.fn(),
-        findAllWithCount: jest.fn(),
-        findById: jest.fn(),
+        // create: jest.fn(),
+        // findAllWithCount: jest.fn(),
+        // findById: jest.fn(),
         findGroupIdsByMemberId: jest.fn(), //テストで使用
-        loadWithGroupOwnerById: jest.fn(),
-        delete: jest.fn(),
-      };
+        // loadWithGroupOwnerById: jest.fn(),
+        // delete: jest.fn(),
+      } as unknown as jest.Mocked<GroupMemberRepository>;
       usecase = new FindGroupIdsByMemberIdUseCase(repository);
       rule = new GroupMembershipRule(usecase);
     });

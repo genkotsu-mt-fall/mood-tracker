@@ -4,6 +4,8 @@ import { FollowEntity } from '../entity/follow.entity';
 import { CreateFollowDto } from '../dto/create_follow.dto';
 import { Injectable } from '@nestjs/common';
 import { toFollowEntity } from '../mapper/follow.mapper';
+import { UserEntity } from 'src/user/entity/user.entity';
+import { toUserEntity } from 'src/user/mapper/user.mapper';
 
 @Injectable()
 export class PrismaFollowRepository implements FollowRepository {
@@ -55,5 +57,23 @@ export class PrismaFollowRepository implements FollowRepository {
 
   async delete(id: string): Promise<void> {
     await this.prisma.follow.delete({ where: { id } });
+  }
+
+  async findFollowersByUserId(userId: string): Promise<UserEntity[]> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { followers: { include: { follower: true } } },
+    });
+    if (!user) return [];
+    return user.followers.map((f) => toUserEntity(f.follower));
+  }
+
+  async findFollowingByUserId(userId: string): Promise<UserEntity[]> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { following: { include: { followee: true } } },
+    });
+    if (!user) return [];
+    return user.following.map((f) => toUserEntity(f.followee));
   }
 }

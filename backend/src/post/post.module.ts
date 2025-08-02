@@ -9,13 +9,13 @@ import { DeletePostUseCase } from './use-case/delete-post.use-case';
 import { PostRepository } from './repository/post.repository';
 import { PrismaPostRepository } from './repository/prisma-post.repository';
 import { EvaluateVisibilityForPost } from 'src/visibility/application/evaluate-visibility-for-post';
-import { AuthModule } from 'src/auth/auth.module';
+// import { AuthModule } from 'src/auth/auth.module';
 import { PostOwnerGuard } from './guard/post-owner.guard';
 import { FollowModule } from 'src/follow/follow.module';
 import { GroupMemberModule } from 'src/group-member/group-member.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, FollowModule, GroupMemberModule],
+  imports: [PrismaModule, /*AuthModule*/ FollowModule, GroupMemberModule],
   providers: [
     PostOwnerGuard,
     CreatePostUseCase,

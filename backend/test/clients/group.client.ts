@@ -35,4 +35,16 @@ export class GroupClient {
       .delete(`/group/${id}`)
       .set(setToken(token));
   }
+
+  static async findMembers(token: string, id: string) {
+    return await request(AppBootstrapper.getApp().getHttpServer())
+      .get(`/group/${id}/members`)
+      .set(setToken(token));
+  }
+
+  static async getOwnedGroups(token: string) {
+    return await request(AppBootstrapper.getApp().getHttpServer())
+      .get('/auth/me/groups')
+      .set(setToken(token));
+  }
 }

@@ -15,6 +15,8 @@ import { GroupMemberWithGroupOwnerEntity } from '../entity/group-member-with-gro
 import { ErrorMessage } from 'src/common/errors/error.messages';
 import { GroupMembershipCollection } from '../entity/group-membership.collection';
 import { Prisma } from '@prisma/client';
+import { UserEntity } from 'src/user/entity/user.entity';
+import { toUserEntity } from 'src/user/mapper/user.mapper';
 
 @Injectable()
 export class PrismaGroupMemberRepository implements GroupMemberRepository {
@@ -109,5 +111,15 @@ export class PrismaGroupMemberRepository implements GroupMemberRepository {
 
   async delete(id: string): Promise<void> {
     await this.prisma.groupMember.delete({ where: { id } });
+  }
+
+  async findMembersByGroupId(groupId: string): Promise<UserEntity[]> {
+    const members = await this.prisma.groupMember.findMany({
+      where: { group_id: groupId },
+      include: { member: true },
+    });
+    return members
+      .filter((m) => m.member !== null)
+      .map((m) => toUserEntity(m.member));
   }
 }

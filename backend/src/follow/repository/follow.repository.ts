@@ -1,3 +1,4 @@
+import { UserEntity } from 'src/user/entity/user.entity';
 import { CreateFollowDto } from '../dto/create_follow.dto';
 // import { UpdateFollowDto } from '../dto/update_follow.dto';
 import { FollowEntity } from '../entity/follow.entity';
@@ -28,4 +29,8 @@ export abstract class FollowRepository {
   // abstract update(id: string, data: UpdateFollowDto): Promise<FollowEntity>;
 
   abstract delete(id: string): Promise<void>;
+
+  abstract findFollowersByUserId(userId: string): Promise<UserEntity[]>;
+
+  abstract findFollowingByUserId(userId: string): Promise<UserEntity[]>;
 }

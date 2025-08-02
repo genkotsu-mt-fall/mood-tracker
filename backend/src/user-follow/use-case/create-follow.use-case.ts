@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateFollowDto } from '../dto/create_follow.dto';
-import { FollowEntity } from '../entity/follow.entity';
-import { FollowRepository } from '../repository/follow.repository';
-import { FindFollowRelationUseCase } from './find-follow-relation.usecase';
+import { CreateFollowDto } from '../../follow/dto/create_follow.dto';
+import { FollowEntity } from '../../follow/entity/follow.entity';
+import { FollowRepository } from '../../follow/repository/follow.repository';
+import { FindFollowRelationUseCase } from '../../follow/use-case/find-follow-relation.usecase';
 import { FindUserByIdUseCase } from 'src/user/use-case/find-user-by-id.use-case';
 
 @Injectable()

@@ -14,6 +14,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ToDo: 例えば、ユーザを削除したときに、そのユーザのIDを外部キーとして持つ
+// PostやFollowなどのレコードをどうするか？
+// 1. そのまま残す（論理削除）
+// 2. そのユーザに紐づくレコードを全て削除する
+// => UseCase側も、nullを除外するように注意する必要がある。
+
 model User {
   id             String  @id @default(uuid()) @db.Uuid
   email          String  @unique

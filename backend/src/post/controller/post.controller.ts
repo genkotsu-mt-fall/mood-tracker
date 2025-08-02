@@ -99,4 +99,8 @@ export class PostController {
     await this.deletePostUseCase.execute(id);
     return { message: 'Post deleted successfully' };
   }
+
+  // GET /post/mine
+  // GET /post?userId=xxx
+  // GET /post/feed フォローしているユーザーの投稿一覧
 }

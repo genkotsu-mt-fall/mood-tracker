@@ -8,6 +8,8 @@ export interface AuthUser {
   name?: string;
 }
 
+export type UpdateUser = Omit<Partial<AuthUser>, 'password'>;
+
 export interface AuthTokenResponse extends request.Response {
   body: {
     access_token: string;
@@ -58,10 +60,32 @@ export class AuthClient {
     return res.body;
   }
 
+  static async updateProfile(
+    token: string,
+    user: UpdateUser,
+  ): Promise<UserProfileResponse> {
+    return await request(AppBootstrapper.getApp().getHttpServer())
+      .put('/auth/me')
+      .set(setToken(token))
+      .send({ ...user });
+  }
+
   static async registerAndLogin(user: AuthUser) {
     await this.register(user);
     const { accessToken } = await this.login(user);
     const profile = await this.getProfile(accessToken);
     return { accessToken, profile };
+  }
+
+  static async getFollowers(token: string) {
+    return await request(AppBootstrapper.getApp().getHttpServer())
+      .get('/auth/me/followers')
+      .set(setToken(token));
+  }
+
+  static async getFollowing(token: string) {
+    return await request(AppBootstrapper.getApp().getHttpServer())
+      .get('/auth/me/following')
+      .set(setToken(token));
   }
 }

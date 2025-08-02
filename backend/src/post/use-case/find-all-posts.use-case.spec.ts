@@ -63,7 +63,7 @@ describe('FindAllPostsUseCase', () => {
 
     postRepo.findAllWithCount.mockResolvedValueOnce({
       data: postData,
-      total: postData.length,
+      // total: postData.length,
     });
 
     visibilityEvaluator.execute.mockResolvedValue(true);
@@ -98,11 +98,11 @@ describe('FindAllPostsUseCase', () => {
     postRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: postData.slice(0, 20),
-        total: 20, // 1回目の返却データ（20件）DEFAULT_BATCH_SIZE = 20
+        // total: 20, // 1回目の返却データ（20件）DEFAULT_BATCH_SIZE = 20
       })
       .mockResolvedValueOnce({
         data: postData.slice(20),
-        total: 10, // 2回目の返却データ（10件）
+        // total: 10, // 2回目の返却データ（10件）
       });
 
     visibilityEvaluator.execute.mockImplementation(() => {
@@ -126,15 +126,15 @@ describe('FindAllPostsUseCase', () => {
     postRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: postData.slice(0, 1),
-        total: 1,
+        // total: 1,
       })
       .mockResolvedValueOnce({
         data: postData.slice(1),
-        total: 1,
+        // total: 1,
       })
       .mockResolvedValueOnce({
         data: [],
-        total: 0,
+        // total: 0,
       });
 
     visibilityEvaluator.execute
@@ -155,11 +155,11 @@ describe('FindAllPostsUseCase', () => {
     postRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: postData,
-        total: postData.length,
+        // total: postData.length,
       })
       .mockResolvedValueOnce({
         data: [],
-        total: 0,
+        // total: 0,
       });
 
     visibilityEvaluator.execute.mockResolvedValue(false);

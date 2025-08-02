@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { CreateUserDto } from 'src/user/dto/create_user.dto';
 import { UserResponseDto } from 'src/user/dto/user-response.dto';
 import { CurrentUser } from './decorator/current-user.decorator';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
+import { UpdateUserDto } from 'src/user/dto/update_user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -34,5 +36,15 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   getCurrentUser(@CurrentUser() user: UserEntity): UserResponseDto {
     return new UserResponseDto(user);
+  }
+
+  @Put('me')
+  @UseGuards(JwtAuthGuard)
+  async updateCurrentUser(
+    @CurrentUser() user: UserEntity,
+    @Body() dto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    const updatedUser = await this.service.updateCurrentUser(user, dto);
+    return new UserResponseDto(updatedUser);
   }
 }

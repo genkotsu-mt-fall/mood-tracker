@@ -8,7 +8,7 @@ export abstract class PostRepository {
   abstract findAllWithCount(pagination: {
     skip: number;
     take: number;
-  }): Promise<{ data: PostEntity[]; total: number }>;
+  }): Promise<{ data: PostEntity[] /*total: number*/ }>;
 
   abstract findById(id: string): Promise<PostEntity | null>;
 
