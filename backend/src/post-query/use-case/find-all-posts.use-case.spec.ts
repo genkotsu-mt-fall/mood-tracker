@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { EvaluateVisibilityForPost } from 'src/visibility/application/evaluate-visibility-for-post';
-import { PostRepository } from '../repository/post.repository';
-import { FindAllPostsUseCase } from './find-all-posts.use-case';
+import { FindAllPostsUseCase } from '../../post-query/use-case/find-all-posts.use-case';
 import { createPost } from '../../../test/utils/post-helper';
+import { PostQueryRepository } from '../repository/post-query.repository';
+import { VisiblePostsQueryRunner } from './shared/visible-posts-query-runner';
 
 /**
  * ============================
@@ -34,34 +35,33 @@ import { createPost } from '../../../test/utils/post-helper';
  * 内部の fetch/フィルタ結果をモックで制御することで網羅的なテストが可能になる。
  */
 describe('FindAllPostsUseCase', () => {
-  let postRepo: jest.Mocked<PostRepository>;
+  let postQueryRepo: jest.Mocked<PostQueryRepository>;
   let visibilityEvaluator: jest.Mocked<EvaluateVisibilityForPost>;
+  let runner: VisiblePostsQueryRunner;
   let usecase: FindAllPostsUseCase;
   const viewerId = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
 
   beforeEach(() => {
     // postData = Array.from({ length: 5 }, () => createPost({}));
 
-    postRepo = {
-      create: jest.fn(),
+    postQueryRepo = {
       findAllWithCount: jest.fn(),
       findById: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    };
+    } as unknown as jest.Mocked<PostQueryRepository>;
 
     visibilityEvaluator = {
       execute: jest.fn(),
     } as unknown as jest.Mocked<EvaluateVisibilityForPost>;
 
-    usecase = new FindAllPostsUseCase(postRepo, visibilityEvaluator);
+    runner = new VisiblePostsQueryRunner(visibilityEvaluator);
+    usecase = new FindAllPostsUseCase(postQueryRepo, runner);
   });
 
   // バッチ1回で limit 達成 → ループ1回で終了
   it('returns posts when all posts in the batch are visible and limit is reached in the first batch', async () => {
     const postData = Array.from({ length: 2 }, () => createPost({}));
 
-    postRepo.findAllWithCount.mockResolvedValueOnce({
+    postQueryRepo.findAllWithCount.mockResolvedValueOnce({
       data: postData,
       // total: postData.length,
     });
@@ -95,7 +95,7 @@ describe('FindAllPostsUseCase', () => {
     // 返却 : 2
     // hasNextPage: true
     // findAllWithCount が 2回呼ばれているか
-    postRepo.findAllWithCount
+    postQueryRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: postData.slice(0, 20),
         // total: 20, // 1回目の返却データ（20件）DEFAULT_BATCH_SIZE = 20
@@ -115,7 +115,7 @@ describe('FindAllPostsUseCase', () => {
 
     expect(result.data).toEqual(postData.slice(20, 22));
     expect(result.hasNextPage).toBe(true);
-    expect(postRepo.findAllWithCount).toHaveBeenCalledTimes(2);
+    expect(postQueryRepo.findAllWithCount).toHaveBeenCalledTimes(2);
   });
 
   // 何度ループしても limit 未達 → fetch 終了
@@ -123,7 +123,7 @@ describe('FindAllPostsUseCase', () => {
     const postData = Array.from({ length: 2 }, () => createPost({}));
 
     // 別に DEFAULT_BATCH_SIZE の数だけ返却しなくていいんだ
-    postRepo.findAllWithCount
+    postQueryRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: postData.slice(0, 1),
         // total: 1,
@@ -152,7 +152,7 @@ describe('FindAllPostsUseCase', () => {
   it('returns empty array when all posts are invisible', async () => {
     const postData = Array.from({ length: 2 }, () => createPost({}));
 
-    postRepo.findAllWithCount
+    postQueryRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: postData,
         // total: postData.length,

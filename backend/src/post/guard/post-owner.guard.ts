@@ -5,8 +5,8 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { AuthenticatedRequest } from 'src/auth/type/auth-request';
-import { FindPostByIdUseCase } from '../use-case/find-post-by-id.use-case';
 import { ensureValidUUID } from 'src/common/validate/uuid';
+import { FindPostByIdUseCase } from 'src/post-query/use-case/find-post-by-id.use-case';
 
 @Injectable()
 export class PostOwnerGuard implements CanActivate {

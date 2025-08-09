@@ -1,6 +1,5 @@
 import { EvaluateVisibilityForPost } from 'src/visibility/application/evaluate-visibility-for-post';
-import { PostRepository } from '../repository/post.repository';
-import { FindAllPostsUseCase } from './find-all-posts.use-case';
+import { FindAllPostsUseCase } from '../../post-query/use-case/find-all-posts.use-case';
 import { FindFollowRelationUseCase } from 'src/follow/use-case/find-follow-relation.usecase';
 import { FindGroupIdsByMemberIdUseCase } from 'src/group-member/use-case/find-group-ids-by-member-id.usecase';
 import { FollowRepository } from 'src/follow/repository/follow.repository';
@@ -9,7 +8,9 @@ import { createPost, postOwnerId } from '../../../test/utils/post-helper';
 import { addDays } from '../../../test/utils/date-helper';
 import { GroupMembershipCollection } from 'src/group-member/entity/group-membership.collection';
 import { FollowEntity } from 'src/follow/entity/follow.entity';
-import { PostEntity } from '../entity/post.entity';
+import { PostEntity } from 'src/post/entity/post.entity';
+import { PostQueryRepository } from '../repository/post-query.repository';
+import { VisiblePostsQueryRunner } from './shared/visible-posts-query-runner';
 
 describe('EvaluateVisibilityForPost Integration test', () => {
   let folloRepository: jest.Mocked<FollowRepository>;
@@ -19,7 +20,7 @@ describe('EvaluateVisibilityForPost Integration test', () => {
   let findGroupIdsByMemberIdUseCase: FindGroupIdsByMemberIdUseCase;
 
   let evaluatePostVisibility: EvaluateVisibilityForPost;
-  let postRepo: jest.Mocked<PostRepository>;
+  let postQueryRepo: jest.Mocked<PostQueryRepository>;
   let usecase: FindAllPostsUseCase;
 
   //   const postId = 'f47ac10b-58cc-4372-a567-0e02b2c3d478';
@@ -60,14 +61,15 @@ describe('EvaluateVisibilityForPost Integration test', () => {
       findGroupIdsByMemberIdUseCase,
     );
 
-    postRepo = {
+    postQueryRepo = {
       // create: jest.fn(),
       findAllWithCount: jest.fn(), // 使用
       // findById: jest.fn(),
       // update: jest.fn(),
       // delete: jest.fn(),
-    } as unknown as jest.Mocked<PostRepository>;
-    usecase = new FindAllPostsUseCase(postRepo, evaluatePostVisibility);
+    } as unknown as jest.Mocked<PostQueryRepository>;
+    const runner = new VisiblePostsQueryRunner(evaluatePostVisibility);
+    usecase = new FindAllPostsUseCase(postQueryRepo, runner);
 
     groupData = GroupMembershipCollection.fromPrimitives([
       {
@@ -119,7 +121,7 @@ describe('EvaluateVisibilityForPost Integration test', () => {
 
     const postData = [...visiblePosts, ...hiddenPosts];
 
-    postRepo.findAllWithCount
+    postQueryRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: postData,
         // total: postData.length,
@@ -199,7 +201,7 @@ describe('EvaluateVisibilityForPost Integration test', () => {
       ...visibleFromSecondBatch,
     ];
 
-    postRepo.findAllWithCount
+    postQueryRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: firstBatchPosts,
         // total: firstBatchPosts.length,
@@ -250,7 +252,7 @@ describe('EvaluateVisibilityForPost Integration test', () => {
 
     const firstBatchPosts = [...visibleFromFirstBatch, ...hiddenFromFirstBatch];
 
-    postRepo.findAllWithCount
+    postQueryRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: firstBatchPosts,
         // total: firstBatchPosts.length,
@@ -285,7 +287,7 @@ describe('EvaluateVisibilityForPost Integration test', () => {
       }), // NG
     ];
 
-    postRepo.findAllWithCount
+    postQueryRepo.findAllWithCount
       .mockResolvedValueOnce({
         data: hiddenFromFirstBatch,
         // total: hiddenFromFirstBatch.length,

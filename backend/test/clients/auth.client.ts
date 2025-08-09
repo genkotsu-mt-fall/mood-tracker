@@ -88,4 +88,38 @@ export class AuthClient {
       .get('/auth/me/following')
       .set(setToken(token));
   }
+
+  static async getFollowingPosts(token: string) {
+    return await request(AppBootstrapper.getApp().getHttpServer())
+      .get('/auth/me/following/posts')
+      .set(setToken(token));
+  }
+
+  static async getFollowingPostsWithPaginated(
+    token: string,
+    page: number,
+    limit: number,
+  ) {
+    return await request(AppBootstrapper.getApp().getHttpServer())
+      .get('/auth/me/following/posts')
+      .query({ page, limit })
+      .set(setToken(token));
+  }
+
+  static async getOwnPosts(token: string) {
+    return await request(AppBootstrapper.getApp().getHttpServer())
+      .get('/auth/me/posts')
+      .set(setToken(token));
+  }
+
+  static async getOwnPostsWithPaginated(
+    token: string,
+    page: number,
+    limit: number,
+  ) {
+    return await request(AppBootstrapper.getApp().getHttpServer())
+      .get('/auth/me/posts')
+      .query({ page, limit })
+      .set(setToken(token));
+  }
 }

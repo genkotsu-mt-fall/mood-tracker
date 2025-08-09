@@ -12,6 +12,7 @@ import { GroupMemberModule } from './group-member/group-member.module';
 import { FollowModule } from './follow/follow.module';
 import { UserFollowModule } from './user-follow/user-follow.module';
 import { UserGroupModule } from './user-group/user-group.module';
+import { PostQueryModule } from './post-query/post-query.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { UserGroupModule } from './user-group/user-group.module';
     }),
     UserFollowModule,
     UserGroupModule,
+    PostQueryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

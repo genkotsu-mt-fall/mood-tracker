@@ -20,27 +20,6 @@ export class PrismaPostRepository implements PostRepository {
     return toPostEntity(item);
   }
 
-  async findAllWithCount(pagination: {
-    skip: number;
-    take: number;
-  }): Promise<{ data: PostEntity[] /*total: number*/ }> {
-    const { skip, take } = pagination;
-    // const [items, total] = await this.prisma.$transaction([
-    //   this.prisma.post.findMany({ skip, take }),
-    //   this.prisma.post.count(),
-    // ]);
-    const items = await this.prisma.post.findMany({ skip, take });
-    return {
-      data: items.map(toPostEntity),
-      // total,
-    };
-  }
-
-  async findById(id: string): Promise<PostEntity | null> {
-    const item = await this.prisma.post.findUnique({ where: { id } });
-    return item ? toPostEntity(item) : null;
-  }
-
   async update(id: string, data: UpdatePostDto): Promise<PostEntity> {
     const item = await this.prisma.post.update({ where: { id }, data });
     return toPostEntity(item);

@@ -1,27 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { PostEntity } from '../entity/post.entity';
-import { PostRepository } from '../repository/post.repository';
+import { PaginatedResponseDto } from 'src/common/response/paginated-response.dto';
+import { PostResponseDto } from 'src/post/dto/post_response.dto';
+import { PostEntity } from 'src/post/entity/post.entity';
 import { EvaluateVisibilityForPost } from 'src/visibility/application/evaluate-visibility-for-post';
 
+type FetchBatch = (skip: number, take: number) => Promise<PostEntity[]>;
+
 @Injectable()
-export class FindAllPostsUseCase {
+export class VisiblePostsQueryRunner {
   private readonly DEFAULT_BATCH_SIZE = 20;
+  private readonly MAX_LOOP = 100;
 
   constructor(
-    private readonly postRepo: PostRepository,
     private readonly visibilityEvaluator: EvaluateVisibilityForPost,
   ) {}
 
-  async execute(
-    userId: string,
+  async run(
+    viewerId: string,
     { page, limit }: { page: number; limit: number },
-  ): Promise<{
-    data: PostEntity[];
-    // total: number;
-    page: number;
-    limit: number;
-    hasNextPage: boolean;
-  }> {
+    fetchBatch: FetchBatch,
+  ): Promise<PaginatedResponseDto<PostResponseDto>> {
     const visiblePosts: PostEntity[] = [];
     let offset = 0;
 
@@ -35,12 +33,12 @@ export class FindAllPostsUseCase {
         limit - visiblePosts.length,
       );
 
-      const batch = await this.fetchNextBatch(offset, nextBatchSize);
+      const batch = await fetchBatch(offset, nextBatchSize);
       if (!batch.length) break;
 
       const visible = await this.extractVisiblePostsFromBatch(
         batch,
-        userId,
+        viewerId,
         limit,
       );
 
@@ -62,13 +60,20 @@ export class FindAllPostsUseCase {
     return Math.max(remaining * 2, minimumBatchSize);
   }
 
-  private async fetchNextBatch(
-    skip: number,
-    take: number,
-  ): Promise<PostEntity[]> {
-    const { data } = await this.postRepo.findAllWithCount({ skip, take });
-    return data;
-  }
+  //   private async fetchNextBatch(
+  //     userId: string,
+  //     skip: number,
+  //     take: number,
+  //   ): Promise<PostEntity[]> {
+  //     const { data } = await this.postQueryRepository.findFollowingUsersPosts(
+  //       userId,
+  //       {
+  //         skip,
+  //         take,
+  //       },
+  //     );
+  //     return data;
+  //   }
 
   private async extractVisiblePostsFromBatch(
     batch: PostEntity[],

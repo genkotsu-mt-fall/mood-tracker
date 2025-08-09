@@ -7,19 +7,11 @@ import { FollowUseCase } from './follow.usecase';
 export class PostUseCase {
   static async createPost(prefix: string, params: PostCreateParams) {
     const user = await UserFactory.create(prefix);
-    const { post } = await this.createPostWithToken(
-      user.accessToken,
-      prefix,
-      params,
-    );
+    const { post } = await this.createPostWithToken(user.accessToken, params);
     return { post, postOwner: user };
   }
 
-  static async createPostWithToken(
-    token: string,
-    prefix: string,
-    params: PostCreateParams,
-  ) {
+  static async createPostWithToken(token: string, params: PostCreateParams) {
     const res = await PostClient.create(token, params);
     expect(res.status).toBe(201);
     const body = res.body as {
@@ -47,7 +39,6 @@ export class PostUseCase {
     };
     const { post } = await this.createPostWithToken(
       groupOwner.accessToken,
-      prefix,
       params,
     );
     return { post, group, groupOwner };
@@ -65,7 +56,6 @@ export class PostUseCase {
     };
     const { post } = await this.createPostWithToken(
       followee.accessToken,
-      prefix,
       postParams,
     );
     return { post, follower, followee };

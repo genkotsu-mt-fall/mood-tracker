@@ -1,16 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PostRepository } from '../repository/post.repository';
-import { ErrorMessage } from 'src/common/errors/error.messages';
+import { FindPostByIdUseCase } from 'src/post-query/use-case/find-post-by-id.use-case';
 
 @Injectable()
 export class DeletePostUseCase {
-  constructor(private readonly postRepo: PostRepository) {}
+  constructor(
+    private readonly postRepo: PostRepository,
+    private readonly findPostByIdUseCase: FindPostByIdUseCase,
+  ) {}
 
-  async execute(id: string): Promise<void> {
-    const item = await this.postRepo.findById(id);
-    if (!item) {
-      throw new NotFoundException(ErrorMessage.PostNotFound(id));
-    }
+  async execute(id: string, userId: string): Promise<void> {
+    await this.findPostByIdUseCase.execute(userId, id);
+
     await this.postRepo.delete(id);
   }
 }

@@ -7,7 +7,6 @@ import { FindGroupMemberByIdUseCase } from './use-case/find-group-member-by-id.u
 import { DeleteGroupMemberUseCase } from './use-case/delete-group-member.use-case';
 import { GroupMemberRepository } from './repository/group-member.repository';
 import { PrismaGroupMemberRepository } from './repository/prisma-group-member.repository';
-// import { AuthModule } from 'src/auth/auth.module';
 import { GroupMemberOwnerGuard } from './guard/group-member-owner.guard';
 import { FindGroupIdsByMemberIdUseCase } from './use-case/find-group-ids-by-member-id.usecase';
 import { LoadGroupMemberWithGroupOwnerUseCase } from './use-case/load-group-member-with-group-owner.use-case';

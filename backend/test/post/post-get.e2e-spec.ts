@@ -19,7 +19,7 @@ describe('PostController', () => {
     it('should return paginated results with correct page and limit', async () => {
       const user = await UserFactory.create(`${prefix}_pagination`);
       for (let i = 0; i < 15; i++) {
-        await PostUseCase.createPostWithToken(user.accessToken, prefix, {
+        await PostUseCase.createPostWithToken(user.accessToken, {
           body: `Post ${i}`,
           crisisFlag: false,
         });

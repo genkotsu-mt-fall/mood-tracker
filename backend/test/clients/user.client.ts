@@ -20,4 +20,10 @@ export class UserClient {
       .get(`/user/${id}/following`)
       .set(setToken(token));
   }
+
+  static async getPosts(token: string, id: string) {
+    return await request(AppBootstrapper.getApp().getHttpServer())
+      .get(`/user/${id}/posts`)
+      .set(setToken(token));
+  }
 }
