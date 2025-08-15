@@ -18,6 +18,10 @@ import { PostResponseDto } from '../dto/post_response.dto';
 import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
 import { UserEntity } from 'src/user/entity/user.entity';
 import { PostOwnerGuard } from '../guard/post-owner.guard';
+import { ApiResponse } from 'src/common/response/api-response';
+import { ApiEndpoint } from 'src/common/swagger/endpoint.decorators';
+import { ResponseKind } from 'src/common/swagger/types';
+import { MessageDto } from 'src/common/dto/message.dto';
 
 @Controller('post')
 export class PostController {
@@ -29,32 +33,79 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
+  @ApiEndpoint({
+    summary: 'Create a post',
+    description: 'Create a new post for the current user.',
+    body: CreatePostDto,
+    response: {
+      type: PostResponseDto,
+      kind: ResponseKind.Created,
+      description: 'Post created successfully',
+    },
+    auth: true,
+    errors: {
+      unauthorized: true,
+      badRequest: true,
+    },
+  })
   async create(
     @CurrentUser() user: UserEntity,
     @Body() dto: CreatePostDto,
-  ): Promise<PostResponseDto> {
+  ): Promise<ApiResponse<PostResponseDto>> {
     const result = await this.createPostUseCase.execute(user.id, dto);
-    return new PostResponseDto(result);
+    return { success: true, data: new PostResponseDto(result) };
   }
 
   @UseGuards(JwtAuthGuard, PostOwnerGuard)
   @Put(':id')
+  @ApiEndpoint({
+    summary: 'Update a post',
+    description: 'Update an existing post owned by the current user.',
+    body: UpdatePostDto,
+    response: {
+      type: PostResponseDto,
+      description: 'Post updated successfully',
+    },
+    auth: true,
+    idParam: { id: true, idParamDescription: 'Post' },
+    errors: {
+      unauthorized: true,
+      forbidden: true,
+      notFound: true,
+      badRequest: true,
+    },
+  })
   async update(
     @CurrentUser() user: UserEntity,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() dto: UpdatePostDto,
-  ): Promise<PostResponseDto> {
+  ): Promise<ApiResponse<PostResponseDto>> {
     const result = await this.updatePostUseCase.execute(id, user.id, dto);
-    return new PostResponseDto(result);
+    return { success: true, data: new PostResponseDto(result) };
   }
 
   @UseGuards(JwtAuthGuard, PostOwnerGuard)
   @Delete(':id')
+  @ApiEndpoint({
+    summary: 'Delete a post',
+    description: 'Delete an existing post owned by the current user.',
+    response: {
+      type: MessageDto,
+      description: 'Post deleted successfully',
+    },
+    auth: true,
+    idParam: { id: true, idParamDescription: 'Post' },
+    errors: {
+      unauthorized: true,
+      forbidden: true,
+      notFound: true,
+    },
+  })
   async remove(
     @CurrentUser() user: UserEntity,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<{ message: string }> {
+  ): Promise<ApiResponse<MessageDto>> {
     await this.deletePostUseCase.execute(id, user.id);
-    return { message: 'Post deleted successfully' };
+    return { success: true, data: { message: 'Post deleted successfully' } };
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaginatedResponseDto } from 'src/common/response/paginated-response.dto';
+import { PaginatedApiResponse } from 'src/common/response/api-response';
 import { PostResponseDto } from 'src/post/dto/post_response.dto';
 import { PostEntity } from 'src/post/entity/post.entity';
 import { EvaluateVisibilityForPost } from 'src/visibility/application/evaluate-visibility-for-post';
@@ -19,7 +19,7 @@ export class VisiblePostsQueryRunner {
     viewerId: string,
     { page, limit }: { page: number; limit: number },
     fetchBatch: FetchBatch,
-  ): Promise<PaginatedResponseDto<PostResponseDto>> {
+  ): Promise<PaginatedApiResponse<PostResponseDto>> {
     const visiblePosts: PostEntity[] = [];
     let offset = 0;
 
@@ -47,11 +47,13 @@ export class VisiblePostsQueryRunner {
     }
 
     return {
+      success: true,
       data: visiblePosts,
-      // total,
-      page,
-      limit,
-      hasNextPage: visiblePosts.length === limit,
+      meta: {
+        page,
+        pageSize: limit,
+        hasNext: visiblePosts.length === limit,
+      },
     };
   }
 

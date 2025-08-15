@@ -1,6 +1,15 @@
 import { UserFactory } from 'test/factories/user.factory';
 import { GroupUseCase } from './group.usecase';
 import { GroupMemberClient } from 'test/clients/group-member.client';
+import { ApiResponse, SupertestResponse } from 'test/types/api';
+
+export type SupertestGroupMemberResponse = SupertestResponse<
+  ApiResponse<{
+    id: string;
+    groupId: string;
+    memberId: string;
+  }>
+>;
 
 export class GroupMemberUseCase {
   static async joinAsMember(
@@ -9,7 +18,7 @@ export class GroupMemberUseCase {
     groupId: string,
   ) {
     const member = await UserFactory.create(prefix);
-    const res = await GroupMemberClient.join(
+    const res: SupertestGroupMemberResponse = await GroupMemberClient.join(
       groupOwnerToken,
       groupId,
       member.profile.id,
@@ -17,11 +26,7 @@ export class GroupMemberUseCase {
 
     expect(res.status).toBe(201);
 
-    const groupMember = res.body as {
-      id: string;
-      groupId: string;
-      memberId: string;
-    };
+    const groupMember = res.body.data;
 
     return {
       member,

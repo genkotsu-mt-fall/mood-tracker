@@ -8,6 +8,8 @@ import {
 import { UserResponseDto } from '../dto/user-response.dto';
 import { FindUserByIdUseCase } from '../use-case/find-user-by-id.use-case';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { ApiResponse } from 'src/common/response/api-response';
+import { ApiEndpoint } from 'src/common/swagger/endpoint.decorators';
 
 @Controller('user')
 export class UserController {
@@ -15,8 +17,21 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+  @ApiEndpoint({
+    summary: 'Get a user by ID',
+    description: 'Fetch a single user by its unique identifier.',
+    response: {
+      type: UserResponseDto,
+      description: 'User retrieved successfully',
+    },
+    auth: true,
+    idParam: { id: true, idParamDescription: 'User' },
+    errors: { unauthorized: true, notFound: true },
+  })
+  async findOne(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): Promise<ApiResponse<UserResponseDto>> {
     const user = await this.findUserByIdUseCase.execute(id);
-    return new UserResponseDto(user);
+    return { success: true, data: new UserResponseDto(user) };
   }
 }

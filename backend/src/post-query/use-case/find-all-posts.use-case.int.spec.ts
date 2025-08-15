@@ -143,7 +143,7 @@ describe('EvaluateVisibilityForPost Integration test', () => {
 
     expect(result.data.length).toBe(expectedPostResultCount);
     expect(result.data).toStrictEqual(visiblePosts);
-    expect(result.hasNextPage).toBe(true);
+    expect(result.meta?.hasNext).toBe(true);
   });
 
   // 1回目は一部しか通らず、2回目で limit 達成
@@ -226,7 +226,7 @@ describe('EvaluateVisibilityForPost Integration test', () => {
 
     expect(result.data.length).toBe(expectedPostResultCount);
     expect(result.data).toStrictEqual(expectedVisiblePosts);
-    expect(result.hasNextPage).toBe(true);
+    expect(result.meta?.hasNext).toBe(true);
   });
 
   // 何度ループしても limit 未達 → fetch 終了
@@ -272,7 +272,7 @@ describe('EvaluateVisibilityForPost Integration test', () => {
     });
 
     expect(result.data).toStrictEqual(visibleFromFirstBatch);
-    expect(result.hasNextPage).toBe(false);
+    expect(result.meta?.hasNext).toBe(false);
   });
 
   // 全件不可視 → 空配列返却
@@ -306,6 +306,6 @@ describe('EvaluateVisibilityForPost Integration test', () => {
 
     expect(result.data.length).toBe(0);
     expect(result.data).toEqual([]);
-    expect(result.hasNextPage).toBe(false);
+    expect(result.meta?.hasNext).toBe(false);
   });
 });

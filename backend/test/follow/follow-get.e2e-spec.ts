@@ -2,6 +2,11 @@ import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
 import { FollowUseCase } from 'test/usecases/follow.usecase';
 import { FollowClient } from 'test/clients/follow.client';
 import { UserFactory } from 'test/factories/user.factory';
+import {
+  ApiErrorResponse,
+  ApiResponse,
+  SupertestResponse,
+} from 'test/types/api';
 
 describe('FollowController (GET /follow)', () => {
   const prefix = 'follower_get';
@@ -17,24 +22,24 @@ describe('FollowController (GET /follow)', () => {
   it('should return 200 with follow data when follow ID exists', async () => {
     const { followId, follower, followee } =
       await FollowUseCase.createFollowRelation(prefix);
-    const res = await FollowClient.getFollow(follower.accessToken, followId);
+    const res: SupertestResponse<
+      ApiResponse<{ id: string; followerId: string; followeeId: string }>
+    > = await FollowClient.getFollow(follower.accessToken, followId);
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('id', followId);
-    expect(res.body).toHaveProperty('followerId', follower.profile.id);
-    expect(res.body).toHaveProperty('followeeId', followee.profile.id);
+    expect(res.body.data).toHaveProperty('id', followId);
+    expect(res.body.data).toHaveProperty('followerId', follower.profile.id);
+    expect(res.body.data).toHaveProperty('followeeId', followee.profile.id);
   });
 
   it('should return 404 when follow ID does not exist', async () => {
     const nonExistentFollowId = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
     const user = await UserFactory.create(prefix);
-    const res = await FollowClient.getFollow(
-      user.accessToken,
-      nonExistentFollowId,
-    );
+    const res: SupertestResponse<ApiErrorResponse> =
+      await FollowClient.getFollow(user.accessToken, nonExistentFollowId);
 
-    const body = res.body as { message: string };
     expect(res.status).toBe(404);
-    expect(body.message).toContain(
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.message).toContain(
       `Follow with id ${nonExistentFollowId} not found`,
     );
   });

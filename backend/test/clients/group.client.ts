@@ -1,6 +1,15 @@
 import * as request from 'supertest';
 import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
+import { PaginatedApiResponse, SupertestResponse } from 'test/types/api';
 import { setToken } from 'test/utils/auth-helper';
+
+export type SupertestGroupMembersResponse = SupertestResponse<
+  PaginatedApiResponse<{
+    id: string;
+    groupId: string;
+    memberId: string;
+  }>
+>;
 
 export class GroupClient {
   static async create(token: string, name?: string) {

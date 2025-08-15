@@ -1,5 +1,8 @@
 import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
-import { GroupUseCase } from 'test/usecases/group.usecase';
+import {
+  GroupUseCase,
+  SupertestGroupResponse,
+} from 'test/usecases/group.usecase';
 import { GroupClient } from 'test/clients/group.client';
 import { UserFactory } from 'test/factories/user.factory';
 
@@ -17,16 +20,15 @@ describe('GroupController (PUT /group/:id)', () => {
 
   it('should update the group name if user is owner', async () => {
     const { group, groupOwner } = await GroupUseCase.createGroup(prefix);
-    const res = await GroupClient.update(
+    const res: SupertestGroupResponse = await GroupClient.update(
       groupOwner.accessToken,
       group.id,
       updatedGroupName,
     );
     expect(res.status).toBe(200);
 
-    const body = res.body as { id: string; name: string };
-    expect(body).toHaveProperty('id', group.id);
-    expect(body.name).toBe('updated test group');
+    expect(res.body.data).toHaveProperty('id', group.id);
+    expect(res.body.data.name).toBe('updated test group');
   });
 
   it('should return 401 if no token is provided', async () => {

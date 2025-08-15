@@ -1,5 +1,6 @@
 import * as request from 'supertest';
 import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
+import { ApiResponse, SupertestResponse } from 'test/types/api';
 import { setToken } from 'test/utils/auth-helper';
 
 export interface AuthUser {
@@ -10,22 +11,20 @@ export interface AuthUser {
 
 export type UpdateUser = Omit<Partial<AuthUser>, 'password'>;
 
-export interface AuthTokenResponse extends request.Response {
-  body: {
-    access_token: string;
-  };
-}
+export type AuthTokenResponse = SupertestResponse<
+  ApiResponse<{ accessToken: string }>
+>;
 
-export interface UserProfileResponse extends request.Response {
-  body: {
+export type UserProfileResponse = SupertestResponse<
+  ApiResponse<{
     id: string;
     email: string;
     name?: string;
-  };
-}
+  }>
+>;
 
 export class AuthClient {
-  static async register(user: AuthUser) {
+  static async register(user: AuthUser): Promise<UserProfileResponse> {
     return await request(AppBootstrapper.getApp().getHttpServer())
       .post('/auth/signup')
       .send({
@@ -42,10 +41,11 @@ export class AuthClient {
     )
       .post('/auth/login')
       .send(user)
-      .expect(201);
+      .expect(200);
 
+    const accessToken = res.body.data.accessToken;
     return {
-      accessToken: res.body.access_token,
+      accessToken,
     };
   }
 
@@ -73,8 +73,8 @@ export class AuthClient {
   static async registerAndLogin(user: AuthUser) {
     await this.register(user);
     const { accessToken } = await this.login(user);
-    const profile = await this.getProfile(accessToken);
-    return { accessToken, profile };
+    const res = await this.getProfile(accessToken);
+    return { accessToken, profile: res.data };
   }
 
   static async getFollowers(token: string) {

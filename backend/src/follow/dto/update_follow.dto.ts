@@ -1,5 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateFollowDto } from './create_follow.dto';
+import { ApiExtraModels } from '@nestjs/swagger';
 
 /**
  * 通常の運用では使用しない（フォローは作成・削除のみ想定）。
@@ -9,4 +10,5 @@ import { CreateFollowDto } from './create_follow.dto';
  *
  * 例：status: 'active' | 'blocked'
  */
+@ApiExtraModels(CreateFollowDto)
 export class UpdateFollowDto extends PartialType(CreateFollowDto) {}

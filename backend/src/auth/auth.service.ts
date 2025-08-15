@@ -7,6 +7,7 @@ import { UserEntity } from 'src/user/entity/user.entity';
 import { SecureUserRepository } from 'src/user/repository/secure/secure-user.repository';
 import { CreateUserUseCase } from 'src/user/use-case/create-user.use-case';
 import { UpdateUserUseCase } from 'src/user/use-case/update-user.use-case';
+import { LoginResponseDto } from './dto/login-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -37,10 +38,10 @@ export class AuthService {
     return user.toUserEntity();
   }
 
-  async login(user: UserEntity): Promise<{ access_token: string }> {
+  async login(user: UserEntity): Promise<LoginResponseDto> {
     const payload = { sub: user.id, email: user.email };
-    const access_token = await this.jwtService.signAsync(payload);
-    return { access_token };
+    const accessToken = await this.jwtService.signAsync(payload);
+    return { accessToken };
   }
 
   async updateCurrentUser(

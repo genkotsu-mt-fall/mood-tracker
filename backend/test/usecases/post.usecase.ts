@@ -3,6 +3,20 @@ import { PostClient, PostCreateParams } from 'test/clients/post.client';
 import { UserFactory } from 'test/factories/user.factory';
 import { GroupUseCase } from './group.usecase';
 import { FollowUseCase } from './follow.usecase';
+import { ApiResponse, SupertestResponse } from 'test/types/api';
+
+export type SupertestPostResponse = SupertestResponse<
+  ApiResponse<{
+    id: string;
+    body: string;
+    crisisFlag: boolean;
+    mood?: string;
+    intensity?: number;
+    emoji?: string;
+    templateId?: string;
+    privacyJson?: PrivacySetting;
+  }>
+>;
 
 export class PostUseCase {
   static async createPost(prefix: string, params: PostCreateParams) {
@@ -12,19 +26,9 @@ export class PostUseCase {
   }
 
   static async createPostWithToken(token: string, params: PostCreateParams) {
-    const res = await PostClient.create(token, params);
+    const res: SupertestPostResponse = await PostClient.create(token, params);
     expect(res.status).toBe(201);
-    const body = res.body as {
-      id: string;
-      body: string;
-      crisisFlag: boolean;
-      mood?: string;
-      intensity?: number;
-      emoji?: string;
-      templateId?: string;
-      privacyJson?: PrivacySetting;
-    };
-    return { post: body };
+    return { post: res.body.data };
   }
 
   static async createPostWithGroupPrivacy(prefix: string) {

@@ -74,7 +74,7 @@ describe('FindAllPostsUseCase', () => {
     });
 
     expect(result.data).toEqual(postData);
-    expect(result.hasNextPage).toEqual(true);
+    expect(result.meta?.hasNext).toEqual(true);
     expect(visibilityEvaluator.execute).toHaveBeenCalledWith(
       postData[0],
       viewerId,
@@ -114,7 +114,7 @@ describe('FindAllPostsUseCase', () => {
     const result = await usecase.execute(viewerId, { page: 1, limit: 2 });
 
     expect(result.data).toEqual(postData.slice(20, 22));
-    expect(result.hasNextPage).toBe(true);
+    expect(result.meta?.hasNext).toBe(true);
     expect(postQueryRepo.findAllWithCount).toHaveBeenCalledTimes(2);
   });
 
@@ -145,7 +145,7 @@ describe('FindAllPostsUseCase', () => {
 
     expect(result.data.length).toBe(1);
     expect(result.data).toEqual([postData[0]]);
-    expect(result.hasNextPage).toBe(false);
+    expect(result.meta?.hasNext).toBe(false);
   });
 
   // 全件不可視 → 空配列返却
@@ -168,6 +168,6 @@ describe('FindAllPostsUseCase', () => {
 
     expect(result.data.length).toBe(0);
     expect(result.data).toEqual([]);
-    expect(result.hasNextPage).toBe(false);
+    expect(result.meta?.hasNext).toBe(false);
   });
 });

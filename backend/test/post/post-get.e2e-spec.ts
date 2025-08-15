@@ -2,6 +2,7 @@ import { PostResponseDto } from 'src/post/dto/post_response.dto';
 import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
 import { PostClient } from 'test/clients/post.client';
 import { UserFactory } from 'test/factories/user.factory';
+import { PaginatedApiResponse, SupertestResponse } from 'test/types/api';
 import { PostUseCase } from 'test/usecases/post.usecase';
 
 describe('PostController', () => {
@@ -25,19 +26,20 @@ describe('PostController', () => {
         });
       }
 
-      const res = await PostClient.getAll(user.accessToken, 1, 10);
+      const res: SupertestResponse<PaginatedApiResponse<PostResponseDto>> =
+        await PostClient.getAll(user.accessToken, 1, 10);
 
-      const body = res.body as {
-        data: PostResponseDto[];
-        page: number;
-        limit: number;
-        hasNextPage: boolean;
-      };
+      // const body = res.body as {
+      //   data: PostResponseDto[];
+      //   page: number;
+      //   limit: number;
+      //   hasNextPage: boolean;
+      // };
       expect(res.status).toBe(200);
-      expect(body.data.length).toBe(10);
-      expect(body.page).toBe(1);
-      expect(body.limit).toBe(10);
-      expect(body.hasNextPage).toBe(true);
+      expect(res.body.data.length).toBe(10);
+      expect(res.body.meta.page).toBe(1);
+      expect(res.body.meta.pageSize).toBe(10);
+      expect(res.body.meta.hasNext).toBe(true);
     });
 
     it('should return 401 when no token is provided', async () => {

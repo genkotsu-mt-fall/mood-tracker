@@ -1,5 +1,8 @@
 import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
-import { GroupMemberUseCase } from 'test/usecases/group-member.usecase';
+import {
+  GroupMemberUseCase,
+  SupertestGroupMemberResponse,
+} from 'test/usecases/group-member.usecase';
 import { GroupMemberClient } from 'test/clients/group-member.client';
 import { UserFactory } from 'test/factories/user.factory';
 
@@ -17,14 +20,14 @@ describe('GroupMemberController (GET /group-member)', () => {
   it('should return 200 and the group member data when valid id is provided', async () => {
     const { groupMember, groupOwner } =
       await GroupMemberUseCase.createGroupAndAddMember(prefix);
-    const res = await GroupMemberClient.get(
+    const res: SupertestGroupMemberResponse = await GroupMemberClient.get(
       groupOwner.accessToken,
       groupMember.id,
     );
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('id', groupMember.id);
-    expect(res.body).toHaveProperty('groupId', groupMember.groupId);
-    expect(res.body).toHaveProperty('memberId', groupMember.memberId);
+    expect(res.body.data).toHaveProperty('id', groupMember.id);
+    expect(res.body.data).toHaveProperty('groupId', groupMember.groupId);
+    expect(res.body.data).toHaveProperty('memberId', groupMember.memberId);
   });
 
   it('should return 404 when group member does not exist', async () => {

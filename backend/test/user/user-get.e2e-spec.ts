@@ -3,6 +3,7 @@ import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
 import { FollowClient } from 'test/clients/follow.client';
 import { UserClient } from 'test/clients/user.client';
 import { UserFactory } from 'test/factories/user.factory';
+import { ApiResponse, SupertestResponse } from 'test/types/api';
 import { GroupMemberUseCase } from 'test/usecases/group-member.usecase';
 import { PostUseCase } from 'test/usecases/post.usecase';
 
@@ -26,13 +27,14 @@ describe('UserController (GET /user/:id)', () => {
 
   it('should return a specific user with auth', async () => {
     const user = await UserFactory.create(prefix);
-    const res = await UserClient.get(user.accessToken, user.profile.id);
+    const res: SupertestResponse<
+      ApiResponse<{ id: string; name: string; email: string }>
+    > = await UserClient.get(user.accessToken, user.profile.id);
     expect(res.status).toBe(200);
 
-    const body = res.body as { id: string; name: string; email: string };
-    expect(body.id).toBe(user.profile.id);
-    expect(body.name).toBe(user.profile.name);
-    expect(body.email).toBe(user.profile.email);
+    expect(res.body.data.id).toBe(user.profile.id);
+    expect(res.body.data.name).toBe(user.profile.name);
+    expect(res.body.data.email).toBe(user.profile.email);
   });
 
   it('should return 401 if no token is provided', async () => {
@@ -61,15 +63,12 @@ describe('UserController (GET /user/:id)', () => {
       // Simulate userA following userB
       await FollowClient.follow(userA.accessToken, userB.profile.id);
 
-      const res = await UserClient.getFollowers(
-        userA.accessToken,
-        userB.profile.id,
-      );
+      const res: SupertestResponse<ApiResponse<FollowUser[]>> =
+        await UserClient.getFollowers(userA.accessToken, userB.profile.id);
       expect(res.status).toBe(200);
-      const body = res.body as FollowUser[];
-      expect(Array.isArray(body)).toBe(true);
-      expect(body.length).toBe(1);
-      expect(body[0]).toMatchObject({
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBe(1);
+      expect(res.body.data[0]).toMatchObject({
         id: userA.profile.id,
         name: userA.profile.name,
         email: userA.profile.email,
@@ -109,15 +108,12 @@ describe('UserController (GET /user/:id)', () => {
       // Simulate userA following userB
       await FollowClient.follow(userA.accessToken, userB.profile.id);
 
-      const res = await UserClient.getFollowing(
-        userB.accessToken,
-        userA.profile.id,
-      );
+      const res: SupertestResponse<ApiResponse<FollowUser[]>> =
+        await UserClient.getFollowing(userB.accessToken, userA.profile.id);
       expect(res.status).toBe(200);
-      const body = res.body as FollowUser[];
-      expect(Array.isArray(body)).toBe(true);
-      expect(body.length).toBe(1);
-      expect(body[0]).toMatchObject({
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBe(1);
+      expect(res.body.data[0]).toMatchObject({
         id: userB.profile.id,
         name: userB.profile.name,
         email: userB.profile.email,

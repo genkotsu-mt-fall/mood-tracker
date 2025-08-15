@@ -3,6 +3,7 @@ import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
 import { AuthClient, UpdateUser } from 'test/clients/auth.client';
 import { FollowClient } from 'test/clients/follow.client';
 import { UserFactory } from 'test/factories/user.factory';
+import { ApiResponse, SupertestResponse } from 'test/types/api';
 import { FollowUseCase } from 'test/usecases/follow.usecase';
 import { PostUseCase } from 'test/usecases/post.usecase';
 
@@ -28,9 +29,9 @@ describe('AuthController (GET, PUT /auth/me)', () => {
     const user = await UserFactory.create(prefix);
     const body = await AuthClient.getProfile(user.accessToken);
 
-    expect(body).toHaveProperty('id', user.profile.id);
-    expect(body.email).toBe(user.profile.email);
-    expect(body.name).toBe(user.profile.name);
+    expect(body.data).toHaveProperty('id', user.profile.id);
+    expect(body.data.email).toBe(user.profile.email);
+    expect(body.data.name).toBe(user.profile.name);
   });
 
   it('should update the current user profile', async () => {
@@ -41,8 +42,8 @@ describe('AuthController (GET, PUT /auth/me)', () => {
     });
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('id', user.profile.id);
-    expect(res.body.name).toBe(updatedName);
+    expect(res.body.data).toHaveProperty('id', user.profile.id);
+    expect(res.body.data.name).toBe(updatedName);
   });
 
   it('should update both name and email fields', async () => {
@@ -55,9 +56,9 @@ describe('AuthController (GET, PUT /auth/me)', () => {
     });
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('id', user.profile.id);
-    expect(res.body.name).toBe(updatedName);
-    expect(res.body.email).toBe(updatedEmail);
+    expect(res.body.data).toHaveProperty('id', user.profile.id);
+    expect(res.body.data.name).toBe(updatedName);
+    expect(res.body.data.email).toBe(updatedEmail);
   });
 
   it('should return 401 if no access token is provided', async () => {
@@ -80,12 +81,12 @@ describe('AuthController (GET, PUT /auth/me)', () => {
 
       await FollowClient.follow(userA.accessToken, userB.profile.id);
 
-      const res = await AuthClient.getFollowers(userB.accessToken);
+      const res: SupertestResponse<ApiResponse<FollowUser[]>> =
+        await AuthClient.getFollowers(userB.accessToken);
       expect(res.status).toBe(200);
-      const body = res.body as FollowUser[];
-      expect(Array.isArray(body)).toBe(true);
-      expect(body.length).toBe(1);
-      expect(body[0]).toMatchObject({
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBe(1);
+      expect(res.body.data[0]).toMatchObject({
         id: userA.profile.id,
         name: userA.profile.name,
         email: userA.profile.email,
@@ -106,12 +107,12 @@ describe('AuthController (GET, PUT /auth/me)', () => {
 
       await FollowClient.follow(userA.accessToken, userB.profile.id);
 
-      const res = await AuthClient.getFollowing(userA.accessToken);
+      const res: SupertestResponse<ApiResponse<FollowUser[]>> =
+        await AuthClient.getFollowing(userA.accessToken);
       expect(res.status).toBe(200);
-      const body = res.body as FollowUser[];
-      expect(Array.isArray(body)).toBe(true);
-      expect(body.length).toBe(1);
-      expect(body[0]).toMatchObject({
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBe(1);
+      expect(res.body.data[0]).toMatchObject({
         id: userB.profile.id,
         name: userB.profile.name,
         email: userB.profile.email,

@@ -6,9 +6,6 @@ import {
   Delete,
   Param,
   Body,
-  Query,
-  UsePipes,
-  ValidationPipe,
   ParseUUIDPipe,
   UseGuards,
   Request,
@@ -17,20 +14,21 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreateGroupDto } from '../dto/create_group.dto';
 import { UpdateGroupDto } from '../dto/update_group.dto';
 import { CreateGroupUseCase } from '../use-case/create-group.use-case';
-import { FindAllGroupsUseCase } from '../use-case/find-all-groups.use-case';
 import { FindGroupByIdUseCase } from '../use-case/find-group-by-id.use-case';
 import { UpdateGroupUseCase } from '../use-case/update-group.use-case';
 import { DeleteGroupUseCase } from '../use-case/delete-group.use-case';
 import { GroupResponseDto } from '../dto/group_response.dto';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
-import { PaginatedResponseDto } from 'src/common/response/paginated-response.dto';
 import { GroupOwnerGuard } from '../guard/group-owner.guard';
+import { ApiResponse } from 'src/common/response/api-response';
+import { MessageDto } from 'src/common/dto/message.dto';
+import { ApiEndpoint } from 'src/common/swagger/endpoint.decorators';
+import { ResponseKind } from 'src/common/swagger/types';
+import { ApiErrorWrapped } from 'src/common/swagger/errors/error.decorators';
 
 @Controller('group')
 export class GroupController {
   constructor(
     private readonly createGroupUseCase: CreateGroupUseCase,
-    private readonly findAllGroupUseCase: FindAllGroupsUseCase,
     private readonly findGroupByIdUseCase: FindGroupByIdUseCase,
     private readonly updateGroupUseCase: UpdateGroupUseCase,
     private readonly deleteGroupUseCase: DeleteGroupUseCase,
@@ -38,57 +36,85 @@ export class GroupController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
+  @ApiEndpoint({
+    summary: 'Create a new group',
+    description: 'Allows users to create a new group',
+    body: CreateGroupDto,
+    response: {
+      type: GroupResponseDto,
+      kind: ResponseKind.Created,
+      description: 'Group created successfully',
+    },
+    auth: true,
+  })
+  @ApiErrorWrapped(401, 'Unauthorized')
   async create(
     @Request() req: { user: { id: string } },
     @Body() dto: CreateGroupDto,
-  ): Promise<GroupResponseDto> {
+  ): Promise<ApiResponse<GroupResponseDto>> {
     const result = await this.createGroupUseCase.execute(req.user.id, dto);
-    return new GroupResponseDto(result);
+    return { success: true, data: new GroupResponseDto(result) };
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async findAll(
-    @Query() query: PaginationQueryDto,
-  ): Promise<PaginatedResponseDto<GroupResponseDto>> {
-    const { page, limit } = query;
-    const result = await this.findAllGroupUseCase.execute({ page, limit });
-
-    return new PaginatedResponseDto<GroupResponseDto>({
-      data: result.data.map((item) => new GroupResponseDto(item)),
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      hasNextPage: result.hasNextPage,
-    });
-  }
-
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, GroupOwnerGuard)
   @Get(':id')
+  @ApiEndpoint({
+    summary: 'Get a group by ID',
+    description: 'Fetches a group by its unique identifier',
+    response: {
+      type: GroupResponseDto,
+      description: 'Group retrieved successfully',
+    },
+    auth: true,
+    idParam: { id: true, idParamDescription: 'Group' },
+    errors: { unauthorized: true, notFound: true },
+  })
   async findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<GroupResponseDto> {
+  ): Promise<ApiResponse<GroupResponseDto>> {
     const result = await this.findGroupByIdUseCase.execute(id);
-    return new GroupResponseDto(result);
+    return { success: true, data: new GroupResponseDto(result) };
   }
 
   @UseGuards(JwtAuthGuard, GroupOwnerGuard)
   @Put(':id')
+  @ApiEndpoint({
+    summary: 'Update a group',
+    description: 'Allows users to update an existing group',
+    body: UpdateGroupDto,
+    response: {
+      type: GroupResponseDto,
+      description: 'Group updated successfully',
+    },
+    auth: true,
+    idParam: { id: true, idParamDescription: 'Group' },
+    errors: { unauthorized: true, notFound: true },
+  })
   async update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() dto: UpdateGroupDto,
-  ): Promise<GroupResponseDto> {
+  ): Promise<ApiResponse<GroupResponseDto>> {
     const result = await this.updateGroupUseCase.execute(id, dto);
-    return new GroupResponseDto(result);
+    return { success: true, data: new GroupResponseDto(result) };
   }
 
   @UseGuards(JwtAuthGuard, GroupOwnerGuard)
   @Delete(':id')
+  @ApiEndpoint({
+    summary: 'Delete a group',
+    description: 'Allows users to delete an existing group',
+    response: {
+      type: MessageDto,
+      description: 'Group deleted successfully',
+    },
+    auth: true,
+    idParam: { id: true, idParamDescription: 'Group' },
+    errors: { unauthorized: true, notFound: true },
+  })
   async remove(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<{ message: string }> {
+  ): Promise<ApiResponse<MessageDto>> {
     await this.deleteGroupUseCase.execute(id);
-    return { message: 'Group deleted successfully' };
+    return { success: true, data: { message: 'Group deleted successfully' } };
   }
 }

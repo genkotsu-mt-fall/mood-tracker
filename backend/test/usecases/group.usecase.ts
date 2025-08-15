@@ -1,5 +1,10 @@
 import { GroupClient } from 'test/clients/group.client';
 import { UserFactory } from 'test/factories/user.factory';
+import { ApiResponse, SupertestResponse } from 'test/types/api';
+
+export type SupertestGroupResponse = SupertestResponse<
+  ApiResponse<{ id: string; name: string; userId: string }>
+>;
 
 export class GroupUseCase {
   /**
@@ -7,11 +12,14 @@ export class GroupUseCase {
    */
   static async createGroupWithName(prefix: string, groupName?: string) {
     const groupOwner = await UserFactory.create(`${prefix}_groupOwner`);
-    const res = await GroupClient.create(groupOwner.accessToken, groupName);
+    const res: SupertestGroupResponse = await GroupClient.create(
+      groupOwner.accessToken,
+      groupName,
+    );
 
     expect(res.status).toBe(201);
 
-    const group = res.body as { id: string; name: string; userId: string };
+    const group = res.body.data;
     return {
       group,
       groupOwner,

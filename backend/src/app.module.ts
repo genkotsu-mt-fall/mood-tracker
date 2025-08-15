@@ -13,6 +13,8 @@ import { FollowModule } from './follow/follow.module';
 import { UserFollowModule } from './user-follow/user-follow.module';
 import { UserGroupModule } from './user-group/user-group.module';
 import { PostQueryModule } from './post-query/post-query.module';
+import { AllExceptionFilter } from './common/api-error';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -37,6 +39,9 @@ import { PostQueryModule } from './post-query/post-query.module';
     PostQueryModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_FILTER, useClass: AllExceptionFilter }, // グローバル例外フィルタを登録
+  ],
 })
 export class AppModule {}

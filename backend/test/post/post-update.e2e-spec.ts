@@ -1,6 +1,7 @@
 import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
 import { PostClient } from 'test/clients/post.client';
 import { UserFactory } from 'test/factories/user.factory';
+import { ApiResponse, SupertestResponse } from 'test/types/api';
 import { PostUseCase } from 'test/usecases/post.usecase';
 
 describe('PostController (PUT /post/:id)', () => {
@@ -20,14 +21,14 @@ describe('PostController (PUT /post/:id)', () => {
       crisisFlag: false,
     });
     const updatedBody = 'Updated post body';
-    const res = await PostClient.update(postOwner.accessToken, post.id, {
-      body: updatedBody,
-    });
+    const res: SupertestResponse<ApiResponse<{ id: string; body: string }>> =
+      await PostClient.update(postOwner.accessToken, post.id, {
+        body: updatedBody,
+      });
     expect(res.status).toBe(200);
 
-    const body = res.body as { id: string; body: string };
-    expect(body).toHaveProperty('id', post.id);
-    expect(body.body).toBe(updatedBody);
+    expect(res.body.data).toHaveProperty('id', post.id);
+    expect(res.body.data.body).toBe(updatedBody);
   });
 
   it('should return 401 if no token is provided', async () => {
