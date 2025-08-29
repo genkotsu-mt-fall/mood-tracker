@@ -32,6 +32,19 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     ports:
       - "5432:5432"
+  
+  pw:
+    image: mcr.microsoft.com/playwright:v1.55.0-noble
+    working_dir: /workspace/frontend
+    init: true            # ゾンビ進程対策（tini）
+    ipc: host             # Chromium の共有メモリ不足対策
+    volumes:
+      - ..:/workspace:cached
+      - frontend-node-modules:/workspace/frontend/node_modules
+    environment:
+      - API_BASE_URL=http://localhost:5173/__e2e__
+      - NODE_ENV=development
+    command: bash -lc "npm ci && npx playwright test"
 
 volumes:
   # root-node-modules:
