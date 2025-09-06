@@ -25,7 +25,13 @@ export default function PostCard({ post }: { post: Post }) {
           intensity={post.intensity}
         />
 
-        <PostBody body={post.body} expanded={expanded} onToggle={toggleExpand} />
+        <PostBody
+          body={post.body}
+          expanded={expanded}
+          onToggle={toggleExpand}
+          isEditable={!!post.author.isMe}
+          onSaveEdit={(newBody) => alert('保存（未実装）: ' + newBody)}
+        />
 
         <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
           <TagList tags={post.tags} />
@@ -45,6 +51,8 @@ export default function PostCard({ post }: { post: Post }) {
           onOpen={() => window.open(`/posts/${post.id}`, '_self')}
           onCopyLink={() => navigator.clipboard?.writeText(`${location.origin}/posts/${post.id}`)}
           onReport={() => alert('報告（未実装）')}
+          isEditable={!!post.author.isMe}
+          onDelete={() => alert('削除（未実装）: ' + post.id)}
         />
       </CardContent>
     </Card>

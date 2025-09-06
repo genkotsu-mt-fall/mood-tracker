@@ -20,8 +20,8 @@ function isActive(pathname: string, href: string) {
 export default function BottomNav() {
   const pathname = usePathname()
   return (
-    <footer className="sticky bottom-0 z-10 border-t bg-white md:hidden">
-      <nav className="mx-auto flex max-w-md items-center justify-around px-2 py-2">
+    <footer className="md:hidden fixed inset-x-0 bottom-0 z-50 border-t bg-white pb-[env(safe-area-inset-bottom)]">
+      <nav className="mx-auto flex max-w-md items-center justify-around h-16 px-2">
         {NAV.map((item) => {
           const Icon = item.icon
           const active = isActive(pathname ?? '', item.href)

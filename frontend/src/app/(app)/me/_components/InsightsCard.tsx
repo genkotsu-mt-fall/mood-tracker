@@ -1,132 +1,104 @@
 "use client"
 
-import { useMemo, useState, useEffect } from 'react'
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  ReferenceArea, CartesianGrid, Scatter,
-} from 'recharts'
-import { makeSamplePosts } from '@/components/post/sample/samplePosts'
+import { useEffect, useMemo, useState } from "react"
+import { ResponsiveContainer, LineChart, Line, YAxis, XAxis, Tooltip, CartesianGrid } from "recharts"
+import { makeSamplePosts } from "@/components/post/sample/samplePosts"
+import type { Post } from "@/components/post/types"
 
-type Range = 7 | 30 | 90 | 'all'
-const SAMPLE_POSTS = makeSamplePosts('insights')
+const SAMPLE_POSTS: Post[] = makeSamplePosts("insights")
+
+type TinyPoint = { day: string; value: number }
 
 function dayKey(d: Date) {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${dd}`
+	const y = d.getFullYear()
+	const m = String(d.getMonth() + 1).padStart(2, "0")
+	const dd = String(d.getDate()).padStart(2, "0")
+	return `${y}-${m}-${dd}`
 }
-function clamp01(x: number) { return Number.isFinite(x) ? Math.max(0, Math.min(100, x)) : 0 }
-function movingAverage(values: number[], w: number) {
-  const res: (number | null)[] = Array(values.length).fill(null)
-  let sum = 0
-  for (let i = 0; i < values.length; i++) {
-    sum += values[i]; if (i >= w) sum -= values[i - w]
-    if (i >= w - 1) res[i] = +(sum / w).toFixed(2)
-  }
-  return res
+function clamp100(x: unknown) {
+	const n = typeof x === "number" ? x : 0
+	return Math.max(0, Math.min(100, n))
 }
 
 export default function InsightsCard() {
-  const [range, setRange] = useState<Range>(30)
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
+	const [mounted, setMounted] = useState(false)
+	useEffect(() => setMounted(true), [])
 
-  const daily = useMemo(() => {
-    const map = new Map<string, { sum: number; count: number; emoji?: string; date: Date }>()
-    for (const p of SAMPLE_POSTS) {
-      const date = new Date(p.createdAt)
-      const key = dayKey(date)
-      const intensity = typeof p.intensity === 'number' ? clamp01(p.intensity) : Math.floor(30 + Math.random() * 40)
-      const rec = map.get(key)
-      if (rec) { rec.sum += intensity; rec.count += 1; rec.emoji = p.emoji ?? rec.emoji }
-      else { map.set(key, { sum: intensity, count: 1, emoji: p.emoji, date }) }
-    }
-    return Array.from(map.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([key, v]) => ({ day: key, date: v.date, intensity: +(v.sum / v.count).toFixed(2), emoji: v.emoji ?? '🙂' }))
-  }, [])
+	// SAMPLE_POSTS を日単位で平均化（0-100）
+	const tinyData = useMemo<TinyPoint[]>(() => {
+		const map = new Map<string, { sum: number; count: number; date: Date }>()
+		for (const p of SAMPLE_POSTS) {
+			const d = new Date(p.createdAt)
+			const key = dayKey(d)
+			const v = clamp100(p.intensity)
+			const rec = map.get(key)
+			if (rec) {
+				rec.sum += v
+				rec.count += 1
+			} else {
+				map.set(key, { sum: v, count: 1, date: new Date(d.getFullYear(), d.getMonth(), d.getDate()) })
+			}
+		}
+		return Array.from(map.values())
+			.sort((a, b) => a.date.getTime() - b.date.getTime())
+			.map((r) => ({ day: dayKey(r.date), value: +(r.sum / r.count).toFixed(2) }))
+	}, [])
 
-  const filtered = useMemo(() => {
-    if (daily.length === 0) return []
-    if (range === 'all' || daily.length < range) return daily
-    const last = daily.at(-1)!.date
-    const from = new Date(last); from.setHours(0, 0, 0, 0); from.setDate(from.getDate() - (range - 1))
-    return daily.filter((d) => d.date >= from)
-  }, [daily, range])
+	const last30 = tinyData.length > 30 ? tinyData.slice(-30) : tinyData
 
-  const ma7 = useMemo(() => movingAverage(filtered.map((d) => d.intensity), 7), [filtered])
-  const chartData = filtered.map((d, i) => ({ ...d, ma7: ma7[i], spike: d.intensity >= 80 || d.intensity <= 20 }))
-  const spikes = chartData.filter((d) => d.spike)
+	return (
+			<article className="h-full min-h-0 flex flex-col rounded-xl border bg-white p-4">
+				<header className="mb-2 flex items-center gap-2 shrink-0">
+					<div className="text-sm font-semibold text-gray-900">ムード（30日）</div>
+					<div className="text-[11px] text-gray-500">0–100%</div>
+				</header>
 
-  return (
-    <article className="rounded-xl border bg-white p-6">
-      <div className="mb-3 text-sm font-semibold text-gray-900">ムードインサイト</div>
+				<div className="flex-1 min-h-0">
+					{mounted ? (
+						<ResponsiveContainer width="100%" height="100%">
+							<LineChart data={last30} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
+								{/* グリッド */}
+								<CartesianGrid strokeDasharray="3 3" />
 
-      {/* コントロール */}
-      <div className="mb-3 flex gap-2">
-        {([7, 30, 90, 'all'] as const).map((r) => (
-          <button
-            key={r}
-            onClick={() => setRange(r)}
-            className={[
-              'rounded-full px-3 py-1 text-xs border',
-              range === r ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700',
-            ].join(' ')}
-          >
-            {r === 'all' ? '全期間' : `${r}日`}
-          </button>
-        ))}
-        <div className="ml-auto self-center text-[11px] text-gray-500">安定帯: 40–60</div>
-      </div>
+								{/* 縦軸：0–100%、コンパクト表示 */}
+								<YAxis
+									domain={[0, 100]}
+									tick={{ fontSize: 11 }}
+									tickFormatter={(v) => `${v}%`}
+									ticks={[0, 20, 40, 60, 80, 100]}
+									width={34}
+								/>
 
-      {/* グラフ */}
-      {!mounted ? (
-        <div className="h-56 animate-pulse rounded-lg bg-gray-100" />
-      ) : chartData.length === 0 ? (
-        <div className="rounded-lg bg-gray-50 p-6 text-center text-sm text-gray-500">
-          まずは投稿してデータをためましょう。
-        </div>
-      ) : (
-        <div className="h-56">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" type="category" allowDuplicatedCategory={false} tick={{ fontSize: 11 }} minTickGap={18} tickMargin={6} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} width={34} />
-              <ReferenceArea y1={40} y2={60} fill="#E5F0FF" fillOpacity={0.5} />
-              <Tooltip
-                formatter={(value: number | string, name: string) =>
-                  name === 'intensity' || name === 'ma7' ? [`${value}%`, name] : [value, name]
-                }
-                labelFormatter={(label) => `日付: ${label}`}
-              />
-              <Line type="monotone" dataKey="intensity" name="抑揚" stroke="#2563EB" strokeWidth={2} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="ma7" name="7日平均" stroke="#94A3B8" strokeDasharray="5 5" dot={false} isAnimationActive={false} />
-              <Scatter
-                data={spikes}
-                shape={({
-                  cx = 0,
-                  cy = 0,
-                  payload,
-                }: {
-                  cx?: number
-                  cy?: number
-                  payload?: { emoji?: string }
-                }) => (
-                  <g transform={`translate(${cx - 8}, ${cy - 16})`}>
-                    <text fontSize="14" dominantBaseline="hanging">{payload?.emoji ?? '🙂'}</text>
-                  </g>
-                )}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
+								{/* 横軸：日付（MM-DD 表示、過密回避） */}
+								<XAxis
+									dataKey="day"
+									tick={{ fontSize: 11 }}
+									tickFormatter={(s: string) => s.slice(5)}
+									minTickGap={18}
+									tickMargin={6}
+									allowDuplicatedCategory={false}
+									interval="preserveStartEnd"
+								/>
 
-      <p className="mt-2 text-[11px] text-gray-500">
-        線：抑揚（0–100）。点線：7日移動平均。薄青帯：安定ゾーン（40–60）。
-      </p>
-    </article>
-  )
+								<Tooltip
+									formatter={(v: number) => [`${v}%`, "強度"]}
+									labelFormatter={(l) => `日付: ${l}`}
+								/>
+
+								<Line
+									type="monotone"
+									dataKey="value"
+									stroke="#2563EB"
+									strokeWidth={2}
+									dot={false}
+									isAnimationActive={false}
+								/>
+							</LineChart>
+						</ResponsiveContainer>
+					) : (
+						<div className="h-full rounded-lg bg-gray-100 animate-pulse" />
+					)}
+				</div>
+			</article>
+	)
 }

@@ -1,6 +1,6 @@
 export type Post = {
   id: string;
-  author: { name: string; avatarUrl?: string };
+  author: { name: string; avatarUrl?: string; isMe?: boolean };
   createdAt: string;
   body: string;
   tags?: string[];

@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Heart, MessageCircle, Repeat2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { EmojiReactPicker } from './EmojiReactPicker'
 import type { Emoji } from './types'
 import { MoreMenu } from './MoreMenu'
@@ -20,6 +21,8 @@ export function ActionsBar({
   onOpen,
   onCopyLink,
   onReport,
+  isEditable,
+  onDelete,
 }: {
   comments?: number
   reposts?: number
@@ -33,6 +36,8 @@ export function ActionsBar({
   onOpen?: () => void
   onCopyLink?: () => void
   onReport?: () => void
+  isEditable?: boolean
+  onDelete?: () => void
 }) {
   return (
     <div className="mt-3 flex items-center gap-2">
@@ -87,8 +92,24 @@ export function ActionsBar({
           <TooltipContent>リポスト</TooltipContent>
         </Tooltip>
 
-  <EmojiReactPicker myReactions={myReactions} onToggle={onToggleEmoji} />
-  <MoreMenu onOpen={onOpen} onCopyLink={onCopyLink} onReport={onReport} />
+        <EmojiReactPicker myReactions={myReactions} onToggle={onToggleEmoji} />
+        {isEditable && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onDelete}
+                className="rounded-lg border-gray-300 bg-white text-xs text-gray-900 hover:bg-red-50 ml-1"
+                aria-label="投稿を削除"
+              >
+                <Trash2 className="h-4 w-4 text-red-500" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>投稿を削除</TooltipContent>
+          </Tooltip>
+        )}
+        <MoreMenu onOpen={onOpen} onCopyLink={onCopyLink} onReport={onReport} />
       </TooltipProvider>
     </div>
   )

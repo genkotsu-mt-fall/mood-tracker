@@ -58,7 +58,7 @@ const EMOJIS = [
 export function makeSamplePosts(prefix: string, count = 100): Post[] {
   const now = Date.now();
   return Array.from({ length: count }, (_, i) => {
-    const author = AUTHORS[i % AUTHORS.length];
+    const authorName = AUTHORS[i % AUTHORS.length];
     const emoji = EMOJIS[i % EMOJIS.length];
     const body = BODIES[i % BODIES.length];
     const createdAt = new Date(now - i * 3 * 60 * 60 * 1000).toISOString();
@@ -70,9 +70,12 @@ export function makeSamplePosts(prefix: string, count = 100): Post[] {
         ? [TAGS[i % TAGS.length]]
         : undefined;
 
+    const author =
+      prefix === "me" ? { name: authorName, isMe: true } : { name: authorName };
+
     return {
       id: `${prefix}${i + 1}`,
-      author: { name: author },
+      author,
       createdAt,
       body,
       tags,
