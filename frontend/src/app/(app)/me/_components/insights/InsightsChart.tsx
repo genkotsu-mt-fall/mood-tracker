@@ -13,12 +13,25 @@ import {
 import type { Post } from "@/components/post/types";
 import type { StackedPoint } from "./types";
 import EmojiDot from "./EmojiDot";
+import type { DotProps } from "recharts";
 import MiniPostTooltip from "./MiniPostTooltip";
+import { useRightPanel } from "@/app/(app)/_components/right-panel/RightPanelContext";
+import DayPosts from "./DayPosts";
 
 export default function InsightsChart({ data, postsByDay }: {
   data: StackedPoint[];
   postsByDay: Record<string, Post[]>;
 }) {
+  const { show } = useRightPanel();
+
+  const handleSelectDot = (p?: StackedPoint) => {
+    if (!p) return;
+    const posts = postsByDay[p.day] ?? [];
+    show(<DayPosts day={p.day} posts={posts} />, {
+      title: `${p.day} の投稿 (${posts.length})`,
+    });
+  };
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <ComposedChart data={data} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
@@ -41,10 +54,10 @@ export default function InsightsChart({ data, postsByDay }: {
         />
 
         {/* 帯塗り分け */}
-        <Area type="monotone" dataKey="b0_15"   stackId="v" stroke="none" fill="#2563EB" />
-        <Area type="monotone" dataKey="b15_30"  stackId="v" stroke="none" fill="#93C5FD" />
-        <Area type="monotone" dataKey="b30_50"  stackId="v" stroke="none" fill="#FACC15" />
-        <Area type="monotone" dataKey="b50_75"  stackId="v" stroke="none" fill="#FB923C" />
+        <Area type="monotone" dataKey="b0_15" stackId="v" stroke="none" fill="#2563EB" />
+        <Area type="monotone" dataKey="b15_30" stackId="v" stroke="none" fill="#93C5FD" />
+        <Area type="monotone" dataKey="b30_50" stackId="v" stroke="none" fill="#FACC15" />
+        <Area type="monotone" dataKey="b50_75" stackId="v" stroke="none" fill="#FB923C" />
         <Area type="monotone" dataKey="b75_100" stackId="v" stroke="none" fill="#F87171" />
 
         {/* 合計ライン（ドットは消す） */}
@@ -58,18 +71,27 @@ export default function InsightsChart({ data, postsByDay }: {
           activeDot={false}
         />
 
-        {/* ✅ 合計ラインのドットだけを絵文字にする */}
+        {/* ✅ 合計ラインのドットを絵文字&クリック可能に */}
         <Line
           type="monotone"
           dataKey="value"
           stroke="#111827"
           strokeWidth={2}
           isAnimationActive={false}
-          dot={<EmojiDot />}
+          dot={(dotProps) => {
+            const { key, ...rest } = dotProps as DotProps & { payload: StackedPoint };
+            return (
+              <EmojiDot
+                key={key}
+                {...rest}
+                onSelect={handleSelectDot}
+              />
+            );
+          }}
           activeDot={false}
         />
 
-        {/* ツールチップ（Scatter の点をホバーした時だけ、その投稿を表示） */}
+        {/* ツールチップ */}
         <Tooltip
           content={(props) => (
             <MiniPostTooltip
@@ -88,3 +110,4 @@ export default function InsightsChart({ data, postsByDay }: {
     </ResponsiveContainer>
   );
 }
+
