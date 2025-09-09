@@ -1,0 +1,112 @@
+"use client";
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  Area,
+  Line,
+  YAxis,
+  XAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
+
+import type { Post } from "@/components/post/types";
+import type { StackedPoint } from "@/app/(app)/me/_components/insights/types";
+import type { DotProps } from "recharts";
+
+import { useRightPanel } from "@/app/(app)/_components/right-panel/RightPanelContext";
+
+// 既存のパーツを流用（必要なら後で feed 用に分岐/修正可能）
+import EmojiDot from "@/app/(app)/me/_components/insights/EmojiDot";
+import MiniPostTooltip from "@/app/(app)/me/_components/insights/MiniPostTooltip";
+import DayPosts from "@/app/(app)/me/_components/insights/DayPosts";
+
+export default function FeedInsightsChart({
+  data,
+  postsByDay,
+}: {
+  data: StackedPoint[];
+  postsByDay: Record<string, Post[]>;
+}) {
+  const { show } = useRightPanel();
+
+  const handleSelectDot = (p?: StackedPoint) => {
+    if (!p) return;
+    const posts = postsByDay[p.day] ?? [];
+    show(<DayPosts day={p.day} posts={posts} />, {
+      title: `${p.day} の投稿 (${posts.length})`,
+    });
+  };
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <ComposedChart data={data} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <YAxis
+          domain={[0, 100]}
+          ticks={[0, 15, 30, 50, 75, 100]}
+          tick={{ fontSize: 11 }}
+          tickFormatter={(v) => `${v}%`}
+          width={36}
+        />
+        <XAxis
+          dataKey="day"
+          tick={{ fontSize: 11 }}
+          tickFormatter={(s: string) => s.slice(5)} // YYYY-MM-DD → MM-DD
+          minTickGap={18}
+          tickMargin={6}
+          allowDuplicatedCategory={false}
+          interval="preserveStartEnd"
+        />
+
+        {/* 帯塗り分け（/me と同様。差分が必要になったらここで調整） */}
+        <Area type="monotone" dataKey="b0_15" stackId="v" stroke="none" fill="#2563EB" />
+        <Area type="monotone" dataKey="b15_30" stackId="v" stroke="none" fill="#93C5FD" />
+        <Area type="monotone" dataKey="b30_50" stackId="v" stroke="none" fill="#FACC15" />
+        <Area type="monotone" dataKey="b50_75" stackId="v" stroke="none" fill="#FB923C" />
+        <Area type="monotone" dataKey="b75_100" stackId="v" stroke="none" fill="#F87171" />
+
+        {/* 合計ライン（ドットは消す） */}
+        <Line
+          type="monotone"
+          dataKey="value"
+          stroke="#111827"
+          strokeWidth={2}
+          isAnimationActive={false}
+          dot={false}
+          activeDot={false}
+        />
+
+        {/* ドットは絵文字＆クリック可 */}
+        <Line
+          type="monotone"
+          dataKey="value"
+          stroke="#111827"
+          strokeWidth={2}
+          isAnimationActive={false}
+          dot={(dotProps) => {
+            const { key, ...rest } = dotProps as DotProps & { payload: StackedPoint };
+            return <EmojiDot key={key} {...(rest as DotProps & { payload: StackedPoint })} onSelect={handleSelectDot} />;
+          }}
+          activeDot={false}
+        />
+
+        {/* ツールチップ */}
+        <Tooltip
+          content={(props) => (
+            <MiniPostTooltip
+              active={props.active}
+              payload={props.payload}
+              label={props.label}
+              coordinate={props.coordinate}
+              accessibilityLayer={props.accessibilityLayer}
+              postsByDay={postsByDay}
+            />
+          )}
+          wrapperStyle={{ pointerEvents: "auto" }}
+          allowEscapeViewBox={{ x: true, y: true }}
+        />
+      </ComposedChart>
+    </ResponsiveContainer>
+  );
+}

@@ -33,24 +33,30 @@ export default function FeedGroupLayout({ children }: { children: ReactNode }) {
 
   return (
     <RightPanelProvider>
-      <main className="min-h-screen bg-gray-50">
-        <div className="mx-auto max-w-screen-xl p-4 md:p-6">
-          {/* ▼ PC: 左だけにタブ、右は独立 */}
-          <div className="hidden lg:grid lg:grid-cols-12 lg:gap-6">
-            {/* 左：タイムライン（children） */}
-            <section className="lg:col-span-8 min-w-0">
-              <div className="mb-4">
-                <TabsNav /> {/* ← タブは左カラム内だけに表示 */}
+      {/* PC は縦横ともに画面いっぱい */}
+      <main className="bg-gray-50 min-h-screen lg:h-[100svh] lg:overflow-hidden">
+        {/* モバイル/タブレットは余白あり、PC は余白なし＆最大幅解除 */}
+  <div className="p-4 md:p-6 lg:p-0 lg:max-w-none lg:mx-0 lg:h-full lg:min-h-0">
+          {/* ▼ PC: 1カラムで全幅・全高（右サイドなし） */}
+          <div className="hidden lg:grid lg:grid-cols-12 lg:gap-0 lg:h-full lg:min-h-0">
+            <section className="lg:col-span-12 min-w-0 lg:h-full lg:min-h-0 lg:flex lg:flex-col">
+              <div className="mb-4 lg:mb-0 shrink-0">
+                <TabsNav />
               </div>
-              {children}
+              {/* children が残り高さを占有できるようにする */}
+              <div className="lg:flex-1 lg:min-h-0">
+                {children}
+              </div>
             </section>
 
-            {/* 右：サイド（独立コンテンツ） */}
+            {/* 右サイドは全幅化のため非表示（復活させるなら 8/4 に戻せます） */}
+            {/*
             <aside className="lg:col-span-4 min-h-0 flex-col gap-6 hidden lg:flex">
               <QuickComposerCard />
               <InsightsCard />
               <WhoToFollowCard />
             </aside>
+            */}
           </div>
 
           {/* ▼ SP/タブレット: 4タブ（Feed/Following/インサイト/おすすめ） */}
