@@ -1,21 +1,13 @@
-import PostCard from '@/components/post/PostCard'
-import { makeSamplePosts } from '@/components/post/sample/samplePosts'
+"use client";
 
-const SAMPLE_POSTS = makeSamplePosts('p')
+import FeedInsightsCard from "../_components/FeedInsightsCard";
 
 export default function FollowingPage() {
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-md p-4">
-        {/* <h1 className="mb-4 text-lg font-semibold text-gray-900">Following</h1> */}
-        <ul className="space-y-3">
-          {SAMPLE_POSTS.map((p) => (
-            <li key={p.id}>
-              <PostCard post={p} />
-            </li>
-          ))}
-        </ul>
+    <div className="h-full overflow-auto -mx-4 md:-mx-6 -mt-4 md:-mt-6 lg:mx-0 lg:mt-0">
+      <div className="h-full px-4 md:px-6 lg:px-0 pt-6 pb-0">
+        <FeedInsightsCard />
       </div>
-    </main>
+    </div>
   )
 }
