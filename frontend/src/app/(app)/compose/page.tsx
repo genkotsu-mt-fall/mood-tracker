@@ -30,6 +30,9 @@ export default function ComposePage() {
     return created
   }
 
+  // CreateGroupDialog用の選択状態
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+
   // ダイアログ状態・Promise解決は Hook に委譲
   const {
     open, setOpen,
@@ -107,6 +110,9 @@ export default function ComposePage() {
         submitting={submitting}
         onSubmit={handleSubmit}
         onCancel={handleClose}
+        users={USER_OPTIONS}
+        selectedIds={selectedIds}
+        onSelectedIdsChange={setSelectedIds}
       />
     </main>
   )

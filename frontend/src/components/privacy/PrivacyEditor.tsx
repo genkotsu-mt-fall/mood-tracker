@@ -1,10 +1,13 @@
-'use client'
+"use client"
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useId } from 'react'
 import type { PrivacySetting, DeviceType } from '@/lib/privacy/types'
 import { normalizePrivacySetting, localDateTimeToISO } from '@/lib/privacy/utils'
 import type { Option } from '@/lib/common/types'
-import { Plus } from 'lucide-react'
+import { Plus, Info, ListChecks, GitMerge } from 'lucide-react'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 type Props = {
   value?: PrivacySetting
@@ -26,6 +29,9 @@ export default function PrivacyEditor({
 }: Props) {
   // 内部編集用のドラフト
   const [draft, setDraft] = useState<PrivacySetting>(value ?? {})
+  const uid = useId()
+  const gmAnyId = `${uid}-gm-any`
+  const gmAllId = `${uid}-gm-all`
 
   // min/max の相関チェック
   const followDaysError = useMemo(() => {
@@ -182,27 +188,74 @@ export default function PrivacyEditor({
         </div>
 
         <div>
-          <div className="mb-1 text-xs text-gray-500">グループ判定</div>
-          <div className="flex gap-3 text-sm">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="group_mode"
-                checked={draft.group_visibility_mode === 'any'}
-                onChange={() => commit({ ...draft, group_visibility_mode: 'any' })}
-              />
-              any（どれか1つ所属）
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="group_mode"
-                checked={draft.group_visibility_mode === 'all'}
-                onChange={() => commit({ ...draft, group_visibility_mode: 'all' })}
-              />
-              all（全て所属）
-            </label>
+          <div className="mb-1 flex items-center justify-between">
+            <div className="text-xs text-gray-500">グループ判定</div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className="rounded-md p-1 hover:bg-muted"
+                  aria-label="any/all の違いについて"
+                >
+                  <Info className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs text-xs">
+                <p className="font-medium mb-1">any（どれか1つ所属）</p>
+                <p className="mb-2">指定したグループのうち、いずれか1つに所属していればOK。</p>
+                <p className="font-medium mb-1">all（全て所属）</p>
+                <p>指定したグループすべてに所属している必要があります。</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
+
+          <RadioGroup
+            value={draft.group_visibility_mode ?? 'any'}
+            onValueChange={(v) => commit({ ...draft, group_visibility_mode: v as 'any' | 'all' })}
+            className="grid grid-cols-2 gap-3"
+          >
+            {/* any */}
+            <Label htmlFor={gmAnyId} className="cursor-pointer">
+              <RadioGroupItem id={gmAnyId} value="any" className="sr-only peer" />
+              <div
+                className="
+                  flex items-center gap-2 rounded-xl border p-3 text-sm
+                  transition-all hover:shadow-sm
+                  peer-data-[state=checked]:border-primary
+                  peer-data-[state=checked]:bg-primary/5
+                  peer-data-[state=checked]:ring-2
+                  peer-data-[state=checked]:ring-primary/30
+                "
+              >
+                <ListChecks className="h-4 w-4" />
+                <div>
+                  <div className="font-medium">any</div>
+                  <div className="text-xs text-muted-foreground">どれか1つ所属で可</div>
+                </div>
+              </div>
+            </Label>
+
+            {/* all */}
+            <Label htmlFor={gmAllId} className="cursor-pointer">
+              <RadioGroupItem id={gmAllId} value="all" className="sr-only peer" />
+              <div
+                className="
+                  flex items-center gap-2 rounded-xl border p-3 text-sm
+                  transition-all hover:shadow-sm
+                  peer-data-[state=checked]:border-primary
+                  peer-data-[state=checked]:bg-primary/5
+                  peer-data-[state=checked]:ring-2
+                  peer-data-[state=checked]:ring-primary/30
+                "
+              >
+                <GitMerge className="h-4 w-4" />
+                <div>
+                  <div className="font-medium">all</div>
+                  <div className="text-xs text-muted-foreground">すべて所属が必要</div>
+                </div>
+              </div>
+            </Label>
+          </RadioGroup>
         </div>
       </div>
 
