@@ -1,5 +1,5 @@
 "use client"
-
+import UserMultiSelectLite from './UserMultiSelectLite'
 import { useMemo, useState, useId } from 'react'
 import type { PrivacySetting, DeviceType } from '@/lib/privacy/types'
 import { normalizePrivacySetting, localDateTimeToISO } from '@/lib/privacy/utils'
@@ -81,49 +81,37 @@ export default function PrivacyEditor({
       </div>
 
       {/* 許可/除外ユーザー */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <div className="mb-1 text-xs text-gray-500">許可ユーザー</div>
-          <select
-            multiple
-            className="w-full rounded-md border p-2 text-sm min-h-[6rem]"
-            value={draft.allow_users ?? []}
-            onChange={(e) =>
-              commit({
-                ...draft,
-                allow_users: Array.from(e.target.selectedOptions).map((o) => o.value),
-              })
-            }
-          >
-            {userOptions.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="rounded-lg border bg-card p-3">
+            <div className="mb-2 text-xs font-medium text-muted-foreground">許可ユーザー</div>
+            <UserMultiSelectLite
+              options={userOptions}
+              value={draft.allow_users ?? []}
+              onChange={(ids) => {
+                // 排他制御：許可に入れたIDは除外から自動で外す
+                const nextDeny = (draft.deny_users ?? []).filter((id) => !ids.includes(id))
+                commit({ ...draft, allow_users: ids, deny_users: nextDeny })
+              }}
+              accent="allow"
+              placeholder="ユーザーを検索して追加"
+            />
+          </div>
 
-        <div>
-          <div className="mb-1 text-xs text-gray-500">除外ユーザー</div>
-          <select
-            multiple
-            className="w-full rounded-md border p-2 text-sm min-h-[6rem]"
-            value={draft.deny_users ?? []}
-            onChange={(e) =>
-              commit({
-                ...draft,
-                deny_users: Array.from(e.target.selectedOptions).map((o) => o.value),
-              })
-            }
-          >
-            {userOptions.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.label}
-              </option>
-            ))}
-          </select>
+          <div className="rounded-lg border bg-card p-3">
+            <div className="mb-2 text-xs font-medium text-muted-foreground">除外ユーザー</div>
+            <UserMultiSelectLite
+              options={userOptions}
+              value={draft.deny_users ?? []}
+              onChange={(ids) => {
+                // 排他制御：除外に入れたIDは許可から自動で外す
+                const nextAllow = (draft.allow_users ?? []).filter((id) => !ids.includes(id))
+                commit({ ...draft, deny_users: ids, allow_users: nextAllow })
+              }}
+              accent="deny"
+              placeholder="ユーザーを検索して除外"
+            />
+          </div>
         </div>
-      </div>
 
       {/* グループ＆条件 */}
       <div className="grid grid-cols-2 gap-3">
