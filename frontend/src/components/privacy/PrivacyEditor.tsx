@@ -24,6 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
+import ViewableTimeRangeField from './ViewableTimeRangeField'
 
 type Props = {
   value?: PrivacySetting
@@ -540,43 +541,13 @@ export default function PrivacyEditor({
         followDaysError={followDaysError || null}
       />
 
-      {/* 閲覧可能時間帯 */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <div className="mb-1 text-xs text-gray-500">閲覧可（開始 HH:mm）</div>
-          <input
-            type="time"
-            className="w-full rounded-md border px-2 py-1 text-sm"
-            value={draft.viewable_time_range?.start ?? ''}
-            onChange={(e) =>
-              commit({
-                ...draft,
-                viewable_time_range: {
-                  start: e.target.value,
-                  end: draft.viewable_time_range?.end ?? '',
-                },
-              })
-            }
-          />
-        </div>
-        <div>
-          <div className="mb-1 text-xs text-gray-500">閲覧可（終了 HH:mm）</div>
-          <input
-            type="time"
-            className="w-full rounded-md border px-2 py-1 text-sm"
-            value={draft.viewable_time_range?.end ?? ''}
-            onChange={(e) =>
-              commit({
-                ...draft,
-                viewable_time_range: {
-                  start: draft.viewable_time_range?.start ?? '',
-                  end: e.target.value,
-                },
-              })
-            }
-          />
-        </div>
-      </div>
+      {/* 閲覧可能時間帯（リッチUI版） */}
+      <ViewableTimeRangeField
+        value={draft.viewable_time_range}
+        onChange={(next) => commit({ ...draft, viewable_time_range: next })}
+        // allowOvernight を有効化したい場合は true を渡す
+        // allowOvernight
+      />
 
       {/* 公開期間 */}
       <div className="grid grid-cols-2 gap-3">
