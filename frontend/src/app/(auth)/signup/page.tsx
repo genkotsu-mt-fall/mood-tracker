@@ -1,119 +1,96 @@
-'use client'
+'use client';
 
-import { useState } from "react"
+import AuthLayout from '@/components/auth/AuthLayout';
+import FormField from '@/components/auth/FormField';
+import PasswordField from '@/components/auth/PasswordField';
+import SubmitButton from '@/components/auth/SubmitButton';
+import { useActionState } from 'react';
+import { signupAction, SignupState } from '../actions';
 
 export default function SignupPage() {
-  const [pending, setPending] = useState(false)
-  const [error, setError] = useState("")
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError("")
-    const fd = new FormData(e.currentTarget)
-    const email = String(fd.get("email") || "")
-    const password = String(fd.get("password") || "")
-    const confirm = String(fd.get("confirm") || "")
-
-    if (!email || !password || !confirm) {
-      setError("Missing fields")
-      return
-    }
-    if (password !== confirm) {
-      setError("Passwords do not match")
-      return
-    }
-
-    // UIデモ用：実際の送信は行わない
-    setPending(true)
-    setTimeout(() => setPending(false), 800)
-  }
-
+  const [state, formAction] = useActionState<SignupState, FormData>(
+    signupAction,
+    { ok: false },
+  );
   return (
-    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <>
+      <AuthLayout>
         <div className="bg-white shadow-sm rounded-2xl p-6 border border-gray-100">
-          <h1 className="text-xl font-semibold text-gray-900 mb-1">Create account</h1>
-          <p className="text-sm text-gray-500 mb-6">welcome ✨</p>
+          <h1 className="text-xl font-semibold text-gray-900 mb-1">
+            アカウント作成
+          </h1>
+          <p className="text-sm text-gray-500 mb-6">ようこそ ✨</p>
 
-          <form onSubmit={handleSubmit} aria-describedby="form-error" noValidate className="space-y-4">
-            <div className="space-y-1.5">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name (optional)</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="Taro Yamada"
-                autoComplete="name"
-                className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
-              />
-            </div>
+          <form
+            action={formAction}
+            aria-describedby="form-error"
+            noValidate
+            className="space-y-4"
+          >
+            <FormField
+              id="name"
+              name="name"
+              type="text"
+              label="名前（任意）"
+              placeholder="山田 太郎"
+              autoComplete="name"
+              error={state.ok ? undefined : state.fields?.name}
+            />
+            <FormField
+              id="email"
+              name="email"
+              type="email"
+              label="メールアドレス"
+              required
+              placeholder="email@example.com"
+              autoComplete="email"
+              error={state.ok ? undefined : state.fields?.email}
+            />
+            <PasswordField
+              id="password"
+              name="password"
+              label="パスワード"
+              autoComplete="new-password"
+              error={state.ok ? undefined : state.fields?.password}
+            />
+            <PasswordField
+              id="confirm"
+              name="confirm"
+              label="パスワード（確認）"
+              autoComplete="new-password"
+              error={state.ok ? undefined : state.fields?.confirm}
+            />
 
-            <div className="space-y-1.5">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                placeholder="email@example.com"
-                autoComplete="email"
-                className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                autoComplete="new-password"
-                className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="confirm" className="block text-sm font-medium text-gray-700">Confirm password</label>
-              <input
-                id="confirm"
-                name="confirm"
-                type="password"
-                required
-                autoComplete="new-password"
-                className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
-              />
-            </div>
-
-            {error ? (
-              <div id="form-error" role="alert" aria-live="polite" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {error}
-              </div>
+            {!state.ok && state.error ? (
+              <>
+                <div
+                  id="form-error"
+                  role="alert"
+                  aria-live="polite"
+                  className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+                >
+                  {state.error}
+                </div>
+              </>
             ) : (
-              <div id="form-error" aria-hidden="true" className="hidden" />
+              <>
+                <div id="form-error" aria-hidden="true" className="hidden" />
+              </>
             )}
 
-            <SubmitButton pending={pending} />
+            <SubmitButton label="アカウント作成" pendingLabel="作成中..." />
           </form>
         </div>
-
         <p className="mt-4 text-center text-xs text-gray-500">
-          Already have an account?{" "}
-          <a href="/login" className="underline underline-offset-2 hover:text-gray-700">Log in</a>
+          すでにアカウントをお持ちですか？{' '}
+          <a
+            href="/login"
+            className="underline underline-offset-2 hover:text-gray-700"
+          >
+            ログイン
+          </a>
         </p>
-      </div>
-    </main>
-  )
-}
-
-function SubmitButton({ pending }: { pending: boolean }) {
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="inline-flex w-full items-center justify-center rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-gray-900"
-    >
-      {pending ? "Creating..." : "Create account"}
-    </button>
-  )
+      </AuthLayout>
+    </>
+  );
 }

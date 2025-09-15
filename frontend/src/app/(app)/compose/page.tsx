@@ -187,14 +187,14 @@ export default function ComposePage() {
           </div>
 
           {/* 下段：2カラム（Emoji / 浮き沈み%） */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 items-stretch">
             {/* 気分(emoji) */}
-            <div className="rounded-3xl bg-gradient-to-r from-sky-200/50 via-fuchsia-200/50 to-amber-200/50 p-[1.5px]">
-              <Card className="rounded-3xl border border-gray-200/80 bg-white/80 [&_*]:bg-transparent">
+            <div className="rounded-3xl bg-gradient-to-r from-sky-200/50 via-fuchsia-200/50 to-amber-200/50 p-[1.5px] h-full">
+              <Card className="h-full rounded-3xl border border-gray-200/80 bg-white/80 [&_*]:bg-transparent flex flex-col">
                 <CardHeader className="pb-2">
                   <Label className="text-xs text-gray-500">気分（emoji）</Label>
                 </CardHeader>
-                <CardContent className="pt-0">
+                <CardContent className="pt-0 grow">
                   <div className="flex items-center gap-3">
                     {/* 左プレビュー：40pxで固定 */}
                     <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border bg-white/80 text-xl">
@@ -208,9 +208,9 @@ export default function ComposePage() {
                           relative overflow-hidden rounded-xl border border-gray-200/80
                           bg-white/80 backdrop-blur
                           px-3
-                          [&_*]:bg-transparent          /* ← 子の白を消す（input/buttonなど） */
+                          [&_*]:bg-transparent
                           [&_input]:h-10 [&_input]:leading-none [&_input]:border-0 [&_input]:shadow-none
-                          [&_input]:pl-0 [&_input]:pr-10 /* 右ボタン分の余白 */
+                          [&_input]:pl-0 [&_input]:pr-10
                           [&_button]:h-8 [&_button]:w-8
                           [&_button]:absolute [&_button]:right-1 [&_button]:top-1/2 [&_button]:-translate-y-1/2
                           [&_button]:border [&_button]:border-gray-200 [&_button]:rounded-xl
@@ -227,12 +227,12 @@ export default function ComposePage() {
             </div>
 
             {/* 浮き沈み(%) */}
-            <div className="rounded-3xl bg-gradient-to-r from-sky-200/50 via-fuchsia-200/50 to-amber-200/50 p-[1.5px]">
-              <Card className="rounded-3xl border border-gray-200/80 bg-white/80">
+            <div className="rounded-3xl bg-gradient-to-r from-sky-200/50 via-fuchsia-200/50 to-amber-200/50 p-[1.5px] h-full">
+              <Card className="h-full rounded-3xl border border-gray-200/80 bg-white/80 flex flex-col">
                 <CardHeader className="pb-2">
                   <Label className="text-xs text-gray-500">浮き沈み（%）</Label>
                 </CardHeader>
-                <CardContent className="pt-1 space-y-3">
+                <CardContent className="pt-1 space-y-3 grow">
                   <div className="flex items-center gap-3">
                     <Slider
                       value={[swing]}

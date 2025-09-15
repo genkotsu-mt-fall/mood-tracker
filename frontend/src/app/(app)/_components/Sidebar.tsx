@@ -5,14 +5,14 @@ import { Home, Search, PlusCircle, Users, Bell, User, Settings } from 'lucide-re
 
 const NAV = [
   { href: '/feed', label: 'フィード', icon: Home },
-  { href: '/explore', label: '探索', icon: Search },
+  // { href: '/explore', label: '探索', icon: Search },
   { href: '/compose', label: '投稿', icon: PlusCircle },
   { href: '/groups', label: 'グループ', icon: Users },
-  { href: '/notifications', label: '通知', icon: Bell },
+  // { href: '/notifications', label: '通知', icon: Bell },
   { href: '/me', label: 'マイページ', icon: User },
   { href: '/me/following', label: 'フォロー中', icon: Users },
   { href: '/me/followers', label: 'フォロワー', icon: Users },
-  { href: '/me/insights', label: 'インサイト', icon: Settings },
+  // { href: '/me/insights', label: 'インサイト', icon: Settings },
   { href: '/settings/profile', label: '設定', icon: Settings },
 ]
 

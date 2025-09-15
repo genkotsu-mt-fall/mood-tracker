@@ -1,85 +1,67 @@
-"use server";
+'use server';
 
-import { cookies } from "next/headers";
-import { redirect, RedirectType } from "next/navigation";
+import { parseForm } from '@/lib/actions/parse';
+import { ActionState, apiFieldErrorsToUi } from '@/lib/actions/state';
+import { authLogin, authSignup } from '@/lib/auth/api';
+import { setAccessTokenCookie } from '@/lib/auth/cookies';
+import {
+  LoginFields,
+  loginSchema,
+  SignupFields,
+  signupSchema,
+} from '@/lib/auth/schemas';
+import { redirect, RedirectType } from 'next/navigation';
 
-type ApiSuccess<T> = {
-  success: true;
-  data: T;
-};
-
-type LoginError = {
-  success: false;
-  error: {
-    code: string;
-    message: string;
-    fields?: Record<string, string[]>;
-    details?: string;
-  };
-};
-
-type LoginData = { accessToken: string };
-
-export type LoginState = { ok: true } | { ok: false; error: string };
+export type LoginState = ActionState<keyof LoginFields & string>;
+export type SignupState = ActionState<keyof SignupFields & string>;
 
 export async function loginAction(
   _prevState: LoginState | undefined,
-  formData: FormData
+  formData: FormData,
 ): Promise<LoginState> {
-  const email = formData.get("email");
-  const password = formData.get("password");
+  const parsed = parseForm(formData, loginSchema);
+  if (!parsed.ok) return { ok: false, fields: parsed.fields };
 
-  if (!email || !password) {
-    return { ok: false, error: "Missing email or password" };
+  const { email, password } = parsed.data;
+
+  const r = await authLogin(email, password);
+
+  if (!r.ok) {
+    return { ok: false, error: r.message };
   }
 
-  const res = await fetch(`${process.env.API_BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-    body: JSON.stringify({
-      email,
-      password,
-    }),
-  });
+  await setAccessTokenCookie(r.data.accessToken);
+  redirect('/feed', RedirectType.replace);
+  return { ok: true };
+}
 
-  if (!res.ok) {
-    let errMsg = "Login failed";
-    try {
-      const failedJson: LoginError | ApiSuccess<LoginData> = await res.json();
-      if ("success" in failedJson && failedJson.success === false) {
-        errMsg = failedJson.error.message || errMsg;
-      }
-    } catch {}
-    return { ok: false, error: errMsg };
+export async function signupAction(
+  _prevState: SignupState | undefined,
+  formData: FormData,
+): Promise<SignupState> {
+  const parsed = parseForm(formData, signupSchema);
+  if (!parsed.ok) return { ok: false, fields: parsed.fields };
+
+  const { name, email, password } = parsed.data;
+
+  // 1) サインアップ
+  const s = await authSignup({ email, password, ...(name ? { name } : {}) });
+  if (!s.ok) {
+    return {
+      ok: false,
+      error: s.message,
+      fields: apiFieldErrorsToUi(s.fields),
+    };
   }
 
-  let json: ApiSuccess<LoginData> | LoginError;
-  try {
-    json = await res.json();
-  } catch {
-    return { ok: false, error: "サーバー応答の形式が不正です。" };
+  // 2) 自動ログイン（失敗しても成功導線へ）
+  const l = await authLogin(email, password);
+  if (!l.ok) {
+    redirect('/login?just_signed_up=1', RedirectType.replace);
+    return { ok: true };
   }
 
-  if (!json.success) {
-    return { ok: false, error: json.error.message || "Login failed" };
-  }
-
-  const token = json.data.accessToken;
-
-  const cookieStore = await cookies();
-  cookieStore.set({
-    name: "_access",
-    value: token,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60,
-  });
-
-  redirect("/", RedirectType.replace);
+  await setAccessTokenCookie(l.data.accessToken);
+  redirect('/feed', RedirectType.replace);
   return { ok: true };
 }
