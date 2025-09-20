@@ -1,17 +1,22 @@
-'use client'
+'use client';
 
-import { useRef, useState } from 'react'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Smile } from 'lucide-react'
-import { useMountEmojiPicker } from '@/hooks/useMountEmojiPicker'
+import { useMemo, useRef, useState } from 'react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Smile } from 'lucide-react';
+import { useMountEmojiPicker } from '@/hooks/useMountEmojiPicker';
+import { firstGraphemeIntl } from '@/lib/emoji/single';
 
 export type EmojiPickerFieldProps = {
-  value: string
-  onChange: (next: string) => void
-  placeholder?: string
-  inputClassName?: string
-  buttonAriaLabel?: string
-}
+  value: string;
+  onChange: (next: string) => void;
+  placeholder?: string;
+  inputClassName?: string;
+  buttonAriaLabel?: string;
+};
 
 export default function EmojiPickerField({
   value,
@@ -20,27 +25,53 @@ export default function EmojiPickerField({
   inputClassName = '',
   buttonAriaLabel = '絵文字を選ぶ',
 }: EmojiPickerFieldProps) {
-  const [open, setOpen] = useState(false)
-  const hostRef = useRef<HTMLDivElement | null>(null)
+  const [open, setOpen] = useState(false);
+  const hostRef = useRef<HTMLDivElement | null>(null);
+  const [composing, setComposing] = useState(false);
+
+  const segmenter = useMemo(() => {
+    return new Intl.Segmenter('ja', { granularity: 'grapheme' });
+  }, []);
+
+  const commit = (raw: string) => {
+    const first = firstGraphemeIntl(raw, 'ja', segmenter);
+    onChange(first);
+  };
 
   useMountEmojiPicker({
     open,
     hostRef,
     onSelect: (emoji) => {
-      onChange(emoji.native)
-      setOpen(false)
+      // onChange(emoji.native);
+      commit(emoji.native);
+      setOpen(false);
     },
     options: {
       // ここで picker のオプションを上書き可能
     },
-  })
+  });
 
   return (
     <div className="relative mt-1">
       <input
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          if (composing) return;
+          commit(e.target.value);
+        }}
+        onPaste={(e) => {
+          e.preventDefault();
+          const data = e.clipboardData.getData('text');
+          commit(data);
+        }}
+        onCompositionStart={() => setComposing(true)}
+        onCompositionEnd={(e) => {
+          setComposing(false);
+          commit((e.target as HTMLInputElement).value);
+        }}
         placeholder={placeholder}
+        inputMode="text"
+        aria-label="絵文字は1文字のみ"
         className={`w-full rounded-md border px-2 py-1 pr-10 text-sm ${inputClassName}`}
       />
 
@@ -55,11 +86,16 @@ export default function EmojiPickerField({
           </button>
         </PopoverTrigger>
 
-        <PopoverContent className="p-0 w-[360px]" align="end" side="bottom" sideOffset={8}>
+        <PopoverContent
+          className="p-0 w-[360px]"
+          align="end"
+          side="bottom"
+          sideOffset={8}
+        >
           {/* 初期計測安定のためサイズを明示 */}
           <div ref={hostRef} className="h-[420px] w-[360px]" />
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }

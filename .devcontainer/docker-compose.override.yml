@@ -4,6 +4,6 @@ services:
       # コードを同期
       - ..:/workspace
       # node_modules を volume として確保し、競合を防止
-      # - /workspace/node_modules
+      - /workspace/node_modules
       - /workspace/backend/node_modules
       - /workspace/frontend/node_modules

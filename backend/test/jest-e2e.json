@@ -4,11 +4,13 @@
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
+    "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "<rootDir>/tsconfig.json" }]
   },
   "setupFiles": ["./test/setup-env.ts"],
   "moduleNameMapper" : {
     "^src/(.*)$": "<rootDir>/src/$1",
-    "^test/(.*)$": "<rootDir>/test/$1"
+    "^test/(.*)$": "<rootDir>/test/$1",
+    "^@genkotsu-mt-fall/shared/schemas$": "<rootDir>/../shared/dist/schemas",
+    "^@genkotsu-mt-fall/shared$": "<rootDir>/../shared/dist"
   }
 }

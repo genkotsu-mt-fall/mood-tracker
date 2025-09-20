@@ -12,6 +12,8 @@ const config: Config = {
   moduleNameMapper: {
     '^src/(.*)$': '<rootDir>/src/$1',
     '^test/(.*)$': '<rootDir>/test/$1',
+    '^@genkotsu-mt-fall/shared/schemas$': '<rootDir>/../shared/dist/schemas',
+    '^@genkotsu-mt-fall/shared$': '<rootDir>/../shared/dist',
   },
 };
 
