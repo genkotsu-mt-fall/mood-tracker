@@ -30,7 +30,7 @@ import { createPostAction, CreatePostState } from './actions';
 export default function ComposePage() {
   const [text, setText] = useState('');
   const [emoji, setEmoji] = useState('');
-  const [intensity, setIntensity] = useState(50);
+  const [intensity, setIntensity] = useState<number | undefined>(undefined);
   const [crisisFlag, setCrisisFlag] = useState(false);
   const [privacyJson, setPrivacyJson] = useState<PrivacySetting | undefined>(
     undefined,
@@ -41,20 +41,9 @@ export default function ComposePage() {
     { ok: true },
   );
 
-  // 候補は state 化（新規作成で即反映）
-  const [groupOptions, setGroupOptions] = useState<Option[]>([
-    { id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', label: 'Family' },
-    { id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', label: 'Work' },
-  ]);
-  const USER_OPTIONS: Option[] = [
-    { id: '11111111-1111-1111-1111-111111111111', label: 'Alice' },
-    { id: '22222222-2222-2222-2222-222222222222', label: 'Bob' },
-  ];
-
   // 作成ロジック（将来 API に置き換え）
   async function createGroup(name: string): Promise<Option> {
     const created: Option = { id: crypto.randomUUID(), label: name.trim() };
-    setGroupOptions((prev) => [...prev, created]);
     return created;
   }
 
@@ -312,7 +301,7 @@ export default function ComposePage() {
                 <CardContent className="pt-1 space-y-3 grow">
                   <div className="flex items-center gap-3">
                     <Slider
-                      value={[intensity]}
+                      value={intensity == null ? undefined : [intensity]}
                       max={100}
                       step={1}
                       onValueChange={(v) => setIntensity(v[0])}
@@ -320,10 +309,11 @@ export default function ComposePage() {
                     />
                     <input
                       type="number"
-                      name="intensity"
+                      name={intensity == null ? undefined : 'intensity'}
                       min={0}
                       max={100}
-                      value={intensity}
+                      value={intensity ?? ''}
+                      placeholder="未設定"
                       onChange={(e) =>
                         setIntensity(
                           Math.min(
@@ -370,8 +360,8 @@ export default function ComposePage() {
                 <PrivacyEditor
                   value={privacyJson}
                   onChange={setPrivacyJson}
-                  userOptions={USER_OPTIONS}
-                  groupOptions={groupOptions}
+                  userOptions={[]}
+                  groupOptions={[]}
                   onRequestCreateGroup={requestCreateGroup} // ★ クリックでダイアログを要求
                 />
               </CardContent>
@@ -472,7 +462,7 @@ export default function ComposePage() {
         submitting={submitting}
         onSubmit={handleSubmit}
         onCancel={handleClose}
-        users={USER_OPTIONS}
+        users={[]}
         selectedIds={selectedIds}
         onSelectedIdsChange={setSelectedIds}
       />

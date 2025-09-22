@@ -17,8 +17,6 @@ export async function createPostAction(
     return { ok: false, fields: parsed.fields };
   }
 
-  console.log('Parsed Data:', parsed.data); // 追加: パースされたデータをログに出力
-
   const res = await createPost(parsed.data);
 
   if (!res.ok) {

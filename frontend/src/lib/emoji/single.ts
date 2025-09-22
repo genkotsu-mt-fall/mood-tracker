@@ -1,4 +1,4 @@
-import { singleEmojiRe } from './pattern';
+import emojiRegex from 'emoji-regex';
 
 export function isSingleGraphemeIntl(input: string, locale = 'ja') {
   const s = input.trim();
@@ -18,7 +18,14 @@ export function isSingleGraphemeIntl(input: string, locale = 'ja') {
 export function isSingleEmojiIntl(input: string) {
   const s = input.trim();
   if (!s) return false;
-  return singleEmojiRe.test(s) && isSingleGraphemeIntl(s);
+
+  if (!isSingleGraphemeIntl(s)) return false;
+
+  const regex = emojiRegex();
+  const matches = [...s.matchAll(regex)];
+  if (matches.length !== 1) return false;
+  const only = matches[0][0];
+  return only === s;
 }
 
 export function firstGraphemeIntl(
