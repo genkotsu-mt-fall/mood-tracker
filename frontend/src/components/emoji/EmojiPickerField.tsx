@@ -54,6 +54,7 @@ export default function EmojiPickerField({
   return (
     <div className="relative mt-1">
       <input
+        name="emoji"
         value={value}
         onChange={(e) => {
           if (composing) return;

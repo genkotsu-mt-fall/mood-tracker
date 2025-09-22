@@ -10,7 +10,7 @@ import { signupAction, SignupState } from '../actions';
 export default function SignupPage() {
   const [state, formAction] = useActionState<SignupState, FormData>(
     signupAction,
-    { ok: false },
+    { ok: true },
   );
   return (
     <>

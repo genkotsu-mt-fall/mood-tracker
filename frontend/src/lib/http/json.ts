@@ -1,4 +1,5 @@
-// frontend/src/lib/http/json.ts
+import { getApiBaseUrl } from '../env';
+
 export type ApiSuccess<T> = { success: true; data: T };
 export type ApiError = {
   success: false;
@@ -24,23 +25,48 @@ async function safeJson<T>(res: Response): Promise<ApiResponse<T> | undefined> {
   }
 }
 
+export type PostJsonOptions = {
+  headers?: Record<string, string>;
+  cache?: RequestCache;
+  signal?: AbortSignal;
+  credentials?: RequestCredentials;
+};
+
+export async function postJsonAuth<T>(
+  url: string,
+  payload: unknown,
+  token: string,
+  opts?: Omit<PostJsonOptions, 'headers'>,
+): Promise<HttpJsonResult<T>> {
+  return postJson<T>(url, payload, {
+    ...opts,
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+}
+
 export async function postJson<T>(
   url: string,
   payload: unknown,
+  opts?: PostJsonOptions,
 ): Promise<HttpJsonResult<T>> {
   let res: Response;
   try {
-    res = await fetch(url, {
+    res = await fetch(`${getApiBaseUrl()}/${url}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', ...(opts?.headers ?? {}) },
+      cache: opts?.cache ?? 'no-store',
+      signal: opts?.signal,
+      credentials: opts?.credentials,
       body: JSON.stringify(payload),
     });
-  } catch {
+  } catch (e) {
+    const aborted = e instanceof DOMException && e.name === 'AbortError';
     return {
       ok: false,
       status: 0,
-      message: 'ネットワークエラーが発生しました。',
+      message: aborted
+        ? 'リクエストが中断されました。'
+        : 'ネットワークエラーが発生しました。',
     };
   }
 

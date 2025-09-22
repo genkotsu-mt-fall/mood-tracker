@@ -7,6 +7,7 @@ import {
   Body,
   ParseUUIDPipe,
   UseGuards,
+  Logger,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreatePostDto } from '../dto/create_post.dto';
@@ -25,6 +26,8 @@ import { MessageDto } from 'src/common/dto/message.dto';
 
 @Controller('post')
 export class PostController {
+  private readonly logger = new Logger(PostController.name); // ← 追加
+
   constructor(
     private readonly createPostUseCase: CreatePostUseCase,
     private readonly updatePostUseCase: UpdatePostUseCase,
@@ -52,6 +55,9 @@ export class PostController {
     @CurrentUser() user: UserEntity,
     @Body() dto: CreatePostDto,
   ): Promise<ApiResponse<PostResponseDto>> {
+    this.logger.debug(`CreatePostDto: ${JSON.stringify(dto)}`); // ← 置換（開発向けは debug が無難）
+    this.logger.log(`User ${user.id} is creating a post`); // 任意：誰が叩いたかの情報
+
     const result = await this.createPostUseCase.execute(user.id, dto);
     return { success: true, data: new PostResponseDto(result) };
   }

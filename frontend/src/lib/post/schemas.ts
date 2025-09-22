@@ -1,5 +1,6 @@
 import z from 'zod';
 import { isSingleEmojiIntl } from '../emoji/single';
+import { PrivacySettingSchema } from '@/lib/privacy/types';
 
 export const composeSchema = z.object({
   body: z
@@ -20,8 +21,17 @@ export const composeSchema = z.object({
   intensity: z.preprocess(
     (val) =>
       val === '' || val === null || val === undefined ? undefined : val,
-    z.coerce.number().min(0).max(100).optional(),
+    z.coerce.number().int().min(0).max(100).optional(),
   ),
+
+  crisisFlag: z.boolean().default(false),
 });
 
+export const postCreateSchema = composeSchema
+  .extend({
+    privacyJson: PrivacySettingSchema.optional(),
+  })
+  .strict();
+
 export type ComposeFields = z.infer<typeof composeSchema>;
+export type PostCreateInput = z.infer<typeof postCreateSchema>;

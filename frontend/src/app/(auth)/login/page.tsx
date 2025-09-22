@@ -11,7 +11,7 @@ import { loginAction, type LoginState } from '../actions';
 export default function LoginPage() {
   const [state, formAction] = useActionState<LoginState, FormData>(
     loginAction,
-    { ok: false },
+    { ok: true },
   );
   const sp = useSearchParams();
   const justSignedUp = sp.get('just_signed_up') === '1';

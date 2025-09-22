@@ -1,4 +1,3 @@
-import { getApiBaseUrl } from '../env';
 import { postJson } from '../http/json';
 import { Ok, Fail, toOkFail } from '../http/result';
 
@@ -9,7 +8,7 @@ export async function authLogin(
   email: string,
   password: string,
 ): Promise<Ok<LoginData> | Fail> {
-  const r = await postJson<LoginData>(`${getApiBaseUrl()}/auth/login`, {
+  const r = await postJson<LoginData>('auth/login', {
     email,
     password,
   });
@@ -21,6 +20,6 @@ export async function authSignup(params: {
   password: string;
   name?: string;
 }): Promise<Ok<UserData> | Fail> {
-  const r = await postJson<UserData>(`${getApiBaseUrl()}/auth/signup`, params);
+  const r = await postJson<UserData>('auth/signup', params);
   return toOkFail<UserData>(r);
 }
