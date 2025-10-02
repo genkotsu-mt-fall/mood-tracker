@@ -1,4 +1,4 @@
-import { postJson } from '../http/json';
+import { getJsonAuth, postJson } from '../http/json';
 import { Ok, Fail, toOkFail } from '../http/result';
 
 export type LoginData = { accessToken: string };
@@ -21,5 +21,10 @@ export async function authSignup(params: {
   name?: string;
 }): Promise<Ok<UserData> | Fail> {
   const r = await postJson<UserData>('auth/signup', params);
+  return toOkFail<UserData>(r);
+}
+
+export async function authMe(token: string): Promise<Ok<UserData> | Fail> {
+  const r = await getJsonAuth<UserData>('auth/me', token);
   return toOkFail<UserData>(r);
 }

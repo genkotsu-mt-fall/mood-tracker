@@ -17,6 +17,7 @@ services:
       - db
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      - RETURN_TO_SECRET=${RETURN_TO_SECRET}
     command: sleep infinity
   db:
     image: postgres

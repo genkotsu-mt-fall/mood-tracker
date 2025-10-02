@@ -4,6 +4,7 @@ import { parseForm } from '@/lib/actions/parse';
 import { ActionState, apiFieldErrorsToUi } from '@/lib/actions/state';
 import { authLogin, authSignup } from '@/lib/auth/api';
 import { setAccessTokenCookie } from '@/lib/auth/cookies';
+import { consumeSignedReturnTo } from '@/lib/auth/returnToCookie';
 import {
   LoginFields,
   loginSchema,
@@ -31,7 +32,9 @@ export async function loginAction(
   }
 
   await setAccessTokenCookie(r.data.accessToken);
-  redirect('/feed', RedirectType.replace);
+
+  const redirectTo = await consumeSignedReturnTo();
+  redirect(redirectTo ?? '/feed', RedirectType.replace);
   return { ok: true };
 }
 

@@ -1,4 +1,4 @@
-import { getApiBaseUrl } from '../env';
+import { getApiBaseUrl } from '@/lib/env';
 
 export type ApiSuccess<T> = { success: true; data: T };
 export type ApiError = {
@@ -17,7 +17,13 @@ export type HttpJsonResult<T> =
   | { ok: false; status: number; message: string; json?: ApiError }
   | { ok: false; status: 0; message: string }; // ネットワーク失敗等
 
-async function safeJson<T>(res: Response): Promise<ApiResponse<T> | undefined> {
+export type CommonOptions = {
+  headers?: Record<string, string>;
+};
+
+export async function safeJson<T>(
+  res: Response,
+): Promise<ApiResponse<T> | undefined> {
   try {
     return (await res.json()) as ApiResponse<T>;
   } catch {
@@ -25,48 +31,18 @@ async function safeJson<T>(res: Response): Promise<ApiResponse<T> | undefined> {
   }
 }
 
-export type PostJsonOptions = {
-  headers?: Record<string, string>;
-  cache?: RequestCache;
-  signal?: AbortSignal;
-  credentials?: RequestCredentials;
-};
-
-export async function postJsonAuth<T>(
+export async function requestJson<T>(
   url: string,
-  payload: unknown,
-  token: string,
-  opts?: Omit<PostJsonOptions, 'headers'>,
-): Promise<HttpJsonResult<T>> {
-  return postJson<T>(url, payload, {
-    ...opts,
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
-}
-
-export async function postJson<T>(
-  url: string,
-  payload: unknown,
-  opts?: PostJsonOptions,
+  init: RequestInit,
 ): Promise<HttpJsonResult<T>> {
   let res: Response;
   try {
-    res = await fetch(`${getApiBaseUrl()}/${url}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(opts?.headers ?? {}) },
-      cache: opts?.cache ?? 'no-store',
-      signal: opts?.signal,
-      credentials: opts?.credentials,
-      body: JSON.stringify(payload),
-    });
-  } catch (e) {
-    const aborted = e instanceof DOMException && e.name === 'AbortError';
+    res = await fetch(`${getApiBaseUrl()}/${url}`, init);
+  } catch {
     return {
       ok: false,
       status: 0,
-      message: aborted
-        ? 'リクエストが中断されました。'
-        : 'ネットワークエラーが発生しました。',
+      message: 'ネットワークエラーが発生しました。',
     };
   }
 

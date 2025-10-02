@@ -1,10 +1,12 @@
-import type { ReactNode } from 'react'
-import Sidebar from './_components/Sidebar'
-import BottomNav from './_components/BottomNav'
+import type { ReactNode } from 'react';
+import Sidebar from './_components/Sidebar';
+import BottomNav from './_components/BottomNav';
 import { RightPanelProvider } from '@/app/(app)/_components/right-panel/RightPanelContext';
-import RightPanel from './_components/right-panel/RightPanel'
+import RightPanel from './_components/right-panel/RightPanel';
+import { ensureAuthenticatedUser } from '@/lib/auth/guards';
 
-export default function AppLayout({ children }: { children: ReactNode }) {
+export default async function AppLayout({ children }: { children: ReactNode }) {
+  await ensureAuthenticatedUser();
   return (
     <RightPanelProvider>
       <div className="bg-gray-50 min-h-dvh flex flex-col md:flex-row">
@@ -23,5 +25,5 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       {/* fixed なのでどこに置いてもOK。Providerの配下にあれば良い */}
       <RightPanel />
     </RightPanelProvider>
-  )
+  );
 }

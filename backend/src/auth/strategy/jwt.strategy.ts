@@ -31,6 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
+      // this.configServiceとしないのは、super()呼び出し前のため引数を使っているから
       secretOrKey: configService.get<string>('JWT_SECRET')!,
     });
   }
