@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useMemo, useActionState } from 'react';
+import { useState, useMemo, useActionState, useEffect } from 'react';
 import EmojiPickerField from '@/components/emoji/EmojiPickerField';
 import PrivacyEditor from '@/components/privacy/PrivacyEditor';
 import type { PrivacySetting } from '@/lib/privacy/types';
 import type { Option } from '@/lib/common/types';
 import CreateGroupDialog from '@/components/privacy/CreateGroupDialog';
 import { useCreateGroupDialog } from '@/hooks/useCreateGroupDialog';
-
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,8 @@ import {
   Sparkles,
   Shield,
 } from 'lucide-react';
-import { createPostAction, CreatePostState } from './actions';
+import { createPostAction, CreatePostActionResult } from './actions';
+import { useFormStatus } from 'react-dom';
 
 export default function ComposePage() {
   const [text, setText] = useState('');
@@ -54,10 +55,18 @@ export default function ComposePage() {
   //   バインド済み関数の参照を安定化させる。
   const bound = useMemo(() => ({ privacyJson }), [privacyJson]);
 
-  const [state, formAction] = useActionState<CreatePostState, FormData>(
+  const [state, formAction] = useActionState<CreatePostActionResult, FormData>(
     createPostAction.bind(null, bound),
-    { ok: true },
+    { ok: true, phase: 'idle' } as const,
   );
+
+  // ✅ state からの派生値（依存配列に入れるための素の識別子）
+  const isSuccess = state.ok && state.phase === 'success';
+  const successData = state.ok ? state.data : undefined;
+
+  const hasError = !state.ok; // 失敗形
+  const errorMsg = !state.ok ? state.error : undefined;
+  const errorFields = !state.ok ? state.fields : undefined;
 
   // 作成ロジック（将来 API に置き換え）
   async function createGroup(name: string): Promise<Option> {
@@ -95,6 +104,31 @@ export default function ComposePage() {
   const canSubmit = isBodyOk;
 
   const privacySummary = privacyJson ? '設定中' : '未設定';
+
+  useEffect(() => {
+    if (isSuccess && successData) {
+      toast.success('投稿しました', {
+        description: '反映に数秒かかる場合があります。',
+      });
+
+      // フォームリセット
+      setText('');
+      setEmoji('');
+      setIntensity(undefined);
+      setCrisisFlag(false);
+      setPrivacyJson(undefined);
+    }
+  }, [isSuccess, successData]);
+
+  useEffect(() => {
+    if (hasError && (errorMsg || errorFields)) {
+      toast.error('投稿に失敗しました', {
+        description: errorMsg ?? '入力内容をご確認ください。',
+      });
+    }
+  }, [hasError, errorMsg, errorFields]);
+
+  const { pending } = useFormStatus();
 
   return (
     <main className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-sky-50">
@@ -256,9 +290,9 @@ export default function ComposePage() {
                     <Button
                       type="submit"
                       className="h-8 rounded-full px-4"
-                      disabled={!canSubmit}
+                      disabled={!canSubmit || pending}
                     >
-                      投稿する
+                      {pending ? '送信中…' : '投稿する'}
                     </Button>
                   </div>
                 </div>
@@ -364,6 +398,10 @@ export default function ComposePage() {
             </div>
           </div>
 
+          {!state.ok && state.error && (
+            <p className="text-sm text-red-600">{state.error}</p>
+          )}
+
           {/* 可視性（privacyJson） */}
           <div className="rounded-3xl bg-gradient-to-r from-sky-200/50 via-fuchsia-200/50 to-amber-200/50 p-[1.5px]">
             <Card className="rounded-3xl border border-gray-200/80 bg-white/80">
@@ -454,11 +492,11 @@ export default function ComposePage() {
               </div>
               <Button
                 type="submit"
-                disabled={!canSubmit}
+                disabled={!canSubmit || pending}
                 className="rounded-full"
                 form="composeForm"
               >
-                投稿する
+                {pending ? '送信中…' : '投稿する'}
               </Button>
             </div>
           </div>

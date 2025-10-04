@@ -4,12 +4,14 @@ import BottomNav from './_components/BottomNav';
 import { RightPanelProvider } from '@/app/(app)/_components/right-panel/RightPanelContext';
 import RightPanel from './_components/right-panel/RightPanel';
 import { ensureAuthenticatedUser } from '@/lib/auth/guards';
+import { Toaster } from '@/components/ui/sonner';
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   await ensureAuthenticatedUser();
   return (
     <RightPanelProvider>
       <div className="bg-gray-50 min-h-dvh flex flex-col md:flex-row">
+        <Toaster position="top-center" richColors />
         <Sidebar />
 
         {/* 中央カラム：縦に伸びる器（高さの伝播に必要） */}

@@ -1,10 +1,11 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { clearAccessTokenCookie, readAccessTokenFromServer } from './cookies';
+import { readAccessTokenFromServer } from './cookies';
 import { safeReturnTo } from './returnTo';
-import { authMe, UserData } from './api';
+import { authMe } from './api';
 import { redirect } from 'next/navigation';
+import { UserData } from '../user/api';
 
 export async function ensureAuthenticatedUser(): Promise<UserData | undefined> {
   const token = await readAccessTokenFromServer();
@@ -29,7 +30,7 @@ export async function ensureAuthenticatedUser(): Promise<UserData | undefined> {
 
   const me = await authMe(token);
   if (!me.ok) {
-    await clearAccessTokenCookie();
+    //await clearAccessTokenCookie(); //TODO Route Handler に移動する
     redirect(redirectToLogin());
   }
 
