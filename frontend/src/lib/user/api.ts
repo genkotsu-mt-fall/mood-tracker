@@ -11,7 +11,7 @@ export type ApiUser = {
   name: string;
 };
 
-export async function fetchUsers(): Promise<Ok<UserData[]> | Fail> {
+export async function fetchUsersFromApi(): Promise<Ok<UserData[]> | Fail> {
   const token = await readAccessTokenFromServer();
   if (!token) return { ok: false, message: 'Unauthorized' };
   const r: HttpJsonResult<UserData[]> = await getJsonAuth('user', token); //TODO: Pagination

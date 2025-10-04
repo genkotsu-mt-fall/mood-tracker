@@ -8,6 +8,7 @@ import PasswordField from '@/components/auth/PasswordField';
 import SubmitButton from '@/components/auth/SubmitButton';
 import { useEffect } from 'react';
 
+// TODO: ログイン失敗時に入力が消える問題を修正する
 export default function ClientLoginForm({
   justSignedUp,
 }: {

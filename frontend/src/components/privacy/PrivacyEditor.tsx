@@ -1,51 +1,54 @@
-"use client"
+'use client';
 
-import AudienceSection from './AudienceSection'
-import { useMemo, useState } from 'react'
-import type { PrivacySetting } from '@/lib/privacy/types'
-import { normalizePrivacySetting } from '@/lib/privacy/utils'
-import type { Option } from '@/lib/common/types'
-import { Globe, Users, Clock, SlidersHorizontal } from 'lucide-react'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import GroupSection from './GroupSection'
-import TimeSection from './TimeSection'
-import AdvancedSection from './AdvancedSection'
+import AudienceSection from './AudienceSection';
+import { useMemo, useState } from 'react';
+import type { PrivacySetting } from '@/lib/privacy/types';
+import { normalizePrivacySetting } from '@/lib/privacy/utils';
+import type { Option } from '@/lib/common/types';
+import { Globe, Users, Clock, SlidersHorizontal } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+// import GroupSection from './GroupSection';
+import TimeSection from './TimeSection';
+import AdvancedSection from './AdvancedSection';
+import GroupSectionRemote from './GroupSection.Remote';
 
 type Props = {
-  value?: PrivacySetting
-  onChange: (next: PrivacySetting | undefined) => void
-  userOptions?: Option[]
-  groupOptions?: Option[]
-  onHoverGroupChange?: (groupId: string | null) => void
+  value?: PrivacySetting;
+  onChange: (next: PrivacySetting | undefined) => void;
+  userOptions?: Option[];
+  onHoverGroupChange?: (groupId: string | null) => void;
   /** クリックで親にダイアログ表示を依頼し、作成されたグループを返す */
-  onRequestCreateGroup?: () => Promise<Option | void>
-}
+  onRequestCreateGroup?: () => Promise<Option | void>;
+};
 
 export default function PrivacyEditor({
   value,
   onChange,
   userOptions = [],
-  groupOptions = [],
   onHoverGroupChange,
   onRequestCreateGroup,
 }: Props) {
   // 内部編集用のドラフト
-  const [draft, setDraft] = useState<PrivacySetting>(value ?? {})
+  const [draft, setDraft] = useState<PrivacySetting>(value ?? {});
   // const uid = useId() // 未使用のため削除
 
   // min/max の相関チェック
   const followDaysError = useMemo(() => {
-    if (draft.min_follow_days === undefined || draft.max_follow_days === undefined) return ''
+    if (
+      draft.min_follow_days === undefined ||
+      draft.max_follow_days === undefined
+    )
+      return '';
     return draft.min_follow_days > draft.max_follow_days
       ? 'min_follow_days は max_follow_days 以下にしてください'
-      : ''
-  }, [draft.min_follow_days, draft.max_follow_days])
+      : '';
+  }, [draft.min_follow_days, draft.max_follow_days]);
 
   // 変更時に normalize して親に返す
   const commit = (next: PrivacySetting) => {
-    setDraft(next)
-    onChange(normalizePrivacySetting(next))
-  }
+    setDraft(next);
+    onChange(normalizePrivacySetting(next));
+  };
 
   // 配列トグル
   // toggleInArray は GroupSection.tsx へ分離済み
@@ -83,14 +86,24 @@ export default function PrivacyEditor({
 
       {/* --- 公開範囲 + 許可/除外ユーザー --- */}
       <TabsContent value="audience" className="mt-4 space-y-4">
-        <AudienceSection draft={draft} userOptions={userOptions} onChange={commit} />
+        <AudienceSection
+          draft={draft}
+          userOptions={userOptions}
+          onChange={commit}
+        />
       </TabsContent>
 
       {/* --- グループ --- */}
       <TabsContent value="groups" className="mt-4 space-y-4">
-        <GroupSection
+        {/* <GroupSection
           draft={draft}
           groupOptions={groupOptions}
+          onHoverGroupChange={onHoverGroupChange}
+          onRequestCreateGroup={onRequestCreateGroup}
+          commit={commit}
+        /> */}
+        <GroupSectionRemote
+          draft={draft}
           onHoverGroupChange={onHoverGroupChange}
           onRequestCreateGroup={onRequestCreateGroup}
           commit={commit}
@@ -99,7 +112,11 @@ export default function PrivacyEditor({
 
       {/* --- 時刻・期間 --- */}
       <TabsContent value="time" className="mt-4 space-y-6">
-        <TimeSection draft={draft} commit={commit} followDaysError={followDaysError || null} />
+        <TimeSection
+          draft={draft}
+          commit={commit}
+          followDaysError={followDaysError || null}
+        />
       </TabsContent>
 
       {/* --- 詳細 --- */}
@@ -112,5 +129,5 @@ export default function PrivacyEditor({
         />
       </TabsContent>
     </Tabs>
-  )
+  );
 }

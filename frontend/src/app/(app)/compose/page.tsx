@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { createPostAction, CreatePostActionResult } from './actions';
 import { useFormStatus } from 'react-dom';
+import { createGroupClient } from '@/lib/group/client';
 
 export default function ComposePage() {
   const [text, setText] = useState('');
@@ -70,7 +71,12 @@ export default function ComposePage() {
 
   // 作成ロジック（将来 API に置き換え）
   async function createGroup(name: string): Promise<Option> {
-    const created: Option = { id: crypto.randomUUID(), label: name.trim() };
+    // const created: Option = { id: crypto.randomUUID(), label: name.trim() };
+    // return created;
+    const created = await createGroupClient(name);
+    try {
+      toast.success('グループを作成しました');
+    } catch {}
     return created;
   }
 
@@ -415,7 +421,6 @@ export default function ComposePage() {
                   value={privacyJson}
                   onChange={setPrivacyJson}
                   userOptions={[]}
-                  groupOptions={[]}
                   onRequestCreateGroup={requestCreateGroup} // ★ クリックでダイアログを要求
                 />
               </CardContent>
