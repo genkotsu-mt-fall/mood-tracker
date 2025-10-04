@@ -24,7 +24,13 @@ export const composeSchema = z.object({
     z.coerce.number().int().min(0).max(100).optional(),
   ),
 
-  crisisFlag: z.boolean().default(false),
+  crisisFlag: z.preprocess((val) => {
+    if (val === 'on' || val === '1' || val === 'true' || val === true)
+      return true;
+    if (val === 'off' || val === '0' || val === 'false' || val === false)
+      return false;
+    return undefined;
+  }, z.boolean().default(false)),
 });
 
 export const postCreateSchema = composeSchema

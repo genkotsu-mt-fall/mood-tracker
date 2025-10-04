@@ -25,6 +25,19 @@ describe('UserController (GET /user/:id)', () => {
     await AppBootstrapper.shutdown();
   });
 
+  describe('GET /user', () => {
+    it('should return all users with auth', async () => {
+      const userA = await UserFactory.create(prefix);
+      const userB = await UserFactory.create(prefix);
+      const res: SupertestResponse<
+        ApiResponse<{ id: string; name: string; email: string }[]>
+      > = await UserClient.getAll(userA.accessToken);
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
   it('should return a specific user with auth', async () => {
     const user = await UserFactory.create(prefix);
     const res: SupertestResponse<

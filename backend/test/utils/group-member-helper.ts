@@ -1,4 +1,4 @@
-import * as request from 'supertest';
+import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { setToken } from './auth-helper';
 import { createGroup, GroupResult } from './group-helper';

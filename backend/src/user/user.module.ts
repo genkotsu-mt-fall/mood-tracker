@@ -6,11 +6,13 @@ import { PrismaUserRepository } from './repository/prisma-user.repository';
 import { UserRepository } from './repository/user.repository';
 import { FindUserByIdUseCase } from './use-case/find-user-by-id.use-case';
 import { UpdateUserUseCase } from './use-case/update-user.use-case';
+import { FindAllUserUseCase } from './use-case/find-all-users.use-case';
 
 @Module({
   imports: [PrismaModule],
   providers: [
     CreateUserUseCase,
+    FindAllUserUseCase,
     FindUserByIdUseCase,
     UpdateUserUseCase,
     {
@@ -19,6 +21,11 @@ import { UpdateUserUseCase } from './use-case/update-user.use-case';
     },
   ],
   controllers: [UserController],
-  exports: [CreateUserUseCase, FindUserByIdUseCase, UpdateUserUseCase],
+  exports: [
+    CreateUserUseCase,
+    FindAllUserUseCase,
+    FindUserByIdUseCase,
+    UpdateUserUseCase,
+  ],
 })
 export class UserModule {}

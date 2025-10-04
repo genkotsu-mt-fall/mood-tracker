@@ -1,8 +1,8 @@
 import { getJsonAuth, postJson } from '../http/json';
 import { Ok, Fail, toOkFail } from '../http/result';
+import { UserData } from '../user/api';
 
 export type LoginData = { accessToken: string };
-export type UserData = { id: string; email: string; name?: string | null };
 
 export async function authLogin(
   email: string,

@@ -1,4 +1,4 @@
-import * as request from 'supertest';
+import request from 'supertest';
 
 export interface SupertestResponse<TBody> extends request.Response {
   body: TBody;

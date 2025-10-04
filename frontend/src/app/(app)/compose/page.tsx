@@ -36,8 +36,26 @@ export default function ComposePage() {
     undefined,
   );
 
+  // === privacyJson の送信方針（hidden input は使わない） ===============================
+  // 背景
+  // - privacyJson は複数の入力から合成するオブジェクトで、<input name="privacyJson"> が存在しない。
+  // - hidden に JSON を詰める運用は避けたい。
+  //
+  // 方針
+  // - Server Action の「先頭引数バインド」で privacyJson を一緒に送る。
+  //   （フォームの FormData とは別レーンでサーバに渡せる）
+  //
+  // なぜ useMemo が必要？
+  // - JSX 内で毎レンダに { privacyJson } を作ると “新しい参照” になり、
+  //   .bind によって生成される関数も毎回別物になる。
+  // - その結果、<form action={...}> / useActionState のハンドラ参照が不安定になり、
+  //   状態リセットや無駄な再レンダの原因になり得る。
+  // - useMemo で「privacyJson が変わらない限り同じ参照」を再利用し、
+  //   バインド済み関数の参照を安定化させる。
+  const bound = useMemo(() => ({ privacyJson }), [privacyJson]);
+
   const [state, formAction] = useActionState<CreatePostState, FormData>(
-    createPostAction,
+    createPostAction.bind(null, bound),
     { ok: true },
   );
 
@@ -103,8 +121,6 @@ export default function ComposePage() {
           </div>
         </div>
       </section>
-
-      <>{!state.ok && console.log(state.fields)}</>
 
       <div className="mx-auto max-w-3xl px-4 pb-24 pt-4">
         <form
