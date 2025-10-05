@@ -1,17 +1,18 @@
-"use client";
+'use client';
 
-import { useCallback, useRef, useState } from "react";
-import type { Option } from "@/lib/common/types";
+import { useCallback, useRef, useState } from 'react';
+import type { Option } from '@/lib/common/types';
 
 type UseCreateGroupDialogParams = {
   /** 実際の作成処理。成功時 Option を返す（APIに置き換え可） */
-  onCreate: (name: string) => Promise<Option> | Option;
+  onCreate: (name: string, userIds: string[]) => Promise<Option> | Option;
+  getSelectedUserIds?: () => string[];
 };
 
 export function useCreateGroupDialog(params: UseCreateGroupDialogParams) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [error, setError] = useState<string>("");
+  const [name, setName] = useState('');
+  const [error, setError] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
 
   // PrivacyEditor に結果を返す Promise の resolver
@@ -21,8 +22,8 @@ export function useCreateGroupDialog(params: UseCreateGroupDialogParams) {
   const requestCreateGroup = useCallback(() => {
     return new Promise<Option | void>((resolve) => {
       resolverRef.current = resolve;
-      setError("");
-      setName("");
+      setError('');
+      setName('');
       setOpen(true);
     });
   }, []);
@@ -31,17 +32,18 @@ export function useCreateGroupDialog(params: UseCreateGroupDialogParams) {
   const handleSubmit = useCallback(async () => {
     const trimmed = name.trim();
     if (!trimmed) {
-      setError("グループ名を入力してください");
+      setError('グループ名を入力してください');
       return;
     }
     try {
       setSubmitting(true);
-      const created = await params.onCreate(trimmed);
+      const userIds = params.getSelectedUserIds?.() || [];
+      const created = await params.onCreate(trimmed, userIds);
       // 正常作成 → ダイアログを閉じ、呼び出し元へ返す
       setOpen(false);
       resolverRef.current?.(created);
     } catch (e) {
-      setError("作成に失敗しました。時間を置いて再度お試しください。");
+      setError('作成に失敗しました。時間を置いて再度お試しください。');
       return;
     } finally {
       setSubmitting(false);
@@ -61,7 +63,7 @@ export function useCreateGroupDialog(params: UseCreateGroupDialogParams) {
     (creator: (name: string) => Promise<Option> | Option) => {
       params.onCreate = creator;
     },
-    [params]
+    [params],
   );
 
   return {

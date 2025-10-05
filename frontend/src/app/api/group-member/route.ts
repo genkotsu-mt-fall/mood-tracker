@@ -1,6 +1,6 @@
 import { zodToFieldErrors } from '@/lib/actions/state';
-import { createGroupFromApi } from '@/lib/group/api';
-import { groupCreateSchema } from '@/lib/group/schemas';
+import { createGroupMemberFromApi } from '@/lib/group-member/api';
+import { groupMemberCreateSchema } from '@/lib/group-member/schemas';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -14,19 +14,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const parsed = groupCreateSchema.safeParse(body);
+  const parsed = groupMemberCreateSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       {
         success: false,
-        message: '入力内容をご確認ください。',
+        message:
+          '送信されたデータが壊れているか、悪意のある値が含まれています。',
         fields: zodToFieldErrors(parsed.error.issues),
       },
       { status: 400 },
     );
   }
 
-  const res = await createGroupFromApi({ name: parsed.data.name });
+  const res = await createGroupMemberFromApi({
+    groupId: parsed.data.groupId,
+    memberId: parsed.data.memberId,
+  });
   if (!res.ok) {
     const status = res.message === 'Unauthorized' ? 401 : 500;
     return NextResponse.json(

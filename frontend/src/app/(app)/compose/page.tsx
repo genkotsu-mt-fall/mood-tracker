@@ -5,7 +5,8 @@ import EmojiPickerField from '@/components/emoji/EmojiPickerField';
 import PrivacyEditor from '@/components/privacy/PrivacyEditor';
 import type { PrivacySetting } from '@/lib/privacy/types';
 import type { Option } from '@/lib/common/types';
-import CreateGroupDialog from '@/components/privacy/CreateGroupDialog';
+// import CreateGroupDialog from '@/components/privacy/CreateGroupDialog';
+import CreateGroupDialogRemote from '@/components/privacy/CreateGroupDialog.Remote';
 import { useCreateGroupDialog } from '@/hooks/useCreateGroupDialog';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +29,7 @@ import {
 import { createPostAction, CreatePostActionResult } from './actions';
 import { useFormStatus } from 'react-dom';
 import { createGroupClient } from '@/lib/group/client';
+import { createGroupMemberClient } from '@/lib/group-member/client';
 
 export default function ComposePage() {
   const [text, setText] = useState('');
@@ -70,10 +72,12 @@ export default function ComposePage() {
   const errorFields = !state.ok ? state.fields : undefined;
 
   // 作成ロジック（将来 API に置き換え）
-  async function createGroup(name: string): Promise<Option> {
-    // const created: Option = { id: crypto.randomUUID(), label: name.trim() };
-    // return created;
+  async function createGroup(name: string, userIds: string[]): Promise<Option> {
     const created = await createGroupClient(name);
+
+    // 引数 User ID の配列を受け取り、Group Member を追加する API を呼ぶ
+    await createGroupMemberClient(created.id, userIds);
+
     try {
       toast.success('グループを作成しました');
     } catch {}
@@ -95,7 +99,10 @@ export default function ComposePage() {
     requestCreateGroup,
     handleSubmit,
     handleClose,
-  } = useCreateGroupDialog({ onCreate: createGroup });
+  } = useCreateGroupDialog({
+    onCreate: createGroup,
+    getSelectedUserIds: () => selectedIds,
+  });
 
   // 文字数カウンタ（上限 280 の例）
   const limit = 280;
@@ -509,7 +516,7 @@ export default function ComposePage() {
       </div>
 
       {/* 新規グループ作成ダイアログ（見た目だけ担当） */}
-      <CreateGroupDialog
+      <CreateGroupDialogRemote
         open={open}
         onOpenChange={(o) => (o ? setOpen(true) : handleClose())}
         name={name}
@@ -521,7 +528,6 @@ export default function ComposePage() {
         submitting={submitting}
         onSubmit={handleSubmit}
         onCancel={handleClose}
-        users={[]}
         selectedIds={selectedIds}
         onSelectedIdsChange={setSelectedIds}
       />
