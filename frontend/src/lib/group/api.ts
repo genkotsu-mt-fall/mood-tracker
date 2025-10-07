@@ -1,6 +1,5 @@
-import { readAccessTokenFromServer } from '../auth/cookies';
-import { getJsonAuth, HttpJsonResult, postJsonAuth } from '../http/json';
-import { Fail, Ok, toOkFail } from '../http/result';
+import { getRequest, postRequest } from '../api/authed';
+import { Fail, Ok } from '../http/result';
 
 export type GroupData = {
   id: string;
@@ -8,13 +7,7 @@ export type GroupData = {
 };
 
 export async function fetchGroupsFromApi(): Promise<Ok<GroupData[]> | Fail> {
-  const token = await readAccessTokenFromServer();
-  if (!token) return { ok: false, message: 'Unauthorized' };
-  const r: HttpJsonResult<GroupData[]> = await getJsonAuth(
-    'auth/me/groups',
-    token,
-  );
-  return toOkFail<GroupData[]>(r);
+  return getRequest<GroupData[]>('/auth/me/groups');
 }
 
 type CreateGroupPayload = { name: string };
@@ -22,13 +15,5 @@ type CreateGroupPayload = { name: string };
 export async function createGroupFromApi(
   payload: CreateGroupPayload,
 ): Promise<Ok<GroupData> | Fail> {
-  const token = await readAccessTokenFromServer();
-  if (!token) return { ok: false, message: 'Unauthorized' };
-
-  const r: HttpJsonResult<GroupData> = await postJsonAuth(
-    'group',
-    payload,
-    token,
-  );
-  return toOkFail<GroupData>(r);
+  return postRequest<GroupData>('/group', payload);
 }

@@ -1,6 +1,5 @@
-import { readAccessTokenFromServer } from '../auth/cookies';
-import { HttpJsonResult, postJsonAuth } from '../http/json';
-import { Fail, Ok, toOkFail } from '../http/result';
+import { postRequest } from '../api/authed';
+import { Fail, Ok } from '../http/result';
 
 type CreateGroupMember = {
   groupId: string;
@@ -16,14 +15,5 @@ export type GroupMemberData = {
 export async function createGroupMemberFromApi(
   payload: CreateGroupMember,
 ): Promise<Ok<GroupMemberData> | Fail> {
-  const token = await readAccessTokenFromServer();
-  if (!token) return { ok: false, message: 'Unauthorized' };
-
-  const r: HttpJsonResult<GroupMemberData> = await postJsonAuth(
-    'group-member',
-    payload,
-    token,
-  );
-
-  return toOkFail<GroupMemberData>(r);
+  return postRequest<GroupMemberData>('group-member', payload);
 }

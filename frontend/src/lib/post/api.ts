@@ -1,7 +1,7 @@
 import { PrivacySetting } from '@genkotsu-mt-fall/shared/schemas';
 import { PostCreateInput } from './schemas';
-import { Fail, Ok, toOkFail } from '../http/result';
-import { postJsonWithCookieAuth } from '../http/server';
+import { Fail, Ok } from '../http/result';
+import { postRequest } from '../api/authed';
 
 export type PostResponse = {
   id: string;
@@ -17,9 +17,8 @@ export type PostResponse = {
   privacyJson?: PrivacySetting;
 };
 
-export async function createPost(
+export async function createPostFromApi(
   payload: PostCreateInput,
 ): Promise<Ok<PostResponse> | Fail> {
-  const res = await postJsonWithCookieAuth<PostResponse>('post', payload);
-  return toOkFail<PostResponse>(res);
+  return postRequest<PostResponse>('post', payload);
 }

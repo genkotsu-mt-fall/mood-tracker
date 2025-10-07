@@ -11,9 +11,9 @@ const timeRangeSchema = z.string().refine((val) => hhmmRegex.test(val), {
 export const PrivacySettingSchema = z
   .object({
     // visibility: z.enum(['custom', 'public']),
-    allow_users: z.array(z.string().uuid()).nonempty(),
-    deny_users: z.array(z.string().uuid()).nonempty(),
-    allow_groups: z.array(z.string().uuid()).nonempty(),
+    allow_users: z.array(z.uuid()).nonempty(),
+    deny_users: z.array(z.uuid()).nonempty(),
+    allow_groups: z.array(z.uuid()).nonempty(),
     group_visibility_mode: z.enum(["any", "all"]),
     followers_only: z.boolean(),
     follow_back_only: z.boolean(),

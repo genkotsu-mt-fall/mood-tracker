@@ -1,7 +1,7 @@
 'use server';
 import { parseForm, parseObject } from '@/lib/actions/parse';
 import { apiFieldErrorsToUi } from '@/lib/actions/state';
-import { createPost, PostResponse } from '@/lib/post/api';
+import { createPostFromApi, PostResponse } from '@/lib/post/api';
 import {
   composeSchema,
   PostCreateInput,
@@ -47,7 +47,7 @@ export async function createPostAction(
     return { ok: false, phase: 'error', fields: inputValidation.fields };
   }
 
-  const res = await createPost(inputValidation.data);
+  const res = await createPostFromApi(inputValidation.data);
 
   if (!res.ok) {
     return {
