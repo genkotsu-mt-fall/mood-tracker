@@ -5,9 +5,11 @@ import { readAccessTokenFromServer } from './cookies';
 import { safeReturnTo } from './returnTo';
 import { authMe } from './api';
 import { redirect } from 'next/navigation';
-import { UserData } from '../user/api';
+import { UserResource } from '@genkotsu-mt-fall/shared/schemas';
 
-export async function ensureAuthenticatedUser(): Promise<UserData | undefined> {
+export async function ensureAuthenticatedUser(): Promise<
+  UserResource | undefined
+> {
   const token = await readAccessTokenFromServer();
 
   const h = await headers();

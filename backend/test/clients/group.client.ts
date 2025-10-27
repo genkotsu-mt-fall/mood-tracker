@@ -1,4 +1,4 @@
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
 import { PaginatedApiResponse, SupertestResponse } from 'test/types/api';
 import { setToken } from 'test/utils/auth-helper';

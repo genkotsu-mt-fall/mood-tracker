@@ -1,11 +1,18 @@
-import { Post as PrismaPost } from '@prisma/client';
+import { Post as PrismaPost, User as PrismaUser } from '@prisma/client';
 import { PostEntity } from '../entity/post.entity';
 import { PrivacySetting } from '../type/privacy-setting.type';
 
-export function toPostEntity(data: PrismaPost): PostEntity {
+type PostWithUser = PrismaPost & {
+  user?: Pick<PrismaUser, 'id' | 'name'>;
+};
+
+export function toPostEntity(data: PostWithUser): PostEntity {
   return new PostEntity({
     id: data.id,
     userId: data.userId,
+    author: data.user
+      ? { id: data.user.id, name: data.user.name ?? undefined }
+      : undefined,
     body: data.body,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,

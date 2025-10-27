@@ -1,10 +1,4 @@
-export type {
-  ApiSuccess,
-  ApiError,
-  ApiResponse,
-  HttpJsonResult,
-  CommonOptions,
-} from './base';
+export type { HttpJsonResult, CommonOptions } from './base';
 
 export { safeJson } from './base';
 

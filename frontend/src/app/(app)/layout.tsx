@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
-import Sidebar from './_components/Sidebar';
-import BottomNav from './_components/BottomNav';
-import { RightPanelProvider } from '@/app/(app)/_components/right-panel/RightPanelContext';
-import RightPanel from './_components/right-panel/RightPanel';
 import { ensureAuthenticatedUser } from '@/lib/auth/guards';
 import { Toaster } from '@/components/ui/sonner';
+import RightPanel from '@/components/app/RightPanel';
+import { RightPanelProvider } from '@/components/app/RightPanelContext';
+import Sidebar from '@/components/app/Sidebar';
+import BottomNav from '@/components/app/BottomNav';
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   await ensureAuthenticatedUser();

@@ -107,7 +107,6 @@ describe('FindAllPostsUseCase', () => {
 
     visibilityEvaluator.execute.mockImplementation(() => {
       const calls = visibilityEvaluator.execute.mock.calls.length;
-      //   console.log(`mockImplementation: calls = ${calls}`);
       return Promise.resolve(calls - 1 < 20 ? false : true);
     });
 

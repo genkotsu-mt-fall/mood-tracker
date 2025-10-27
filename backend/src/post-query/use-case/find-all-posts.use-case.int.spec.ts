@@ -8,9 +8,9 @@ import { createPost, postOwnerId } from '../../../test/utils/post-helper';
 import { addDays } from '../../../test/utils/date-helper';
 import { GroupMembershipCollection } from 'src/group-member/entity/group-membership.collection';
 import { FollowEntity } from 'src/follow/entity/follow.entity';
-import { PostEntity } from 'src/post/entity/post.entity';
 import { PostQueryRepository } from '../repository/post-query.repository';
 import { VisiblePostsQueryRunner } from './shared/visible-posts-query-runner';
+import { PostResponseDto } from 'src/post/dto/post_response.dto';
 
 describe('EvaluateVisibilityForPost Integration test', () => {
   let folloRepository: jest.Mocked<FollowRepository>;
@@ -169,7 +169,7 @@ describe('EvaluateVisibilityForPost Integration test', () => {
 
     const visibleFromSecondBatch = [
       createPost({ visible_until: addDays(1), visible_after: addDays(-1) }),
-      new PostEntity({
+      new PostResponseDto({
         id: viewerOwnPostId,
         userId: viewerId,
         body: 'own post',

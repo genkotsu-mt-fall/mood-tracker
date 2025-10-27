@@ -1,19 +1,17 @@
+import {
+  GroupMemberCreateBody,
+  GroupMemberResource,
+  GroupMemberResourceSchema,
+} from '@genkotsu-mt-fall/shared/schemas';
 import { postRequest } from '../api/authed';
-import { Fail, Ok } from '../http/result';
-
-type CreateGroupMember = {
-  groupId: string;
-  memberId: string;
-};
-
-export type GroupMemberData = {
-  id: string;
-  groupId: string;
-  memberId: string;
-};
+import type { Fail, Ok } from '../http/result';
 
 export async function createGroupMemberFromApi(
-  payload: CreateGroupMember,
-): Promise<Ok<GroupMemberData> | Fail> {
-  return postRequest<GroupMemberData>('group-member', payload);
+  payload: GroupMemberCreateBody,
+): Promise<Ok<GroupMemberResource> | Fail> {
+  return postRequest<GroupMemberResource>(
+    'group-member',
+    payload,
+    GroupMemberResourceSchema,
+  );
 }

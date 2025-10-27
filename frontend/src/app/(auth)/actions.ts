@@ -6,21 +6,22 @@ import { authLogin, authSignup } from '@/lib/auth/api';
 import { setAccessTokenCookie } from '@/lib/auth/cookies';
 import { consumeSignedReturnTo } from '@/lib/auth/returnToCookie';
 import {
-  LoginFields,
-  loginSchema,
-  SignupFields,
-  signupSchema,
-} from '@/lib/auth/schemas';
+  AuthLoginBody,
+  AuthLoginBodySchema,
+  AuthSignupBody,
+  AuthSignupBodySchema,
+} from '@genkotsu-mt-fall/shared/schemas';
+
 import { redirect, RedirectType } from 'next/navigation';
 
-export type LoginState = ActionState<keyof LoginFields & string>;
-export type SignupState = ActionState<keyof SignupFields & string>;
+export type LoginState = ActionState<keyof AuthLoginBody & string>;
+export type SignupState = ActionState<keyof AuthSignupBody & string>;
 
 export async function loginAction(
   _prevState: LoginState | undefined,
   formData: FormData,
 ): Promise<LoginState> {
-  const parsed = parseForm(formData, loginSchema);
+  const parsed = parseForm(formData, AuthLoginBodySchema);
   if (!parsed.ok) return { ok: false, fields: parsed.fields };
 
   const { email, password } = parsed.data;
@@ -42,7 +43,7 @@ export async function signupAction(
   _prevState: SignupState | undefined,
   formData: FormData,
 ): Promise<SignupState> {
-  const parsed = parseForm(formData, signupSchema);
+  const parsed = parseForm(formData, AuthSignupBodySchema);
   if (!parsed.ok) return { ok: false, fields: parsed.fields };
 
   const { name, email, password } = parsed.data;

@@ -1,9 +1,8 @@
+import {
+  GroupCreateBody,
+  GroupResource,
+} from '@genkotsu-mt-fall/shared/schemas';
 import { Option } from '../common/types';
-import { GroupData } from './api';
-
-type CreateGroupBody = {
-  name: string;
-};
 
 export async function createGroupClient(name: string): Promise<Option> {
   const r = await fetch('/api/group', {
@@ -11,7 +10,7 @@ export async function createGroupClient(name: string): Promise<Option> {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ name } satisfies CreateGroupBody),
+    body: JSON.stringify({ name } satisfies GroupCreateBody),
   });
 
   const j = await r.json();
@@ -21,6 +20,6 @@ export async function createGroupClient(name: string): Promise<Option> {
     throw new Error(message);
   }
 
-  const g = j.data as GroupData;
+  const g = j.data as GroupResource;
   return { id: g.id, label: g.name };
 }

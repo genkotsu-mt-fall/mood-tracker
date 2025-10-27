@@ -46,9 +46,13 @@ export class VisiblePostsQueryRunner {
       offset += batch.length;
     }
 
+    const data = visiblePosts.map((p) => {
+      return new PostResponseDto(p);
+    });
+
     return {
       success: true,
-      data: visiblePosts,
+      data,
       meta: {
         page,
         pageSize: limit,

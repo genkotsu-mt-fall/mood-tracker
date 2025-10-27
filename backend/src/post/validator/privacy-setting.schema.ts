@@ -1,10 +1,8 @@
 // import { z } from 'zod';
 // import { PrivacySetting } from '../type/privacy-setting.type';
+import { PrivacySettingSchema } from '@genkotsu-mt-fall/shared/schemas';
 import { BadRequestException } from '@nestjs/common';
-import {
-  PrivacySettingSchema,
-  type PrivacySetting,
-} from '@genkotsu-mt-fall/shared/schemas';
+import { PrivacySetting } from '../type/privacy-setting.type';
 
 export { PrivacySetting };
 

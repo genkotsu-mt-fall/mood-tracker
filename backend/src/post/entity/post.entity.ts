@@ -4,6 +4,8 @@ export class PostEntity {
   readonly id: string;
   readonly userId: string;
 
+  readonly author?: { id: string; name?: string };
+
   /**
    * 投稿本文（ユーザーが入力したテキスト）
    */
@@ -52,6 +54,7 @@ export class PostEntity {
   constructor(params: {
     id: string;
     userId: string;
+    author?: { id: string; name?: string };
     body: string;
     createdAt: Date;
     updatedAt: Date;
@@ -64,6 +67,7 @@ export class PostEntity {
   }) {
     this.id = params.id;
     this.userId = params.userId;
+    this.author = params.author;
     this.body = params.body;
     this.createdAt = params.createdAt;
     this.updatedAt = params.updatedAt;

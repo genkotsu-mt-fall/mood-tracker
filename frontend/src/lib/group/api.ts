@@ -1,19 +1,20 @@
+import {
+  GroupListResponseSchema,
+  GroupCreateBody,
+  GroupResource,
+  GroupResourceSchema,
+} from '@genkotsu-mt-fall/shared/schemas';
 import { getRequest, postRequest } from '../api/authed';
 import { Fail, Ok } from '../http/result';
 
-export type GroupData = {
-  id: string;
-  name: string;
-};
-
-export async function fetchGroupsFromApi(): Promise<Ok<GroupData[]> | Fail> {
-  return getRequest<GroupData[]>('/auth/me/groups');
+export async function fetchGroupsFromApi(): Promise<
+  Ok<GroupResource[]> | Fail
+> {
+  return getRequest('auth/me/groups', GroupListResponseSchema);
 }
 
-type CreateGroupPayload = { name: string };
-
 export async function createGroupFromApi(
-  payload: CreateGroupPayload,
-): Promise<Ok<GroupData> | Fail> {
-  return postRequest<GroupData>('/group', payload);
+  payload: GroupCreateBody,
+): Promise<Ok<GroupResource> | Fail> {
+  return postRequest<GroupResource>('group', payload, GroupResourceSchema);
 }

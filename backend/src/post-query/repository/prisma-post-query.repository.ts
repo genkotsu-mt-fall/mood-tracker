@@ -21,6 +21,7 @@ export class PrismaPostQueryRepository implements PostQueryRepository {
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       skip,
       take,
+      include: { user: { select: { id: true, name: true } } },
     });
     return {
       data: items.map(toPostEntity),
@@ -29,7 +30,10 @@ export class PrismaPostQueryRepository implements PostQueryRepository {
   }
 
   async findById(id: string): Promise<PostEntity | null> {
-    const item = await this.prisma.post.findUnique({ where: { id } });
+    const item = await this.prisma.post.findUnique({
+      where: { id },
+      include: { user: { select: { id: true, name: true } } },
+    });
     return item ? toPostEntity(item) : null;
   }
 
@@ -43,6 +47,7 @@ export class PrismaPostQueryRepository implements PostQueryRepository {
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       skip,
       take,
+      include: { user: { select: { id: true, name: true } } },
     });
     return { data: items.map(toPostEntity) };
   }
@@ -61,6 +66,7 @@ export class PrismaPostQueryRepository implements PostQueryRepository {
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       skip,
       take,
+      include: { user: { select: { id: true, name: true } } },
     });
     return { data: items.map(toPostEntity) };
   }

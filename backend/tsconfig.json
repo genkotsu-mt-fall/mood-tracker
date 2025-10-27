@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    // "module": "commonjs",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    // "module": "NodeNext",
+    // "moduleResolution": "NodeNext",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -14,7 +16,9 @@
     "baseUrl": "./",
     "paths": {
       "src/*": ["src/*"],
-      "@prisma/client": ["generated/prisma"]
+      "@prisma/client": ["generated/prisma"],
+      "@genkotsu-mt-fall/shared": ["../shared/dist/index"],
+      "@genkotsu-mt-fall/shared/*": ["../shared/dist/*"]
     },
     "incremental": true,
 

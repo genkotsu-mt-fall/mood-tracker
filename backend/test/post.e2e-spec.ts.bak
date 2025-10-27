@@ -5,7 +5,7 @@ import {
   setToken,
   signupAndLogin,
 } from './utils/auth-helper';
-import * as request from 'supertest';
+import request from 'supertest';
 
 describe('PostController (e2e)', () => {
   let app: INestApplication;

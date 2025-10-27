@@ -1,6 +1,6 @@
 import { zodToFieldErrors } from '@/lib/actions/state';
 import { createGroupFromApi } from '@/lib/group/api';
-import { groupCreateSchema } from '@/lib/group/schemas';
+import { GroupCreateBodySchema } from '@genkotsu-mt-fall/shared/schemas';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const parsed = groupCreateSchema.safeParse(body);
+  const parsed = GroupCreateBodySchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       {

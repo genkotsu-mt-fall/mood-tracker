@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/popover';
 import { Smile } from 'lucide-react';
 import { useMountEmojiPicker } from '@/hooks/useMountEmojiPicker';
-import { firstGraphemeIntl } from '@/lib/emoji/single';
+import { firstGraphemeIntl } from '@genkotsu-mt-fall/shared/schemas';
 
 export type EmojiPickerFieldProps = {
   value: string;

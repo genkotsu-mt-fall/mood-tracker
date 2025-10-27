@@ -1,3 +1,4 @@
+import z from 'zod';
 import { readAccessTokenFromServer } from '../auth/cookies';
 import {
   delJsonAuth,
@@ -18,17 +19,25 @@ export async function authedMutate<
 >(
   url: string,
   payload: unknown,
+  successSchema: z.ZodType<T>,
   fn: (
     url: string,
     payload: unknown,
     token: string,
+    successSchema: z.ZodType<T>,
     opts?: O,
   ) => Promise<HttpJsonResult<T>>,
   opts?: O,
 ): Promise<Ok<T> | Fail> {
   const token = await readAccessTokenFromServer();
   if (!token) return { ok: false, message: 'Unauthorized' };
-  const r: HttpJsonResult<T> = await fn(url, payload, token, opts);
+  const r: HttpJsonResult<T> = await fn(
+    url,
+    payload,
+    token,
+    successSchema,
+    opts,
+  );
   return toOkFail<T>(r);
 }
 
@@ -37,40 +46,57 @@ export async function authedPathOnly<
   O extends Omit<GetJsonOptions | DelJsonOptions, 'headers'> = GetJsonOptions,
 >(
   url: string,
-  fn: (url: string, token: string, opts?: O) => Promise<HttpJsonResult<T>>,
+  successSchema: z.ZodType<T>,
+  fn: (
+    url: string,
+    token: string,
+    successSchema: z.ZodType<T>,
+    opts?: O,
+  ) => Promise<HttpJsonResult<T>>,
   opts?: O,
 ): Promise<Ok<T> | Fail> {
   const token = await readAccessTokenFromServer();
   if (!token) return { ok: false, message: 'Unauthorized' };
-  const r: HttpJsonResult<T> = await fn(url, token, opts);
+  const r: HttpJsonResult<T> = await fn(url, token, successSchema, opts);
   return toOkFail<T>(r);
 }
 
 // シンタックスシュガー
 export async function getRequest<T>(
   url: string,
+  successSchema: z.ZodType<T>,
   opts?: Omit<GetJsonOptions, 'headers'>,
 ): Promise<Ok<T> | Fail> {
-  return authedPathOnly<T>(url, getJsonAuth, opts);
+  return authedPathOnly<T>(url, successSchema, getJsonAuth, opts);
 }
 
 export async function postRequest<
   T,
   O extends Omit<PostJsonOptions, 'headers'> = PostJsonOptions,
->(url: string, payload: unknown, opts?: O): Promise<Ok<T> | Fail> {
-  return authedMutate<T, O>(url, payload, postJsonAuth, opts);
+>(
+  url: string,
+  payload: unknown,
+  successSchema: z.ZodType<T>,
+  opts?: O,
+): Promise<Ok<T> | Fail> {
+  return authedMutate<T, O>(url, payload, successSchema, postJsonAuth, opts);
 }
 
 export async function putRequest<
   T,
   O extends Omit<PutJsonOptions, 'headers'> = PutJsonOptions,
->(url: string, payload: unknown, opts?: O): Promise<Ok<T> | Fail> {
-  return authedMutate<T, O>(url, payload, putJsonAuth, opts);
+>(
+  url: string,
+  payload: unknown,
+  successSchema: z.ZodType<T>,
+  opts?: O,
+): Promise<Ok<T> | Fail> {
+  return authedMutate<T, O>(url, payload, successSchema, putJsonAuth, opts);
 }
 
 export async function delRequest<
   T,
   O extends Omit<DelJsonOptions, 'headers'> = DelJsonOptions,
->(url: string, opts?: O): Promise<Ok<T> | Fail> {
-  return authedPathOnly<T>(url, delJsonAuth, opts);
+>(url: string, successSchema: z.ZodType<T>, opts?: O): Promise<Ok<T> | Fail> {
+  return authedPathOnly<T>(url, successSchema, delJsonAuth, opts);
 }

@@ -24,7 +24,6 @@
     "frontend",
     "shared"
   ],
-  "dependencies": { "emoji-regex": "^10.5.0" },
   "overrides": {
     "zod": "^4.1.8"
   }

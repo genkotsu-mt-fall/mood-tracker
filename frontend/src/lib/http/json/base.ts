@@ -1,16 +1,11 @@
 import { getApiBaseUrl } from '@/lib/env';
-
-export type ApiSuccess<T> = { success: true; data: T };
-export type ApiError = {
-  success: false;
-  error: {
-    code: string;
-    message: string;
-    fields?: Record<string, string[]>;
-    details?: string;
-  };
-};
-export type ApiResponse<T> = ApiSuccess<T> | ApiError;
+import {
+  ApiSuccess,
+  ApiError,
+  ApiResponse,
+  makeApiResponseSchema,
+} from '@genkotsu-mt-fall/shared/schemas';
+import z from 'zod';
 
 export type HttpJsonResult<T> =
   | { ok: true; status: number; json: ApiSuccess<T> }
@@ -23,17 +18,28 @@ export type CommonOptions = {
 
 export async function safeJson<T>(
   res: Response,
+  successSchema: z.ZodType<T>,
 ): Promise<ApiResponse<T> | undefined> {
+  let raw: unknown;
   try {
-    return (await res.json()) as ApiResponse<T>;
+    raw = await res.json();
   } catch {
     return undefined;
   }
+
+  const responseSchema = makeApiResponseSchema(successSchema);
+  const parsed = responseSchema.safeParse(raw);
+  if (!parsed.success) {
+    return undefined;
+  }
+
+  return parsed.data as ApiResponse<T>;
 }
 
 export async function requestJson<T>(
   url: string,
   init: RequestInit,
+  successSchema: z.ZodType<T>,
 ): Promise<HttpJsonResult<T>> {
   let res: Response;
   try {
@@ -46,24 +52,27 @@ export async function requestJson<T>(
     };
   }
 
-  const json = await safeJson<T>(res);
+  const json: ApiResponse<T> | undefined = await safeJson<T>(
+    res,
+    successSchema,
+  );
 
   if (!res.ok) {
+    const errorJson: ApiError | undefined =
+      json && json.success === false ? json : undefined;
+
     const message =
-      (json &&
-        'success' in json &&
-        json.success === false &&
-        json.error.message) ||
-      'サーバーエラーが発生しました。';
+      errorJson?.error.message || 'サーバーエラーが発生しました。';
+
     return {
       ok: false,
       status: res.status,
       message,
-      json: json as ApiError | undefined,
+      json: errorJson,
     };
   }
 
-  if (!json || !('success' in json)) {
+  if (!json) {
     return {
       ok: false,
       status: res.status,

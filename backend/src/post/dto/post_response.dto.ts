@@ -6,6 +6,9 @@ export class PostResponseDto {
   constructor(entity: PostEntity) {
     this.id = entity.id;
     this.userId = entity.userId;
+    this.author = entity.author
+      ? { id: entity.author.id, name: entity.author.name ?? undefined }
+      : undefined;
     this.mood = entity.mood;
     this.intensity = entity.intensity;
     this.body = entity.body;
@@ -28,6 +31,12 @@ export class PostResponseDto {
     description: 'The ID of the user who created the post',
   })
   userId: string;
+
+  @ApiPropertyOptional({
+    example: { id: '550e8400-e29b-41d4-a716-446655440001', name: 'John Doe' },
+    description: 'The author of the post',
+  })
+  author?: { id: string; name?: string };
 
   @ApiProperty({
     example: 'This is a sample post body.',

@@ -1,5 +1,6 @@
 import { PrivacySetting } from 'src/post/type/privacy-setting.type';
-import * as request from 'supertest';
+// import request from 'supertest';
+import request from 'supertest';
 import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
 import { setToken } from 'test/utils/auth-helper';
 
