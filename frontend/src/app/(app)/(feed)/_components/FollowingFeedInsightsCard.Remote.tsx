@@ -1,6 +1,6 @@
+import FeedInsightsCard from '@/components/insights/FeedInsightsCard';
 import { mapToUiPost } from '@/components/post/mapToUiPost';
 import { Post } from '@/components/post/types';
-import FeedInsightsCard from './FeedInsightsCard';
 import { useFollowingPostOptions } from '@/lib/post/useFollowingPostOptions';
 
 export default function FollowingFeedInsightsCardRemote() {

@@ -19,7 +19,10 @@ import {
   executePaginatedPostQueryViewerFixed,
   ViewerFixedUseCase,
 } from './helper/execute-paginated-post-query';
-import { PaginatedApiResponse } from 'src/common/response/api-response';
+import {
+  ApiResponse,
+  PaginatedApiResponse,
+} from 'src/common/response/api-response';
 import { ApiEndpoint } from 'src/common/swagger/endpoint.decorators';
 import { ResponseKind } from 'src/common/swagger/types';
 
@@ -92,8 +95,8 @@ export class PostQueryController {
   async findOne(
     @CurrentUser() user: UserEntity,
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ): Promise<PostResponseDto> {
+  ): Promise<ApiResponse<PostResponseDto>> {
     const result = await this.findPostByIdUseCase.execute(user.id, id);
-    return new PostResponseDto(result);
+    return { success: true, data: new PostResponseDto(result) };
   }
 }

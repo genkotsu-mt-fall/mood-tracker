@@ -1,26 +1,30 @@
-"use client"
+'use client';
 
-import { useMemo, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { ChevronsUpDown, Check, X, Plus } from 'lucide-react'
+import { useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { ChevronsUpDown, Check, X, Plus } from 'lucide-react';
+import UserLine from '../user/UserLine';
 
 /** この最低限の形を満たせば何でも渡せる */
-export type WithIdLabel = { id: string; label: string }
+export type WithIdLabel = { id: string; label: string };
 
 type Props<T extends WithIdLabel> = {
-  options: T[]
-  value: string[]
-  onChange: (ids: string[]) => void
-  placeholder?: string
-  previewChips?: number
-  accent?: 'allow' | 'deny'
+  options: T[];
+  value: string[];
+  onChange: (ids: string[]) => void;
+  placeholder?: string;
+  previewChips?: number;
+  accent?: 'allow' | 'deny';
   /** Option型にavatarUrlが無い場合の取得関数（任意） */
-  getAvatarUrl?: (item: T) => string | undefined
-}
+  getAvatarUrl?: (item: T) => string | undefined;
+};
 
 export default function UserMultiSelectLite<T extends WithIdLabel>({
   options,
@@ -31,30 +35,34 @@ export default function UserMultiSelectLite<T extends WithIdLabel>({
   accent = 'allow',
   getAvatarUrl,
 }: Props<T>) {
-  const [open, setOpen] = useState(false)
-  const [q, setQ] = useState('')
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
 
-  const byId = useMemo(() => new Map(options.map((o) => [o.id, o])), [options])
-  const selected = useMemo(() => value.map((id) => byId.get(id)).filter(Boolean) as T[], [value, byId])
+  const byId = useMemo(() => new Map(options.map((o) => [o.id, o])), [options]);
+  const selected = useMemo(
+    () => value.map((id) => byId.get(id)).filter(Boolean) as T[],
+    [value, byId],
+  );
 
   const filtered = useMemo(() => {
-    const t = q.trim().toLowerCase()
-    if (!t) return options
-    return options.filter((o) => o.label.toLowerCase().includes(t))
-  }, [q, options])
+    const t = q.trim().toLowerCase();
+    if (!t) return options;
+    return options.filter((o) => o.label.toLowerCase().includes(t));
+  }, [q, options]);
 
   const toggle = (id: string) =>
-    onChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id])
+    onChange(
+      value.includes(id) ? value.filter((v) => v !== id) : [...value, id],
+    );
 
-  const clear = () => onChange([])
-  const selectAll = () => onChange(filtered.map((o) => o.id))
-  const rest = Math.max(0, selected.length - previewChips)
-  const initials = (name: string) => name.trim().slice(0, 2).toUpperCase()
+  const clear = () => onChange([]);
+  const selectAll = () => onChange(filtered.map((o) => o.id));
+  const rest = Math.max(0, selected.length - previewChips);
 
   const accentChip =
     accent === 'allow'
       ? 'bg-green-50 text-green-700 border-green-200'
-      : 'bg-rose-50 text-rose-700 border-rose-200'
+      : 'bg-rose-50 text-rose-700 border-rose-200';
 
   return (
     <div className="space-y-2">
@@ -85,7 +93,11 @@ export default function UserMultiSelectLite<T extends WithIdLabel>({
             <div className="flex items-center justify-between gap-2 text-sm">
               <div>
                 選択中{' '}
-                <span className={accent === 'allow' ? 'text-green-700' : 'text-rose-700'}>
+                <span
+                  className={
+                    accent === 'allow' ? 'text-green-700' : 'text-rose-700'
+                  }
+                >
                   {selected.length}
                 </span>{' '}
                 / {options.length}
@@ -115,14 +127,19 @@ export default function UserMultiSelectLite<T extends WithIdLabel>({
 
           <div className="max-h-[18rem] overflow-auto p-1">
             {filtered.length === 0 ? (
-              <p className="px-3 py-6 text-sm text-muted-foreground">一致するユーザーがいません</p>
+              <p className="px-3 py-6 text-sm text-muted-foreground">
+                一致するユーザーがいません
+              </p>
             ) : (
               <ul className="divide-y">
                 {filtered.map((o) => {
-                  const checked = value.includes(o.id)
-                  const avatarUrl = getAvatarUrl ? getAvatarUrl(o) : undefined
+                  const checked = value.includes(o.id);
+                  const avatarUrl = getAvatarUrl ? getAvatarUrl(o) : undefined;
                   return (
-                    <li key={o.id} className="flex items-center gap-3 px-3 py-2 hover:bg-muted/40">
+                    <li
+                      key={o.id}
+                      className="flex items-center gap-3 px-3 py-2 hover:bg-muted/40"
+                    >
                       <label className="flex w-full cursor-pointer items-center gap-3">
                         <input
                           type="checkbox"
@@ -130,15 +147,17 @@ export default function UserMultiSelectLite<T extends WithIdLabel>({
                           checked={checked}
                           onChange={() => toggle(o.id)}
                         />
-                        <Avatar className="h-6 w-6">
-                          {avatarUrl ? <AvatarImage src={avatarUrl} alt={o.label} /> : null}
-                          <AvatarFallback>{initials(o.label)}</AvatarFallback>
-                        </Avatar>
-                        <span className="flex-1 truncate text-sm">{o.label}</span>
-                        {checked && <Check className="h-4 w-4 opacity-60" />}
+                        <UserLine
+                          name={o.label}
+                          src={avatarUrl}
+                          size="sm"
+                          className="w-full"
+                        >
+                          {checked && <Check className="h-4 w-4 opacity-60" />}
+                        </UserLine>
                       </label>
                     </li>
-                  )
+                  );
                 })}
               </ul>
             )}
@@ -152,7 +171,7 @@ export default function UserMultiSelectLite<T extends WithIdLabel>({
             <Badge key={u.id} variant="outline" className={accentChip}>
               <span className="mr-1">{u.label}</span>
               <button
-                className="ml-1 rounded p-0.5 hover:bg-black/5"
+                className="ml-1 rounded p-0.5 hover:bg_black/5"
                 aria-label={`${u.label} を外す`}
                 onClick={() => toggle(u.id)}
               >
@@ -163,5 +182,5 @@ export default function UserMultiSelectLite<T extends WithIdLabel>({
         </div>
       )}
     </div>
-  )
+  );
 }

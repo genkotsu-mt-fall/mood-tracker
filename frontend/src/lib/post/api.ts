@@ -32,6 +32,12 @@ export async function fetchPostsFromApi(): Promise<Ok<PostResource[]> | Fail> {
   return getRequest<PostResource[]>('post', PostListResponseSchema);
 }
 
+export async function fetchPostFromApi(
+  id: string,
+): Promise<Ok<PostResource> | Fail> {
+  return getRequest<PostResource>(`post/${id}`, PostResourceSchema);
+}
+
 export async function fetchMyPostsFromApi(): Promise<
   Ok<PostResource[]> | Fail
 > {

@@ -1,7 +1,7 @@
+import FeedInsightsCard from '@/components/insights/FeedInsightsCard';
 import { mapToUiPost } from '@/components/post/mapToUiPost';
 import { Post } from '@/components/post/types';
 import { usePostOptions } from '@/lib/post/usePostOptions';
-import FeedInsightsCard from './FeedInsightsCard';
 
 export default function FeedInsightsCardRemote() {
   const { options, error, isLoading } = usePostOptions();

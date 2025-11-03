@@ -1,7 +1,7 @@
+import FeedInsightsChart from '@/components/insights/FeedInsightsChart';
 import { Post } from '@/components/post/types';
 import { useInsightsBandsPerPost } from '@/lib/insights/useInsightsBandsPerPost';
 import { useEffect, useState } from 'react';
-import FeedInsightsChart from './insights/FeedInsightsChart';
 
 type Props = { posts?: Post[] };
 

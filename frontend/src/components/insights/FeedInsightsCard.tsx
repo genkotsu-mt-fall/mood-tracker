@@ -1,11 +1,11 @@
 'use client';
 
+import FeedInsightsChartRemote from '@/app/(app)/(feed)/_components/FeedInsightsChart.Remote';
 // import { useEffect, useState } from 'react';
 // import { makeSamplePosts } from '@/components/post/sample/samplePosts';
 import type { Post } from '@/components/post/types';
 // import FeedInsightsChart from './insights/FeedInsightsChart';
 // import { useInsightsBandsPerPost } from '@/lib/insights/useInsightsBandsPerPost';
-import FeedInsightsChartRemote from './FeedInsightsChart.Remote';
 
 // const SAMPLE_POSTS: Post[] = makeSamplePosts('hp'); // フィード寄りのサンプル
 
