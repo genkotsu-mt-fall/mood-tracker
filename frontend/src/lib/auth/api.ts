@@ -1,7 +1,7 @@
 import {
   AuthLoginResponse,
   AuthLoginResponseSchema,
-  AuthSignupBodySchema,
+  // AuthSignupBodySchema,
   AuthSignupResponseSchema,
   UserResource,
   UserResourceSchema,

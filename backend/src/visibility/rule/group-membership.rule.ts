@@ -5,7 +5,7 @@ import { GroupMembershipCollection } from 'src/group-member/entity/group-members
 
 /**
  * グループ条件に基づき、閲覧可否を判断するルール。
- * - allow_groups と group_visibility_mode の両方が設定されているときのみ有効。
+ * - allow_groups が設定されているときのみ有効。
  * - I/O を伴うため必要な場合にのみインスタンス化される（shouldEvaluate）。
  */
 export class GroupMembershipRule implements ViewRule {
@@ -21,11 +21,14 @@ export class GroupMembershipRule implements ViewRule {
   }
 
   static shouldEvaluate(ctx: VisibilityContext): boolean {
-    const { allow_groups, group_visibility_mode } = ctx.setting;
-    return !!(
-      allow_groups?.length &&
-      (group_visibility_mode === 'all' || group_visibility_mode === 'any')
-    );
+    return (ctx.setting.allow_groups?.length || 0) > 0;
+  }
+
+  static getGroupVisibilityMode(
+    setting: VisibilityContext['setting'],
+  ): 'any' | 'all' {
+    // 厳密に 'all' をデフォルトにする（undefined や想定外文字列も 'all'）
+    return setting.group_visibility_mode === 'any' ? 'any' : 'all';
   }
 
   private evaluateGroupVisibility(
@@ -35,7 +38,9 @@ export class GroupMembershipRule implements ViewRule {
     // ToDo: allow_groups と group_visibility_mode が相関関係なら、
     //       フロントエンドが迷わないように
     //       zodスキーマの superRefine() を追加したほうがいい。
-    const groupVisibilityMode = ctx.setting.group_visibility_mode!;
+    const groupVisibilityMode = GroupMembershipRule.getGroupVisibilityMode(
+      ctx.setting,
+    );
     const allowGroups = ctx.setting.allow_groups!;
 
     if (groupVisibilityMode === 'all') {

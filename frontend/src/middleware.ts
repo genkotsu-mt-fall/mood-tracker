@@ -2,13 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PROTECTED_PREFIXES } from './constants/protected-prefixes';
 import { ACCESS_COOKIE } from './lib/auth/cookie-constants';
 import { safeReturnTo } from './lib/auth/returnTo';
+import { E2E_PREFIXES } from './constants/e2e-prefixes';
+
+export const isUnder = (pathname: string, p: string) =>
+  pathname === p || pathname.startsWith(p + '/');
+
+export const isE2EPath = (pathname: string) =>
+  E2E_PREFIXES.some((p) => isUnder(pathname, p));
 
 export function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
 
-  const isProtected = PROTECTED_PREFIXES.some(
-    (p) => p === pathname || pathname.startsWith(p + '/'),
-  );
+  if (process.env.NODE_ENV === 'production' && isE2EPath(pathname)) {
+    return new Response('Not found', { status: 404 });
+  }
+
+  const isProtected = PROTECTED_PREFIXES.some((p) => isUnder(pathname, p));
   // 保護されていないパスならそのまま通す
   if (!isProtected) return NextResponse.next();
 
@@ -42,5 +51,7 @@ export const config = {
     '/groups/:path*',
     '/me/:path*',
     '/settings/:path*',
+    '/e2e/:path*',
+    '/api/e2e/:path*',
   ],
 };

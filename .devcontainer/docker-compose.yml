@@ -45,6 +45,8 @@ services:
     volumes:
       - ..:/workspace:cached
       - frontend-node-modules:/workspace/frontend/node_modules
+    ports:
+      - "9323:9323"
     environment:
       - API_BASE_URL=http://localhost:5173/__e2e__
       - NODE_ENV=development

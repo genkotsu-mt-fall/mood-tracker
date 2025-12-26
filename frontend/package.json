@@ -6,7 +6,8 @@
     "dev": "next dev -p 5173 --turbopack",
     "build": "next build",
     "start": "next start -p 5173",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@genkotsu-mt-fall/shared": "0.1.0",

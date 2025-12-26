@@ -30,18 +30,20 @@ describe('GroupMembershipRule', () => {
       ).toBe(false);
     });
 
+    // 修正済み。本来は、allow_groupsに設定されていた時点でshouldEvaluateはtrueを返すべき。
+    // セットで保存されることが保証されていない場合も考える。
     // allow_groups.length !== 0 &&
-    // group_visibility_mode === undefined => false
+    // group_visibility_mode === undefined => false × 修正済み
     it('should return false if allow_groups is set but group_visibility_mode is undefined', () => {
       expect(
         GroupMembershipRule.shouldEvaluate(
           createCtx({ allow_groups: [groupId] }),
         ),
-      ).toBe(false);
+      ).toBe(true);
     });
 
     // allow_groups.length !== 0 &&
-    // group_visibility_mode === 'none' => false
+    // group_visibility_mode === 'none' => false × 修正済み
     it('should return false if group_visibility_mode is an invalid value', () => {
       expect(
         GroupMembershipRule.shouldEvaluate(
@@ -50,7 +52,7 @@ describe('GroupMembershipRule', () => {
             group_visibility_mode: 'none' as unknown as undefined, //zod 側でテストの方がいいかも
           }),
         ),
-      ).toBe(false);
+      ).toBe(true);
     });
 
     // allow_groups.length !== 0 &&
@@ -111,7 +113,7 @@ describe('GroupMembershipRule', () => {
      */
 
     // usecase.execute() === GroupMembershipCollection &&
-    // group_visibility_mode === 'none' => false
+    // group_visibility_mode === 'none' => false × 修正済み
     it('should return false if group_visibility_mode is an invalid value even when viewer has group memberships', async () => {
       const groupMembership = GroupMembershipCollection.fromPrimitives([
         { group_id: groupId, member_id: memberId },
@@ -126,7 +128,7 @@ describe('GroupMembershipRule', () => {
             group_visibility_mode: 'none' as unknown as undefined,
           }),
         ),
-      ).toBe(false);
+      ).toBe(true);
     });
 
     // usecase.execute() === GroupMembershipCollection &&

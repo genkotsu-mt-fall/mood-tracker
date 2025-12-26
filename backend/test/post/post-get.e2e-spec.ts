@@ -2,7 +2,11 @@ import { PostResponseDto } from 'src/post/dto/post_response.dto';
 import { AppBootstrapper } from 'test/bootstrap/app-bootstrapper';
 import { PostClient } from 'test/clients/post.client';
 import { UserFactory } from 'test/factories/user.factory';
-import { PaginatedApiResponse, SupertestResponse } from 'test/types/api';
+import {
+  PaginatedApiResponse,
+  SupertestResponse,
+  ApiResponse,
+} from 'test/types/api';
 import { PostUseCase } from 'test/usecases/post.usecase';
 
 describe('PostController', () => {
@@ -63,13 +67,13 @@ describe('PostController', () => {
         body: 'Test post body',
         crisisFlag: false,
       });
-      const res = await PostClient.get(postOwner.accessToken, post.id);
+      const res: SupertestResponse<ApiResponse<PostResponseDto>> =
+        await PostClient.get(postOwner.accessToken, post.id);
       expect(res.status).toBe(200);
 
-      const body = res.body as { id: string; body: string; userId: string };
-      expect(body.id).toBe(post.id);
-      expect(body.body).toBe(post.body);
-      expect(body.userId).toBe(postOwner.profile.id);
+      expect(res.body.data.id).toBe(post.id);
+      expect(res.body.data.body).toBe(post.body);
+      expect(res.body.data.userId).toBe(postOwner.profile.id);
     });
 
     it('should return 401 if no token is provided', async () => {
