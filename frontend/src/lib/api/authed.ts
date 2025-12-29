@@ -30,7 +30,8 @@ export async function authedMutate<
   opts?: O,
 ): Promise<Ok<T> | Fail> {
   const token = await readAccessTokenFromServer();
-  if (!token) return { ok: false, message: 'Unauthorized' };
+  if (!token) return { ok: false, status: 401, message: 'Unauthorized' };
+
   const r: HttpJsonResult<T> = await fn(
     url,
     payload,
@@ -56,7 +57,8 @@ export async function authedPathOnly<
   opts?: O,
 ): Promise<Ok<T> | Fail> {
   const token = await readAccessTokenFromServer();
-  if (!token) return { ok: false, message: 'Unauthorized' };
+  if (!token) return { ok: false, status: 401, message: 'Unauthorized' };
+
   const r: HttpJsonResult<T> = await fn(url, token, successSchema, opts);
   return toOkFail<T>(r);
 }
@@ -100,3 +102,4 @@ export async function delRequest<
 >(url: string, successSchema: z.ZodType<T>, opts?: O): Promise<Ok<T> | Fail> {
   return authedPathOnly<T>(url, successSchema, delJsonAuth, opts);
 }
+// DELETE + Body は非推奨なので、作らないこと

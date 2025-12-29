@@ -1,7 +1,7 @@
 'use client';
 
-import GroupTitleCard from '@/components/group/GroupTitleCard';
 import { useGroupOptions } from '@/lib/group/useGroup';
+import GroupTitleCardView from './GroupTitleCard.View';
 
 export default function GroupTitleCardRemote({ id }: { id: string }) {
   const { data, error, isLoading } = useGroupOptions(id);
@@ -21,5 +21,6 @@ export default function GroupTitleCardRemote({ id }: { id: string }) {
     );
   }
 
-  return <GroupTitleCard name={data.name} />;
+  // base（確定値）は View に渡すだけ
+  return <GroupTitleCardView baseName={data.name} />;
 }

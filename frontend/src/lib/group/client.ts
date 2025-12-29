@@ -1,25 +1,46 @@
 import {
   GroupCreateBody,
+  GroupResourceSchema,
   GroupResource,
+  UserResource,
+  UserListResponseSchema,
+  GroupUpdateBody,
+  GroupMembersDiffBody,
 } from '@genkotsu-mt-fall/shared/schemas';
 import { Option } from '../common/types';
+import { bffPost, unwrapOrThrow, bffPut } from '@/lib/bff/request';
 
 export async function createGroupClient(name: string): Promise<Option> {
-  const r = await fetch('/api/group', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ name } satisfies GroupCreateBody),
-  });
+  const r = await bffPost(
+    '/api/group',
+    { name } satisfies GroupCreateBody,
+    GroupResourceSchema,
+  );
 
-  const j = await r.json();
-
-  if (!r.ok || !('success' in j) || !j.success) {
-    const message = j.message || 'グループの作成に失敗しました';
-    throw new Error(message);
-  }
-
-  const g = j.data as GroupResource;
+  const g = unwrapOrThrow(r);
   return { id: g.id, label: g.name };
+}
+
+export async function updateGroupClient(
+  id: string,
+  payload: GroupUpdateBody,
+): Promise<GroupResource> {
+  const r = await bffPut<GroupResource>(
+    `/api/group/${id}`,
+    payload,
+    GroupResourceSchema,
+  );
+  return unwrapOrThrow(r);
+}
+
+export async function updateGroupMembersDiffClient(
+  id: string,
+  payload: GroupMembersDiffBody,
+): Promise<UserResource[]> {
+  const r = await bffPut<UserResource[]>(
+    `/api/group/${id}/members`,
+    payload,
+    UserListResponseSchema,
+  );
+  return unwrapOrThrow(r);
 }

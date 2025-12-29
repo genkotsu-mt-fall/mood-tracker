@@ -5,8 +5,10 @@ import {
   GroupResourceSchema,
   UserResource,
   UserListResponseSchema,
+  GroupUpdateBody,
+  GroupMembersDiffBody,
 } from '@genkotsu-mt-fall/shared/schemas';
-import { getRequest, postRequest } from '../api/authed';
+import { getRequest, postRequest, putRequest } from '../api/authed';
 import { Fail, Ok } from '../http/result';
 
 export async function fetchGroupsFromApi(): Promise<
@@ -32,6 +34,24 @@ export async function fetchGroupMembersFromApi(
 ): Promise<Ok<UserResource[]> | Fail> {
   return getRequest<UserResource[]>(
     `group/${id}/members`,
+    UserListResponseSchema,
+  );
+}
+
+export async function updateGroupFromApi(
+  id: string,
+  payload: GroupUpdateBody,
+): Promise<Ok<GroupResource> | Fail> {
+  return putRequest<GroupResource>(`group/${id}`, payload, GroupResourceSchema);
+}
+
+export async function updateGroupMembersFromApi(
+  id: string,
+  payload: GroupMembersDiffBody,
+): Promise<Ok<UserResource[]> | Fail> {
+  return putRequest<UserResource[]>(
+    `group/${id}/members`,
+    payload,
     UserListResponseSchema,
   );
 }

@@ -113,6 +113,32 @@ export class PrismaGroupMemberRepository implements GroupMemberRepository {
     await this.prisma.groupMember.delete({ where: { id } });
   }
 
+  async findByPair(
+    groupId: string,
+    memberId: string,
+  ): Promise<GroupMemberEntity | null> {
+    const item = await this.prisma.groupMember.findUnique({
+      where: {
+        group_id_member_id: {
+          group_id: groupId,
+          member_id: memberId,
+        },
+      },
+    });
+    return item ? toGroupMemberEntity(item) : null;
+  }
+
+  // async deleteByPair(groupId: string, memberId: string): Promise<void> {
+  //   await this.prisma.groupMember.delete({
+  //     where: {
+  //       group_id_member_id: {
+  //         group_id: groupId,
+  //         member_id: memberId,
+  //       },
+  //     },
+  //   });
+  // }
+
   async findMembersByGroupId(groupId: string): Promise<UserEntity[]> {
     const members = await this.prisma.groupMember.findMany({
       where: { group_id: groupId },

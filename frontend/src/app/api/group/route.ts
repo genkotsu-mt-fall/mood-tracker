@@ -1,43 +1,27 @@
 import { zodToFieldErrors } from '@/lib/actions/state';
 import { createGroupFromApi } from '@/lib/group/api';
 import { GroupCreateBodySchema } from '@genkotsu-mt-fall/shared/schemas';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { jsonBadRequest, jsonFail, jsonOk } from '@/lib/bff/next-response';
 
 export async function POST(req: NextRequest) {
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json(
-      { success: false, message: 'Invalid JSON' },
-      { status: 400 },
-    );
+    return jsonBadRequest('Invalid JSON');
   }
 
   const parsed = GroupCreateBodySchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: '入力内容をご確認ください。',
-        fields: zodToFieldErrors(parsed.error.issues),
-      },
-      { status: 400 },
+    return jsonBadRequest(
+      '入力内容をご確認ください。',
+      zodToFieldErrors(parsed.error.issues),
     );
   }
 
   const res = await createGroupFromApi({ name: parsed.data.name });
-  if (!res.ok) {
-    const status = res.message === 'Unauthorized' ? 401 : 500;
-    return NextResponse.json(
-      {
-        success: false,
-        message: res.message,
-        fields: res.fields,
-      },
-      { status },
-    );
-  }
+  if (!res.ok) return jsonFail(res);
 
-  return NextResponse.json({ success: true, data: res.data }, { status: 201 });
+  return jsonOk(res.data, 201);
 }

@@ -14,6 +14,9 @@ import { UserModule } from 'src/user/user.module';
 import { GroupModule } from 'src/group/group.module';
 import { GroupController } from './controller/group.controller';
 import { FindGroupMembersUseCase } from './use-case/find-group-members.usecase';
+import { DeleteGroupMemberByPairUseCase } from './use-case/delete-group-member-by-pair.use-case';
+import { GroupRepository } from 'src/group/repository/group.repository';
+import { PrismaGroupRepository } from 'src/group/repository/prisma-group.repository';
 
 @Module({
   imports: [PrismaModule, UserModule, GroupModule],
@@ -26,9 +29,14 @@ import { FindGroupMembersUseCase } from './use-case/find-group-members.usecase';
     DeleteGroupMemberUseCase,
     LoadGroupMemberWithGroupOwnerUseCase,
     FindGroupMembersUseCase,
+    DeleteGroupMemberByPairUseCase,
     {
       provide: GroupMemberRepository,
       useClass: PrismaGroupMemberRepository,
+    },
+    {
+      provide: GroupRepository,
+      useClass: PrismaGroupRepository,
     },
   ],
   controllers: [GroupMemberController, GroupController],

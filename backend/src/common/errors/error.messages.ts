@@ -4,4 +4,6 @@ export const ErrorMessage = {
   FollowNotFound: (id: string) => `Follow with id ${id} not found`,
   GroupNotFound: (id: string) => `Group with id ${id} not found`,
   GroupMemberNotFound: (id: string) => `GroupMember with id ${id} not found`,
+  GroupMemberNotFoundByPair: (groupId: string, memberId: string) =>
+    `GroupMember with groupId ${groupId} and memberId ${memberId} not found`,
 };

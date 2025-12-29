@@ -1,18 +1,11 @@
 import { fetchPostFromApi } from '@/lib/post/api';
-import { NextResponse } from 'next/server';
+import { jsonFail, jsonOk } from '@/lib/bff/next-response';
 
-type Params = { params: { id: string } };
+type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, { params }: Params) {
   const { id } = await params;
   const res = await fetchPostFromApi(id);
-
-  if (!res.ok) {
-    const status = res.message === 'Unauthorized' ? 401 : 500;
-    return NextResponse.json(
-      { success: false, message: res.message },
-      { status },
-    );
-  }
-  return NextResponse.json({ success: true, data: res.data });
+  if (!res.ok) return jsonFail(res);
+  return jsonOk(res.data, 200);
 }

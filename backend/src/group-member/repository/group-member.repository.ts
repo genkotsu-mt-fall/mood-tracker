@@ -27,5 +27,11 @@ export abstract class GroupMemberRepository {
 
   abstract delete(id: string): Promise<void>;
 
+  abstract findByPair(
+    groupId: string,
+    memberId: string,
+  ): Promise<GroupMemberEntity | null>;
+  // abstract deleteByPair(groupId: string, memberId: string): Promise<void>;
+
   abstract findMembersByGroupId(groupId: string): Promise<UserEntity[]>;
 }

@@ -1,11 +1,12 @@
 'use server';
 import { parseForm, parseObject } from '@/lib/actions/parse';
 import { apiFieldErrorsToUi } from '@/lib/actions/state';
-import { createPostFromApi, PostResponse } from '@/lib/post/api';
+import { createPostFromApi } from '@/lib/post/api';
 import {
   PostCreateBody,
   PostCreateBodySchema,
   PostCreateBodyWithoutPrivacySchema,
+  PostResource,
 } from '@genkotsu-mt-fall/shared/schemas';
 
 // type CreatePostState = ActionState<keyof PostCreateInput & string>;
@@ -21,7 +22,7 @@ type ActionResult<T, F extends string = string> =
   | { ok: false; phase: Phase; error?: string; fields?: FieldType<F> };
 
 export type CreatePostActionResult =
-  | ActionResult<PostResponse, keyof PostCreateBody & string>
+  | ActionResult<PostResource, keyof PostCreateBody & string>
   | Idle;
 
 export async function createPostAction(

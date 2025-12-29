@@ -20,6 +20,9 @@ import { ApiResponse } from 'src/common/response/api-response';
 import { MessageDto } from 'src/common/dto/message.dto';
 import { ApiEndpoint } from 'src/common/swagger/endpoint.decorators';
 import { ResponseKind } from 'src/common/swagger/types';
+import { DeleteGroupMemberByPairUseCase } from '../use-case/delete-group-member-by-pair.use-case';
+import { CurrentUser } from 'src/auth/decorator/current-user.decorator';
+import { UserEntity } from 'src/user/entity/user.entity';
 
 @Controller('group-member')
 export class GroupMemberController {
@@ -27,6 +30,7 @@ export class GroupMemberController {
     private readonly createGroupMemberUseCase: CreateGroupMemberUseCase,
     private readonly findGroupMemberByIdUseCase: FindGroupMemberByIdUseCase,
     private readonly deleteGroupMemberUseCase: DeleteGroupMemberUseCase,
+    private readonly deleteGroupMemberByPairUseCase: DeleteGroupMemberByPairUseCase,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -105,6 +109,39 @@ export class GroupMemberController {
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<ApiResponse<MessageDto>> {
     await this.deleteGroupMemberUseCase.execute(id);
+    return {
+      success: true,
+      data: { message: 'GroupMember deleted successfully' },
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('group/:groupId/member/:memberId')
+  @ApiEndpoint({
+    summary: 'Delete a group member by (groupId, memberId)',
+    description:
+      'This endpoint deletes a group member specified by groupId and memberId.',
+    response: {
+      type: MessageDto,
+      description: 'GroupMember deleted successfully',
+    },
+    auth: true,
+    errors: {
+      unauthorized: true,
+      forbidden: true, // group owner でない等
+      notFound: true, // group or membership が存在しない等
+    },
+  })
+  async removeByPair(
+    @CurrentUser() user: UserEntity,
+    @Param('groupId', new ParseUUIDPipe({ version: '4' })) groupId: string,
+    @Param('memberId', new ParseUUIDPipe({ version: '4' })) memberId: string,
+  ): Promise<ApiResponse<MessageDto>> {
+    await this.deleteGroupMemberByPairUseCase.execute(
+      user.id,
+      groupId,
+      memberId,
+    );
     return {
       success: true,
       data: { message: 'GroupMember deleted successfully' },

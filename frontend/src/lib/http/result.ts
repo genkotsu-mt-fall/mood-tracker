@@ -1,10 +1,14 @@
 import type { HttpJsonResult } from './json';
 
 export type Ok<T> = { ok: true; data: T };
+
 export type Fail = {
   ok: false;
+  status: number; // ← 追加（0 はネットワーク等）
   message: string;
   fields?: Record<string, string[]>;
+  code?: string;
+  details?: unknown;
 };
 
 export function toOkFail<T>(res: HttpJsonResult<T>): Ok<T> | Fail {
@@ -12,9 +16,14 @@ export function toOkFail<T>(res: HttpJsonResult<T>): Ok<T> | Fail {
     return { ok: true, data: res.json.data };
   }
 
-  let fields: Record<string, string[]> | undefined;
-  if ('json' in res && res.json) {
-    fields = res.json.error.fields;
-  }
-  return { ok: false, message: res.message, fields };
+  const err = 'json' in res && res.json ? res.json.error : undefined;
+
+  return {
+    ok: false,
+    status: res.status,
+    message: res.message,
+    fields: err?.fields ?? undefined,
+    code: err?.code,
+    details: err?.details,
+  };
 }

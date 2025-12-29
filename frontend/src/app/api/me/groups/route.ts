@@ -1,14 +1,8 @@
 import { fetchGroupsFromApi } from '@/lib/group/api';
-import { NextResponse } from 'next/server';
+import { jsonFail, jsonOk } from '@/lib/bff/next-response';
 
 export async function GET() {
   const res = await fetchGroupsFromApi();
-  if (!res.ok) {
-    const status = res.message === 'Unauthorized' ? 401 : 500;
-    return NextResponse.json(
-      { success: false, message: res.message },
-      { status },
-    );
-  }
-  return NextResponse.json({ success: true, data: res.data });
+  if (!res.ok) return jsonFail(res);
+  return jsonOk(res.data, 200);
 }
