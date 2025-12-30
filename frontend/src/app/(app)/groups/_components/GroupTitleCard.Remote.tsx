@@ -1,26 +1,26 @@
 'use client';
 
+import { RemoteBoundary } from '@/components/remote/RemoteBoundary';
 import { useGroupOptions } from '@/lib/group/useGroup';
 import GroupTitleCardView from './GroupTitleCard.View';
 
 export default function GroupTitleCardRemote({ id }: { id: string }) {
   const { data, error, isLoading } = useGroupOptions(id);
 
-  if (isLoading) {
-    return (
-      <div className="animate-pulse mb-4 rounded-xl border bg-white p-4 text-sm text-muted-foreground">
-        グループを読み込み中…
-      </div>
-    );
-  }
-  if (error || !data) {
-    return (
-      <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-        グループ情報の取得に失敗しました：{error?.message ?? 'unknown error'}
-      </div>
-    );
-  }
+  // 既存ロジック（error || !data）を RemoteBoundary に寄せる
+  const effectiveError =
+    error ?? (!data ? new Error('unknown error') : undefined);
 
-  // base（確定値）は View に渡すだけ
-  return <GroupTitleCardView baseName={data.name} />;
+  return (
+    <RemoteBoundary
+      isLoading={isLoading}
+      error={effectiveError}
+      className="mb-4"
+      loading={<>グループを読み込み中…</>}
+      errorView={(e) => <>グループ情報の取得に失敗しました：{e.message}</>}
+    >
+      {/* effectiveError が無ければ data は存在する前提 */}
+      <GroupTitleCardView baseName={data!.name} />
+    </RemoteBoundary>
+  );
 }

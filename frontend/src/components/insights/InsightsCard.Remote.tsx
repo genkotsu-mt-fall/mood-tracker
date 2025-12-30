@@ -1,10 +1,10 @@
 'use client';
 
-import { Post } from '@/components/post/types';
-import { useMyPostOptions } from '@/lib/post/useMyPostOptions';
-// import { PostResource } from '@genkotsu-mt-fall/shared/schemas';
-import InsightsCard from './InsightsCard';
+import type { Post } from '@/components/post/types';
 import { mapToUiPost } from '@/components/post/mapToUiPost';
+import { RemoteBoundary } from '@/components/remote/RemoteBoundary';
+import { useMyPostOptions } from '@/lib/post/useMyPostOptions';
+import InsightsCard from './InsightsCard';
 // import InsightsCard from './InsightsCard';
 
 // function mapToUiPost(p: PostResource): Post {
@@ -27,22 +27,17 @@ import { mapToUiPost } from '@/components/post/mapToUiPost';
 export default function InsightsCardRemote() {
   const { options, error, isLoading } = useMyPostOptions();
 
-  if (isLoading) {
-    return (
-      <div className="animate-pulse rounded-md border p-3 text-sm text-muted-foreground">
-        あなたの投稿を読み込み中…
-      </div>
-    );
-  }
+  const posts: Post[] = (options ?? []).map(mapToUiPost);
 
-  if (error) {
-    return (
-      <div className="rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-        あなたの投稿の取得に失敗しました：{error.message}
-      </div>
-    );
-  }
-
-  const posts: Post[] = options.map(mapToUiPost);
-  return <InsightsCard posts={posts} />;
+  return (
+    <RemoteBoundary
+      isLoading={isLoading}
+      error={error}
+      className="rounded-md p-3"
+      loading={<>あなたの投稿を読み込み中…</>}
+      errorView={(e) => <>あなたの投稿の取得に失敗しました：{e.message}</>}
+    >
+      <InsightsCard posts={posts} />
+    </RemoteBoundary>
+  );
 }

@@ -1,8 +1,9 @@
 'use client';
 
+import { RemoteBoundary } from '@/components/remote/RemoteBoundary';
 import { useGroupOptions } from '@/lib/group/useGroupOptions';
+import type { Option } from '@/lib/common/types';
 import GroupSection from './GroupSection';
-import { Option } from '@/lib/common/types';
 
 type BaseProps = React.ComponentProps<typeof GroupSection>;
 type Props = Omit<BaseProps, 'groupOptions' | 'onRequestCreateGroup'> & {
@@ -20,25 +21,19 @@ export default function GroupSectionRemote(props: Props) {
       }
     : undefined;
 
-  if (isLoading)
-    return (
-      <div className="animate-pulse rounded-md border p-3 text-sm text-muted-foreground">
-        グループ一覧を読み込み中…
-      </div>
-    );
-
-  if (error)
-    return (
-      <div className="rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-        グループ一覧の取得に失敗しました：{error.message}
-      </div>
-    );
-
   return (
-    <GroupSection
-      {...props}
-      groupOptions={options}
-      onRequestCreateGroup={handleRequestCreateGroup}
-    />
+    <RemoteBoundary
+      isLoading={isLoading}
+      error={error}
+      className="rounded-md p-3"
+      loading={<>グループ一覧を読み込み中…</>}
+      errorView={(e) => <>グループ一覧の取得に失敗しました：{e.message}</>}
+    >
+      <GroupSection
+        {...props}
+        groupOptions={options}
+        onRequestCreateGroup={handleRequestCreateGroup}
+      />
+    </RemoteBoundary>
   );
 }

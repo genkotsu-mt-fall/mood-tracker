@@ -1,8 +1,9 @@
 'use client';
 
 import FollowingList, {
-  FollowingListItem,
+  type FollowingListItem,
 } from '@/components/user/FollowingList';
+import { RemoteBoundary } from '@/components/remote/RemoteBoundary';
 import { useMyFollowingOptions } from '@/lib/user/useMyFollowingOptions';
 import type { UserResource } from '@genkotsu-mt-fall/shared/schemas';
 
@@ -19,22 +20,6 @@ function toSubtitle(u: UserResource): string | undefined {
 export default function FollowingListRemote() {
   const { users, error, isLoading } = useMyFollowingOptions();
 
-  if (isLoading) {
-    return (
-      <div className="animate-pulse rounded-xl border bg-white p-4 text-sm text-muted-foreground">
-        フォロー中ユーザーを読み込み中…
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-        フォロー中ユーザーの取得に失敗しました：{error.message}
-      </div>
-    );
-  }
-
   const items: FollowingListItem[] = (users ?? []).map((u: UserResource) => ({
     id: u.id,
     name: toLabel(u),
@@ -43,5 +28,16 @@ export default function FollowingListRemote() {
     subtitle: toSubtitle(u),
   }));
 
-  return <FollowingList items={items} />;
+  return (
+    <RemoteBoundary
+      isLoading={isLoading}
+      error={error}
+      loading={<>フォロー中ユーザーを読み込み中…</>}
+      errorView={(e) => (
+        <>フォロー中ユーザーの取得に失敗しました：{e.message}</>
+      )}
+    >
+      <FollowingList items={items} />
+    </RemoteBoundary>
+  );
 }
