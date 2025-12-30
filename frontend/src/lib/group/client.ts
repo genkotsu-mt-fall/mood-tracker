@@ -6,9 +6,11 @@ import {
   UserListResponseSchema,
   GroupUpdateBody,
   GroupMembersDiffBody,
+  MessageResourceSchema,
+  MessageResource,
 } from '@genkotsu-mt-fall/shared/schemas';
 import { Option } from '../common/types';
-import { bffPost, unwrapOrThrow, bffPut } from '@/lib/bff/request';
+import { bffPost, unwrapOrThrow, bffPut, bffDel } from '@/lib/bff/request';
 
 export async function createGroupClient(name: string): Promise<Option> {
   const r = await bffPost(
@@ -41,6 +43,14 @@ export async function updateGroupMembersDiffClient(
     `/api/group/${id}/members`,
     payload,
     UserListResponseSchema,
+  );
+  return unwrapOrThrow(r);
+}
+
+export async function deleteGroupClient(id: string): Promise<MessageResource> {
+  const r = await bffDel<MessageResource>(
+    `/api/group/${id}`,
+    MessageResourceSchema,
   );
   return unwrapOrThrow(r);
 }

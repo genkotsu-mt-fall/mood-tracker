@@ -13,7 +13,12 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, { params }: Params) {
   const { id } = await params;
-  const res = await fetchGroupMembersFromApi(id);
+
+  const v = parseUuidParamOrBadRequest(id, 'id');
+  if (!v.ok) return v.res;
+  const groupId = v.value;
+
+  const res = await fetchGroupMembersFromApi(groupId);
   if (!res.ok) return jsonFail(res);
   return jsonOk(res.data, 200);
 }

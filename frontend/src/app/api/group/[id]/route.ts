@@ -4,12 +4,18 @@ import { GroupUpdateBodySchema } from '@genkotsu-mt-fall/shared/schemas';
 import { NextRequest } from 'next/server';
 import { jsonBadRequest, jsonFail, jsonOk } from '@/lib/bff/next-response';
 import { parseUuidParamOrBadRequest } from '@/lib/bff/params';
+import { deleteGroupUsecase } from '@/lib/bff/group/deleteGroup.usecase';
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, { params }: Params) {
   const { id } = await params;
-  const res = await fetchGroupFromApi(id);
+
+  const v = parseUuidParamOrBadRequest(id, 'id');
+  if (!v.ok) return v.res;
+  const groupId = v.value;
+
+  const res = await fetchGroupFromApi(groupId);
   if (!res.ok) return jsonFail(res);
   return jsonOk(res.data, 200);
 }
@@ -37,6 +43,20 @@ export async function PUT(req: NextRequest, { params }: Params) {
   }
 
   const res = await updateGroupFromApi(groupId, { name: parsed.data.name });
+  if (!res.ok) return jsonFail(res);
+
+  return jsonOk(res.data, 200);
+}
+
+export async function DELETE(_req: NextRequest, { params }: Params) {
+  const { id } = await params;
+
+  const v = parseUuidParamOrBadRequest(id, 'id');
+  if (!v.ok) return v.res;
+  const groupId = v.value;
+
+  // ここから下はユースケースに集約
+  const res = await deleteGroupUsecase(groupId);
   if (!res.ok) return jsonFail(res);
 
   return jsonOk(res.data, 200);

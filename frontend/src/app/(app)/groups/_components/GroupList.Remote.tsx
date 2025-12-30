@@ -1,10 +1,12 @@
 'use client';
 
 import GroupList, { GroupListItem } from '@/components/group/GroupList';
+import GroupListView from '@/components/group/GroupList.View';
 import { useGroupOptions } from '@/lib/group/useGroupOptions';
+import { deleteGroupClient } from '@/lib/group/client';
 
 export default function GroupListRemote() {
-  const { options, error, isLoading } = useGroupOptions();
+  const { options, error, isLoading, mutate } = useGroupOptions();
 
   if (isLoading) {
     return (
@@ -22,12 +24,19 @@ export default function GroupListRemote() {
     );
   }
 
-  // useGroupOptions は { id, label } を返す想定
   const items: GroupListItem[] = options.map((o) => ({
     id: o.id,
     name: o.label,
-    // 人数情報はスキーマに無いので省略（あれば here で count を付与）
   }));
 
-  return <GroupList items={items} />;
+  return (
+    <GroupListView
+      onDelete={async (groupId) => {
+        await deleteGroupClient(groupId);
+        await mutate();
+      }}
+    >
+      {(deleteApi) => <GroupList items={items} deleteApi={deleteApi} />}
+    </GroupListView>
+  );
 }

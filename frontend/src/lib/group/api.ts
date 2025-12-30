@@ -7,8 +7,10 @@ import {
   UserListResponseSchema,
   GroupUpdateBody,
   GroupMembersDiffBody,
+  MessageResourceSchema,
+  MessageResource,
 } from '@genkotsu-mt-fall/shared/schemas';
-import { getRequest, postRequest, putRequest } from '../api/authed';
+import { delRequest, getRequest, postRequest, putRequest } from '../api/authed';
 import { Fail, Ok } from '../http/result';
 
 export async function fetchGroupsFromApi(): Promise<
@@ -54,4 +56,10 @@ export async function updateGroupMembersFromApi(
     payload,
     UserListResponseSchema,
   );
+}
+
+export async function deleteGroupFromApi(
+  id: string,
+): Promise<Ok<MessageResource> | Fail> {
+  return delRequest<MessageResource>(`group/${id}`, MessageResourceSchema);
 }

@@ -1,17 +1,14 @@
-'use client';
-
-import { use } from 'react';
 import { GroupEditProvider } from '@/components/group-edit/GroupEditProvider';
 import GroupTitleSection from '@/components/group/GroupTitleSection';
 import GroupMembersSection from '@/components/group/GroupMembersSection';
 import GroupSaveBar from '@/components/group/GroupSaveBar';
 import { GroupSaveProvider } from '@/components/group/GroupSaveProvider';
+import GroupDeleteSectionClient from '@/components/group/GroupDeleteSection.Client';
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: { id: string } };
 
 export default function GroupDetailPage({ params }: Props) {
-  // Next.js 15.5: unwrap params
-  const { id } = use(params);
+  const { id } = params;
 
   // TODO: 本来は権限判定
   const editable = true;
@@ -25,6 +22,9 @@ export default function GroupDetailPage({ params }: Props) {
           <GroupSaveProvider id={id}>
             <GroupTitleSection id={id} />
             <GroupMembersSection id={id} />
+
+            {editable ? <GroupDeleteSectionClient id={id} /> : null}
+
             <GroupSaveBar />
           </GroupSaveProvider>
         </GroupEditProvider>

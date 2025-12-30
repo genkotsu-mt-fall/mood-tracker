@@ -114,6 +114,9 @@ export class GroupController {
   async remove(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<ApiResponse<MessageDto>> {
+    // TODO: グループは自由に作れるので、大量のグループメンバーがいるグループを削除する攻撃パターンが考えられる。
+    // それに、グループを削除したときの投稿の扱いも考慮する必要がある。
+    // 現状は放置するが、将来的に対策を考えること。
     await this.deleteGroupUseCase.execute(id);
     return { success: true, data: { message: 'Group deleted successfully' } };
   }
