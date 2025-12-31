@@ -1,5 +1,6 @@
 export * from "./http";
 export * from "./group";
+export * from "./follow";
 export * from "./group-member";
 export * from "./user";
 export * from "./post";

@@ -30,6 +30,11 @@ export abstract class FollowRepository {
 
   abstract delete(id: string): Promise<void>;
 
+  abstract deleteByFolloweeId(
+    userId: string,
+    followeeId: string,
+  ): Promise<void>;
+
   abstract findFollowersByUserId(userId: string): Promise<UserEntity[]>;
 
   abstract findFollowingByUserId(userId: string): Promise<UserEntity[]>;

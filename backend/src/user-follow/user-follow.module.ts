@@ -11,6 +11,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { FollowController } from './follow.controller';
 import { FindFollowersByUserIdUseCase } from './use-case/find-followers-by-user-id.use-case';
 import { FindFollowingByUserIdUseCase } from './use-case/find-following-by-user-id.use-case';
+import { DeleteFollowByFolloweeUseCase } from './use-case/delete-follow-by-followee.use-case';
 
 @Module({
   imports: [PrismaModule, AuthModule, UserModule, FollowModule],
@@ -18,6 +19,7 @@ import { FindFollowingByUserIdUseCase } from './use-case/find-following-by-user-
     CreateFollowUseCase,
     FindFollowersByUserIdUseCase,
     FindFollowingByUserIdUseCase,
+    DeleteFollowByFolloweeUseCase,
     {
       provide: FollowRepository,
       useClass: PrismaFollowRepository,
@@ -28,6 +30,7 @@ import { FindFollowingByUserIdUseCase } from './use-case/find-following-by-user-
     CreateFollowUseCase,
     FindFollowersByUserIdUseCase,
     FindFollowingByUserIdUseCase,
+    DeleteFollowByFolloweeUseCase,
   ],
 })
 export class UserFollowModule {}

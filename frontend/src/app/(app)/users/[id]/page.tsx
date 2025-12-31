@@ -1,48 +1,25 @@
-import PostCard from '@/components/post/PostCard';
-import { makeSamplePosts } from '@/components/post/sample/samplePosts';
+'use server';
 
-function FollowButton() {
-  return (
-    <button
-      disabled
-      className="rounded-full bg-gray-900 px-3 py-1.5 text-sm font-semibold text-white opacity-60"
-    >
-      フォロー(後でAPI)
-    </button>
-  );
-}
+import UserPageSection from '@/components/user/UserPageSection';
+import { fetchMyProfileFromApi } from '@/lib/user/api';
+import { redirect } from 'next/navigation';
 
-export default async function UserProfilePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const posts = makeSamplePosts('u');
+type Props = { params: Promise<{ id: string }> };
+
+export default async function UserDetailPage({ params }: Props) {
+  const { id } = await params;
+
+  // viewer（自分）をサーバ側で確定して、/users/:id が自分なら /me に正規化
+  const meRes = await fetchMyProfileFromApi();
+  if (meRes.ok && meRes.data.id === id) {
+    redirect('/me');
+  }
+
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-md p-4">
-        <header className="mb-4">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-gray-200" />
-            <div className="flex-1">
-              <h1 className="text-lg font-semibold text-gray-900">
-                ユーザー {(await params).id}
-              </h1>
-              <p className="text-sm text-gray-500">
-                簡易プロフィール文が入ります
-              </p>
-            </div>
-            <FollowButton />
-          </div>
-        </header>
-        <ul className="space-y-3">
-          {posts.map((p) => (
-            <li key={p.id}>
-              <PostCard post={p} />
-            </li>
-          ))}
-        </ul>
+    <div className="h-full overflow-auto">
+      <div className="h-full px-4 md:px-6 lg:px-8 pt-6 pb-0">
+        <UserPageSection id={id} />
       </div>
-    </main>
+    </div>
   );
 }

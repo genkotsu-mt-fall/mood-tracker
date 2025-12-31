@@ -37,3 +37,30 @@ export async function fetchMyFollowingUsersFromApi(): Promise<
     UserListResponseSchema,
   );
 }
+
+/** 他人のプロフィール */
+export async function fetchUserProfileFromApi(
+  id: string,
+): Promise<Ok<UserResource> | Fail> {
+  return getRequest<UserResource>(`user/${id}`, UserResourceSchema);
+}
+
+/** 他人のフォロワー一覧 */
+export async function fetchUserFollowersFromApi(
+  id: string,
+): Promise<Ok<UserResource[]> | Fail> {
+  return getRequest<UserResource[]>(
+    `user/${id}/followers`,
+    UserListResponseSchema,
+  );
+}
+
+/** 他人がフォローしているユーザー一覧 */
+export async function fetchUserFollowingUsersFromApi(
+  id: string,
+): Promise<Ok<UserResource[]> | Fail> {
+  return getRequest<UserResource[]>(
+    `user/${id}/following`,
+    UserListResponseSchema,
+  );
+}

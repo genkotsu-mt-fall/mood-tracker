@@ -4,5 +4,11 @@ import { jsonFail, jsonOk } from '@/lib/bff/next-response';
 export async function GET() {
   const res = await fetchMyPostsFromApi();
   if (!res.ok) return jsonFail(res);
-  return jsonOk(res.data, 200);
+
+  const data = res.data.map((p) => ({
+    ...p,
+    isMe: true,
+  }));
+
+  return jsonOk(data, 200);
 }

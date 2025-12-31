@@ -1,6 +1,11 @@
 export type Post = {
   id: string;
-  author: { name: string; avatarUrl?: string; isMe?: boolean };
+  author: {
+    id?: string; // 追加（リンクに使う）
+    name: string;
+    avatarUrl?: string;
+    isMe?: boolean;
+  };
   createdAt: string;
   body: string;
   tags?: string[];
@@ -12,14 +17,14 @@ export type Post = {
 };
 
 export const EMOJIS = [
-  "😊",
-  "😵‍💫",
-  "😭",
-  "😡",
-  "🤔",
-  "✨",
-  "🫶",
-  "👍",
-  "👎",
+  '😊',
+  '😵‍💫',
+  '😭',
+  '😡',
+  '🤔',
+  '✨',
+  '🫶',
+  '👍',
+  '👎',
 ] as const;
 export type Emoji = (typeof EMOJIS)[number];

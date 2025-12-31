@@ -1,3 +1,5 @@
+'use server';
+
 import {
   PostCreateBody,
   PostListResponseSchema,
@@ -6,21 +8,6 @@ import {
 } from '@genkotsu-mt-fall/shared/schemas';
 import { Fail, Ok } from '../http/result';
 import { getRequest, postRequest } from '../api/authed';
-// import { postRequest } from '../api/authed';
-
-// export type PostResponse = {
-//   id: string;
-//   userId: string;
-//   body: string;
-//   createdAt: string;
-//   updatedAt: string;
-//   crisisFlag: boolean;
-//   mood?: string;
-//   intensity?: number;
-//   emoji?: string;
-//   templateId?: string;
-//   privacyJson?: PrivacySetting;
-// };
 
 export async function createPostFromApi(
   payload: PostCreateBody,
@@ -49,6 +36,16 @@ export async function fetchFollowingPostsFromApi(): Promise<
 > {
   return getRequest<PostResource[]>(
     'auth/me/following/posts',
+    PostListResponseSchema,
+  );
+}
+
+/** 他人の投稿一覧（page/limit無し） */
+export async function fetchUserPostsFromApi(
+  userId: string,
+): Promise<Ok<PostResource[]> | Fail> {
+  return getRequest<PostResource[]>(
+    `user/${userId}/posts`,
     PostListResponseSchema,
   );
 }

@@ -59,6 +59,17 @@ export class PrismaFollowRepository implements FollowRepository {
     await this.prisma.follow.delete({ where: { id } });
   }
 
+  async deleteByFolloweeId(userId: string, followeeId: string): Promise<void> {
+    await this.prisma.follow.delete({
+      where: {
+        follower_id_followee_id: {
+          follower_id: userId,
+          followee_id: followeeId,
+        },
+      },
+    });
+  }
+
   async findFollowersByUserId(userId: string): Promise<UserEntity[]> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },

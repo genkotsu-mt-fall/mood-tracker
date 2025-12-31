@@ -1,6 +1,7 @@
 import { fetchPostFromApi } from '@/lib/post/api';
 import { jsonFail, jsonOk } from '@/lib/bff/next-response';
 import { parseUuidParamOrBadRequest } from '@/lib/bff/params';
+import { fetchMyProfileFromApi } from '@/lib/user/api';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -11,7 +12,16 @@ export async function GET(_req: Request, { params }: Params) {
   if (!v.ok) return v.res;
   const postId = v.value;
 
-  const res = await fetchPostFromApi(postId);
-  if (!res.ok) return jsonFail(res);
-  return jsonOk(res.data, 200);
+  const postsRes = await fetchPostFromApi(postId);
+  if (!postsRes.ok) return jsonFail(postsRes);
+
+  const meRes = await fetchMyProfileFromApi();
+  const meId = meRes.ok ? meRes.data.id : undefined;
+
+  const data = {
+    ...postsRes.data,
+    isMe: !!meId && postsRes.data.userId === meId,
+  };
+
+  return jsonOk(data, 200);
 }

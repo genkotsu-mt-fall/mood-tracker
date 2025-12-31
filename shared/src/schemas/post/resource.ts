@@ -23,4 +23,9 @@ export const PostResourceSchema = z
   })
   .strict();
 
+export const PostResourceWithIsMeSchema = PostResourceSchema.extend({
+  isMe: z.boolean(),
+});
+
 export type PostResource = z.infer<typeof PostResourceSchema>;
+export type PostResourceWithIsMe = z.infer<typeof PostResourceWithIsMeSchema>;
