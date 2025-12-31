@@ -1,4 +1,4 @@
-import { fetchPostFromApi } from '@/lib/post/api';
+import { deletePostFromApi, fetchPostFromApi } from '@/lib/post/api';
 import { jsonFail, jsonOk } from '@/lib/bff/next-response';
 import { parseUuidParamOrBadRequest } from '@/lib/bff/params';
 import { fetchMyProfileFromApi } from '@/lib/user/api';
@@ -24,4 +24,18 @@ export async function GET(_req: Request, { params }: Params) {
   };
 
   return jsonOk(data, 200);
+}
+
+export async function DELETE(_req: Request, { params }: Params) {
+  const { id } = await params;
+
+  const v = parseUuidParamOrBadRequest(id, 'id');
+  if (!v.ok) return v.res;
+  const postId = v.value;
+
+  const res = await deletePostFromApi(postId);
+  if (!res.ok) return jsonFail(res);
+
+  // MessageResource を返す
+  return jsonOk(res.data, 200);
 }

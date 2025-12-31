@@ -1,5 +1,6 @@
 'use client';
 
+import { deletePostClient } from '@/lib/post/client';
 import type { Post } from './types';
 import { useExpand, useLike, useReactions } from './hooks';
 import PostCardUI from './PostCard.UI';
@@ -19,6 +20,20 @@ export default function PostCard({
   } = useLike(post.likes ?? 0);
   const { reactions, myReactions, total, toggleEmoji } = useReactions();
 
+  const handleDelete = async () => {
+    const ok = window.confirm('この投稿を削除します。よろしいですか？');
+    if (!ok) return;
+
+    try {
+      await deletePostClient(post.id);
+      // 表示中の一覧/詳細を確実に更新するため、/feed にハード遷移
+      window.location.assign('/feed');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : '投稿の削除に失敗しました。';
+      alert(msg);
+    }
+  };
+
   return (
     <PostCardUI
       post={post}
@@ -32,6 +47,7 @@ export default function PostCard({
       myReactions={myReactions}
       total={total}
       onToggleEmoji={toggleEmoji}
+      onDelete={handleDelete}
     />
   );
 }

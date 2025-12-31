@@ -5,9 +5,11 @@ import {
   PostListResponseSchema,
   PostResource,
   PostResourceSchema,
+  MessageResource,
+  MessageResourceSchema,
 } from '@genkotsu-mt-fall/shared/schemas';
 import { Fail, Ok } from '../http/result';
-import { getRequest, postRequest } from '../api/authed';
+import { delRequest, getRequest, postRequest } from '../api/authed';
 
 export async function createPostFromApi(
   payload: PostCreateBody,
@@ -48,4 +50,11 @@ export async function fetchUserPostsFromApi(
     `user/${userId}/posts`,
     PostListResponseSchema,
   );
+}
+
+/** 投稿削除 */
+export async function deletePostFromApi(
+  id: string,
+): Promise<Ok<MessageResource> | Fail> {
+  return delRequest<MessageResource>(`post/${id}`, MessageResourceSchema);
 }
