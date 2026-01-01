@@ -96,3 +96,22 @@ export const PostCreateBodyWithoutPrivacySchema = z
 export type PostCreateBodyWithoutPrivacy = z.infer<
   typeof PostCreateBodyWithoutPrivacySchema
 >;
+
+/**
+ * Update: まずは Create と同じ要件で定義する（PUT想定）。
+ * - body は必須
+ * - emoji/intensity/privacyJson は任意（未入力→undefined）
+ * - crisisFlag は checkbox を boolean 化、未指定でも default(false)
+ */
+export const PostUpdateBodySchema = PostCreateBodySchema;
+export type PostUpdateBody = z.infer<typeof PostUpdateBodySchema>;
+
+/**
+ * FormData から parse する用（privacyJson は bind 等で別レーン）
+ * strict のまま運用したいなら parseForm 側で $ACTION_* を落とす前提
+ */
+export const PostUpdateBodyWithoutPrivacySchema =
+  PostCreateBodyWithoutPrivacySchema;
+export type PostUpdateBodyWithoutPrivacy = z.infer<
+  typeof PostUpdateBodyWithoutPrivacySchema
+>;
