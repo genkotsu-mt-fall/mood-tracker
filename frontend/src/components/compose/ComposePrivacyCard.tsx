@@ -11,7 +11,8 @@ type Props = {
   value: PrivacySetting | undefined;
   onChange: (v: PrivacySetting | undefined) => void;
   userOptions: Option[];
-  onRequestCreateGroup: () => void;
+  // PrivacyEditor が Promise を要求するので合わせる
+  onRequestCreateGroup?: () => Promise<Option | void>;
 };
 
 export default function ComposePrivacyCard({

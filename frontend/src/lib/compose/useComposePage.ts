@@ -1,16 +1,28 @@
-import { PrivacySetting } from '@genkotsu-mt-fall/shared/schemas';
 import { useMemo, useState } from 'react';
+import type { PrivacySetting } from '@/lib/privacy/types';
 
-export function useComposePage() {
-  const [text, setText] = useState('');
-  const [emoji, setEmoji] = useState('');
-  const [intensity, setIntensity] = useState<number | undefined>(undefined);
-  const [crisisFlag, setCrisisFlag] = useState(false);
+type Initial = {
+  text?: string;
+  emoji?: string;
+  intensity?: number | undefined;
+  crisisFlag?: boolean;
+  privacyJson?: PrivacySetting | undefined;
+};
+
+export function useComposePage(initial?: Initial) {
+  const [text, setText] = useState(() => initial?.text ?? '');
+  const [emoji, setEmoji] = useState(() => initial?.emoji ?? '');
+  const [intensity, setIntensity] = useState<number | undefined>(
+    () => initial?.intensity,
+  );
+  const [crisisFlag, setCrisisFlag] = useState(
+    () => initial?.crisisFlag ?? false,
+  );
   const [privacyJson, setPrivacyJson] = useState<PrivacySetting | undefined>(
-    undefined,
+    () => initial?.privacyJson ?? undefined,
   );
 
-  // postBody の参照を安定化（毎レンダで新しい object を作らない）
+  // postBody の参照を安定化
   const postBody = useMemo(
     () => ({
       text,

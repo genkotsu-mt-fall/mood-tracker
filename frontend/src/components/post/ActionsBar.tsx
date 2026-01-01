@@ -1,12 +1,16 @@
-'use client'
+'use client';
 
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Heart, MessageCircle, Repeat2 } from 'lucide-react'
-import { Trash2 } from 'lucide-react'
-import { EmojiReactPicker } from './EmojiReactPicker'
-import type { Emoji } from './types'
-import { MoreMenu } from './MoreMenu'
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Heart, MessageCircle, Repeat2, Trash2, Pencil } from 'lucide-react';
+import { EmojiReactPicker } from './EmojiReactPicker';
+import type { Emoji } from './types';
+import { MoreMenu } from './MoreMenu';
 
 export function ActionsBar({
   comments = 0,
@@ -22,22 +26,24 @@ export function ActionsBar({
   onCopyLink,
   onReport,
   isEditable,
+  onEdit,
   onDelete,
 }: {
-  comments?: number
-  reposts?: number
-  likeCount: number
-  liked: boolean
-  onToggleLike: () => void
-  onComment?: () => void
-  onRepost?: () => void
-  myReactions: Set<Emoji>
-  onToggleEmoji: (emoji: Emoji) => void
-  onOpen?: () => void
-  onCopyLink?: () => void
-  onReport?: () => void
-  isEditable?: boolean
-  onDelete?: () => void
+  comments?: number;
+  reposts?: number;
+  likeCount: number;
+  liked: boolean;
+  onToggleLike: () => void;
+  onComment?: () => void;
+  onRepost?: () => void;
+  myReactions: Set<Emoji>;
+  onToggleEmoji: (emoji: Emoji) => void;
+  onOpen?: () => void;
+  onCopyLink?: () => void;
+  onReport?: () => void;
+  isEditable?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }) {
   return (
     <div className="mt-3 flex items-center gap-2">
@@ -70,7 +76,9 @@ export function ActionsBar({
               }
               aria-pressed={liked}
             >
-              <Heart className={`mr-1 h-4 w-4 ${liked ? 'fill-current' : ''}`} />
+              <Heart
+                className={`mr-1 h-4 w-4 ${liked ? 'fill-current' : ''}`}
+              />
               {likeCount}
             </Button>
           </TooltipTrigger>
@@ -93,7 +101,25 @@ export function ActionsBar({
         </Tooltip>
 
         <EmojiReactPicker myReactions={myReactions} onToggle={onToggleEmoji} />
-        {isEditable && (
+
+        {isEditable && onEdit && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onEdit}
+                className="rounded-lg border-gray-300 bg-white text-xs text-gray-900 hover:bg-gray-50 ml-1"
+                aria-label="投稿を編集"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>編集</TooltipContent>
+          </Tooltip>
+        )}
+
+        {isEditable && onDelete && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -109,8 +135,9 @@ export function ActionsBar({
             <TooltipContent>投稿を削除</TooltipContent>
           </Tooltip>
         )}
+
         <MoreMenu onOpen={onOpen} onCopyLink={onCopyLink} onReport={onReport} />
       </TooltipProvider>
     </div>
-  )
+  );
 }

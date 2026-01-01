@@ -25,6 +25,9 @@ type Props = {
   bodyError?: string;
   canSubmit: boolean;
   pending: boolean;
+
+  submitLabel?: string;
+  pendingLabel?: string;
 };
 
 export default function ComposeBodyCard({
@@ -34,6 +37,8 @@ export default function ComposeBodyCard({
   bodyError,
   canSubmit,
   pending,
+  submitLabel = '投稿する',
+  pendingLabel = '送信中…',
 }: Props) {
   return (
     <div className="rounded-3xl bg-gradient-to-r from-sky-200/50 via-fuchsia-200/50 to-amber-200/50 p-[1.5px]">
@@ -150,7 +155,7 @@ export default function ComposeBodyCard({
                 className="h-8 rounded-full px-4"
                 disabled={!canSubmit || pending}
               >
-                {pending ? '送信中…' : '投稿する'}
+                {pending ? pendingLabel : submitLabel}
               </Button>
             </div>
           </div>

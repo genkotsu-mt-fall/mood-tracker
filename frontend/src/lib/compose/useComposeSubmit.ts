@@ -8,6 +8,11 @@ import {
   type CreatePostActionResult,
 } from '@/app/(app)/compose/actions';
 
+import {
+  updatePostAction,
+  type UpdatePostActionResult,
+} from '@/app/(app)/posts/actions';
+
 type PostBodyController = {
   setText: (v: string) => void;
   setEmoji: (v: string) => void;
@@ -19,18 +24,37 @@ type PostBodyController = {
 type Args = {
   privacyJson: PrivacySetting | undefined;
   postBody: PostBodyController;
+
+  mode?: 'create' | 'update';
+  postId?: string; // update のとき必須
 };
 
 type FieldErrors = Record<string, string> | undefined;
 
-export function useComposeSubmit({ privacyJson, postBody }: Args) {
-  // privacyJson を Server Action に bind で渡す（参照の安定化）
-  const bound = useMemo(() => ({ privacyJson }), [privacyJson]);
+export function useComposeSubmit({
+  privacyJson,
+  postBody,
+  mode = 'create',
+  postId,
+}: Args) {
+  // bind で渡す値（update の場合は postId も含める）
+  const bound = useMemo(() => {
+    return mode === 'update'
+      ? { postId: postId ?? '', privacyJson }
+      : { privacyJson };
+  }, [mode, postId, privacyJson]);
+
+  const actionFn =
+    mode === 'update'
+      ? (updatePostAction as unknown as typeof createPostAction)
+      : createPostAction;
+
+  const initialState = { ok: true, phase: 'idle' } as const;
 
   const [state, formAction, pending] = useActionState<
-    CreatePostActionResult,
+    CreatePostActionResult | UpdatePostActionResult,
     FormData
-  >(createPostAction.bind(null, bound), { ok: true, phase: 'idle' } as const);
+  >(actionFn.bind(null, bound), initialState);
 
   const isSuccess = state.ok && state.phase === 'success';
   const successData = state.ok ? state.data : undefined;
@@ -41,28 +65,36 @@ export function useComposeSubmit({ privacyJson, postBody }: Args) {
 
   const formError = !state.ok ? state.error : undefined;
 
-  // setter を分解して依存を安定化（postBody オブジェクト自体を依存に入れない）
   const { setText, setEmoji, setIntensity, setCrisisFlag, setPrivacyJson } =
     postBody;
 
-  // 同じ成功に対して toast/reset を二重に実行しないガード
-  // PostResource に id がある想定。なければ key を差し替えてください。
+  // 二重 toast / 二重処理防止（成功データ id ベース）
   const handledSuccessKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!isSuccess || !successData) return;
 
     const successId = successData.id as string | undefined;
-    const key = successId ?? '__success__';
+    const key = `${mode}:${successId ?? '__success__'}`;
 
     if (handledSuccessKeyRef.current === key) return;
     handledSuccessKeyRef.current = key;
 
+    if (mode === 'update') {
+      toast.success('保存しました', {
+        description: '反映に数秒かかる場合があります。',
+      });
+      // 更新後は詳細に戻す（確実に再取得させたいのでハード遷移）
+      if (postId) window.location.assign(`/posts/${postId}`);
+      return;
+    }
+
+    // create
     toast.success('投稿しました', {
       description: '反映に数秒かかる場合があります。',
     });
 
-    // フォームリセット
+    // フォームリセット（create のみ）
     setText('');
     setEmoji('');
     setIntensity(undefined);
@@ -71,6 +103,8 @@ export function useComposeSubmit({ privacyJson, postBody }: Args) {
   }, [
     isSuccess,
     successData,
+    mode,
+    postId,
     setText,
     setEmoji,
     setIntensity,
@@ -78,15 +112,17 @@ export function useComposeSubmit({ privacyJson, postBody }: Args) {
     setPrivacyJson,
   ]);
 
-  // 失敗 toast
   useEffect(() => {
     if (!hasError) return;
     if (!errorMsg && !errorFields) return;
 
-    toast.error('投稿に失敗しました', {
-      description: errorMsg ?? '入力内容をご確認ください。',
-    });
-  }, [hasError, errorMsg, errorFields]);
+    toast.error(
+      mode === 'update' ? '保存に失敗しました' : '投稿に失敗しました',
+      {
+        description: errorMsg ?? '入力内容をご確認ください。',
+      },
+    );
+  }, [hasError, errorMsg, errorFields, mode]);
 
   return {
     state,

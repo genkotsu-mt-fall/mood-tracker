@@ -92,9 +92,9 @@ function MiniPostTooltip(props: MiniPostTooltipProps) {
       {/* single post preview */}
       <div className="p-2">
         {representative ? (
-          <Link href={`/posts/${representative.id}`} className="block">
-            <PostPreviewCard post={representative} />
-          </Link>
+          // <Link href={`/posts/${representative.id}`} className="block">
+          // </Link>
+          <PostPreviewCard post={representative} />
         ) : (
           <div className="px-2 py-3 text-xs text-gray-500">
             この日は投稿がありません。

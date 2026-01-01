@@ -23,6 +23,7 @@ type Props = {
   myReactions: Set<Emoji>;
   total: number;
   onToggleEmoji: (emoji: Emoji) => void;
+  onEdit?: () => void;
   onDelete?: () => void;
 };
 
@@ -38,6 +39,7 @@ export default function PostCardUI({
   myReactions,
   total,
   onToggleEmoji,
+  onEdit,
   onDelete,
 }: Props) {
   const cardClass = `rounded-2xl border border-gray-100 bg-white ${
@@ -96,6 +98,7 @@ export default function PostCardUI({
             }
             onReport={() => alert('報告（未実装）')}
             isEditable={!!post.author.isMe}
+            onEdit={onEdit}
             onDelete={onDelete}
           />
         )}

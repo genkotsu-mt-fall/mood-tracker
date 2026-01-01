@@ -1,38 +1,38 @@
 // サーバーコンポーネント
 import type { ReactNode } from 'react';
 import TabsNav from './_components/TabsNav';
-import WhoToFollowCard from './_components/WhoToFollowCard';
-import FeedMobileTabs from './_components/FeedMobileTabs';
-import PostCard from '@/components/post/PostCard';
-import { makeSamplePosts } from '@/components/post/sample/samplePosts';
+// import WhoToFollowCard from './_components/WhoToFollowCard';
+// import FeedMobileTabs from './_components/FeedMobileTabs';
+// import PostCard from '@/components/post/PostCard';
+// import { makeSamplePosts } from '@/components/post/sample/samplePosts';
 
-import InsightsCard from '@/components/insights/InsightsCard';
+// import InsightsCard from '@/components/insights/InsightsCard';
 import RightPanel from '@/components/app/RightPanel';
 import { RightPanelProvider } from '@/components/app/RightPanelContext';
 
 export default function FeedGroupLayout({ children }: { children: ReactNode }) {
-  const FEED_POSTS = makeSamplePosts('hp');
-  const FOLLOWING_POSTS = makeSamplePosts('p');
+  // const FEED_POSTS = makeSamplePosts('hp');
+  // const FOLLOWING_POSTS = makeSamplePosts('p');
 
-  const feedPanel = (
-    <ul className="space-y-3">
-      {FEED_POSTS.map((p) => (
-        <li key={p.id}>
-          <PostCard post={p} />
-        </li>
-      ))}
-    </ul>
-  );
+  // const feedPanel = (
+  //   <ul className="space-y-3">
+  //     {FEED_POSTS.map((p) => (
+  //       <li key={p.id}>
+  //         <PostCard post={p} />
+  //       </li>
+  //     ))}
+  //   </ul>
+  // );
 
-  const followingPanel = (
-    <ul className="space-y-3">
-      {FOLLOWING_POSTS.map((p) => (
-        <li key={p.id}>
-          <PostCard post={p} />
-        </li>
-      ))}
-    </ul>
-  );
+  // const followingPanel = (
+  //   <ul className="space-y-3">
+  //     {FOLLOWING_POSTS.map((p) => (
+  //       <li key={p.id}>
+  //         <PostCard post={p} />
+  //       </li>
+  //     ))}
+  //   </ul>
+  // );
 
   return (
     <RightPanelProvider>
@@ -62,7 +62,7 @@ export default function FeedGroupLayout({ children }: { children: ReactNode }) {
 
           {/* ▼ SP/タブレット: 4タブ（Feed/Following/インサイト/おすすめ） */}
           <div className="lg:hidden">
-            <FeedMobileTabs
+            {/* <FeedMobileTabs
               counts={{
                 feed: FEED_POSTS.length,
                 following: FOLLOWING_POSTS.length,
@@ -71,7 +71,7 @@ export default function FeedGroupLayout({ children }: { children: ReactNode }) {
               followingPanel={followingPanel}
               insightsPanel={<InsightsCard />}
               recommendPanel={<WhoToFollowCard embed />}
-            />
+            /> */}
           </div>
         </div>
       </main>

@@ -4,7 +4,7 @@ export type Post = {
     id?: string; // 追加（リンクに使う）
     name: string;
     avatarUrl?: string;
-    isMe?: boolean;
+    isMe: boolean;
   };
   createdAt: string;
   body: string;

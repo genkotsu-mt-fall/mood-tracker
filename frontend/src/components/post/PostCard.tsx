@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { deletePostClient } from '@/lib/post/client';
 import type { Post } from './types';
 import { useExpand, useLike, useReactions } from './hooks';
@@ -12,6 +13,8 @@ export default function PostCard({
   post: Post;
   compact?: boolean;
 }) {
+  const router = useRouter();
+
   const { expanded, toggle: toggleExpand } = useExpand(180);
   const {
     liked,
@@ -19,6 +22,10 @@ export default function PostCard({
     toggle: toggleLike,
   } = useLike(post.likes ?? 0);
   const { reactions, myReactions, total, toggleEmoji } = useReactions();
+
+  const handleEdit = () => {
+    router.push(`/posts/${post.id}/edit`);
+  };
 
   const handleDelete = async () => {
     const ok = window.confirm('この投稿を削除します。よろしいですか？');
@@ -47,6 +54,7 @@ export default function PostCard({
       myReactions={myReactions}
       total={total}
       onToggleEmoji={toggleEmoji}
+      onEdit={handleEdit}
       onDelete={handleDelete}
     />
   );

@@ -11,6 +11,9 @@ type Props = {
   canSubmit: boolean;
   pending: boolean;
   formId: string;
+
+  submitLabel?: string;
+  pendingLabel?: string;
 };
 
 export default function ComposeStickyBar({
@@ -20,6 +23,8 @@ export default function ComposeStickyBar({
   canSubmit,
   pending,
   formId,
+  submitLabel = '投稿する',
+  pendingLabel = '送信中…',
 }: Props) {
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-3 z-20">
@@ -51,7 +56,7 @@ export default function ComposeStickyBar({
               className="rounded-full"
               form={formId}
             >
-              {pending ? '送信中…' : '投稿する'}
+              {pending ? pendingLabel : submitLabel}
             </Button>
           </div>
         </div>
