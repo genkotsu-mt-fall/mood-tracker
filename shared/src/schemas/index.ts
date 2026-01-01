@@ -6,3 +6,4 @@ export * from "./user";
 export * from "./post";
 export * from "./auth";
 export * from "./privacy/privacy-setting.schema";
+export * from "./me";

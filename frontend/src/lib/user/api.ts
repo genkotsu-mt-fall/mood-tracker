@@ -1,11 +1,12 @@
 'use server';
 
 import {
+  MyProfileUpdateBody,
   UserListResponseSchema,
   UserResource,
   UserResourceSchema,
 } from '@genkotsu-mt-fall/shared/schemas';
-import { getRequest } from '../api/authed';
+import { getRequest, putRequest } from '../api/authed';
 import { Fail, Ok } from '../http/result';
 
 export async function fetchUsersFromApi(): Promise<Ok<UserResource[]> | Fail> {
@@ -63,4 +64,10 @@ export async function fetchUserFollowingUsersFromApi(
     `user/${id}/following`,
     UserListResponseSchema,
   );
+}
+
+export async function updateMyProfileFromApi(
+  payload: MyProfileUpdateBody,
+): Promise<Ok<UserResource> | Fail> {
+  return putRequest<UserResource>('auth/me', payload, UserResourceSchema);
 }

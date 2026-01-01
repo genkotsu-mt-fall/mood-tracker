@@ -1,15 +1,15 @@
-import { UserResource } from '@genkotsu-mt-fall/shared/schemas';
+import { MyProfileResponse } from '@genkotsu-mt-fall/shared/schemas';
 import useSWR from 'swr';
 import { fetchDataFromApi } from '../http/fetcher';
 
-export type MyProfileResponse = {
-  profile: UserResource;
-  followersCount: number;
-  followingCount: number;
-};
+// export type MyProfileResponse = {
+//   profile: UserResource;
+//   followersCount: number;
+//   followingCount: number;
+// };
 
 export function useMyProfileOptions() {
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR(
     '/api/me/profile',
     fetchDataFromApi<MyProfileResponse>,
   );
@@ -18,5 +18,6 @@ export function useMyProfileOptions() {
     data,
     error: error as Error | undefined,
     isLoading,
+    mutate,
   };
 }

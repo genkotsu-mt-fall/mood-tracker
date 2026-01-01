@@ -1,11 +1,11 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import type { MyProfileResponse } from '@/lib/me/useMeProfileOptions';
 import {
   useMeProfileBar,
   type MeProfileBarApi,
 } from '@/components/me/useMeProfileBar';
+import { MyProfileResponse } from '@genkotsu-mt-fall/shared/schemas';
 
 export default function MeProfileView({
   base,

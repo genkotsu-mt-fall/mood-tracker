@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { MyProfileResponse } from '@/lib/me/useMeProfileOptions';
 import type { MeProfileBarProps } from './MeProfileBar';
+import { MyProfileResponse } from '@genkotsu-mt-fall/shared/schemas';
 
 export type MeProfileBarApi = {
   barProps: MeProfileBarProps;
