@@ -3,7 +3,10 @@
 import { parseForm } from '@/lib/actions/parse';
 import { ActionState, apiFieldErrorsToUi } from '@/lib/actions/state';
 import { authLogin, authSignup } from '@/lib/auth/api';
-import { setAccessTokenCookie } from '@/lib/auth/cookies';
+import {
+  setAccessTokenCookie,
+  clearAccessTokenCookie,
+} from '@/lib/auth/cookies';
 import { consumeSignedReturnTo } from '@/lib/auth/returnToCookie';
 import {
   AuthLoginBody,
@@ -68,4 +71,13 @@ export async function signupAction(
   await setAccessTokenCookie(l.data.accessToken);
   redirect('/feed', RedirectType.replace);
   return { ok: true };
+}
+
+/**
+ * ログアウト：アクセストークン Cookie を削除して /login へ
+ * UI 側は <form action={logoutAction}> で呼ぶのが一番簡単です。
+ */
+export async function logoutAction(): Promise<void> {
+  await clearAccessTokenCookie();
+  redirect('/login', RedirectType.replace);
 }
