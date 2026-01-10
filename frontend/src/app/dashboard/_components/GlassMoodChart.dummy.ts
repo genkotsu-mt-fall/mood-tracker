@@ -1,11 +1,10 @@
-// GlassMoodChart.dummy.ts
 import {
-  ChartPoint,
   UserSummary,
-  PAD_END,
+  ChartPoint,
   PAD_START,
+  PAD_END,
   FILTER_TAGS,
-} from './GlassMoodChart.model';
+} from '@/lib/dashboard/features/glassMoodChart/model';
 
 /**
  * そのまま切り出し（ユーザー定義）

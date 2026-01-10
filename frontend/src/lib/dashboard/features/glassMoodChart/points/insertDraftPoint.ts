@@ -1,9 +1,9 @@
-import { ChartPoint } from '@/app/dashboard/_components/GlassMoodChart.model';
+import { ChartPointUI } from '../model';
 import { parseTimeToMs } from '../time/parseTimeToMs';
 
 export function insertDraftPoint(
-  draft: ChartPoint,
-  setPoints: React.Dispatch<React.SetStateAction<ChartPoint[]>>,
+  draft: ChartPointUI,
+  setPoints: React.Dispatch<React.SetStateAction<ChartPointUI[]>>,
 ) {
   setPoints((prev) => {
     const cleaned = prev.filter((p) => !p.isDraft);

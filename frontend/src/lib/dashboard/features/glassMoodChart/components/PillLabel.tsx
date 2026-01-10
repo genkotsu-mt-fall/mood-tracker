@@ -1,4 +1,4 @@
-import { ChartPoint } from '@/app/dashboard/_components/GlassMoodChart.model';
+import { ChartPointUI } from '../model';
 
 type RechartsLabelProps<TPayload = unknown> = {
   x?: number;
@@ -12,7 +12,7 @@ type PillLabelExtraProps = {
 };
 
 export function PillLabel(
-  props: RechartsLabelProps<ChartPoint> & PillLabelExtraProps,
+  props: RechartsLabelProps<ChartPointUI> & PillLabelExtraProps,
 ) {
   const { x, y, value, payload, filterId } = props;
   if (typeof x !== 'number' || typeof y !== 'number') return null;

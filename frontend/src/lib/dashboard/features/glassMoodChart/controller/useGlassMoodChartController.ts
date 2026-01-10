@@ -1,9 +1,6 @@
 'use client';
 
 import React, { useId, useRef } from 'react';
-
-import type { FilterTag } from '@/app/dashboard/_components/GlassMoodChart.model';
-
 import { useEditPopoverState } from '@/lib/dashboard/features/glassMoodChart/popover/useEditPopoverState';
 import {
   FetchLatest,
@@ -11,13 +8,14 @@ import {
   useGlassMoodChartData,
 } from '@/lib/dashboard/features/glassMoodChart/data/useGlassMoodChartData';
 import { useGlassMoodChartUX } from '@/lib/dashboard/features/glassMoodChart/ux/useGlassMoodChartUX';
+import { ChartPointUI, FilterTag } from '../model';
 
 type Args = {
   padStartTime: string;
   padEndTime: string;
   filterTags: readonly FilterTag[];
-  fetchLatest: FetchLatest;
-  fetchOlder: FetchOlder;
+  fetchLatest: FetchLatest<ChartPointUI>;
+  fetchOlder: FetchOlder<ChartPointUI>;
 };
 
 export function useGlassMoodChartController({

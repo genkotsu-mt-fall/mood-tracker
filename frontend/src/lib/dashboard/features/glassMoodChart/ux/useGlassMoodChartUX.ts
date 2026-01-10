@@ -1,12 +1,6 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef } from 'react';
-
-import type {
-  ChartPoint,
-  FilterTag,
-} from '@/app/dashboard/_components/GlassMoodChart.model';
-
 import type {
   ComposedChartMouseDown,
   MouseDownState,
@@ -15,7 +9,6 @@ import { extractClientXFromMouseDownEvent } from '@/lib/dashboard/events/pointer
 import { getChartPointerFromMouseEvent } from '@/lib/dashboard/events/pointer/getChartPointerFromMouseDownEvent';
 import { parseActiveIndex } from '@/lib/dashboard/events/recharts/parseActiveIndex';
 import { isFiniteNumber } from '@/lib/dashboard/utils/number/guards';
-
 import { isEventFromDot } from '@/lib/dashboard/features/glassMoodChart/hitTest';
 import { attachWindowDragListeners } from '@/lib/dashboard/features/glassMoodChart/drag/attachWindowDragListeners';
 import type { DragSession } from '@/lib/dashboard/features/glassMoodChart/drag/types/DragSession';
@@ -24,11 +17,12 @@ import { createOnWindowUp } from '@/lib/dashboard/features/glassMoodChart/drag/h
 import { createTryInsertByClick } from '@/lib/dashboard/features/glassMoodChart/points/tryInsertByClick';
 import type { ClickSeed } from '@/lib/dashboard/features/glassMoodChart/interactions/click/clickSeed';
 import { EditPopoverState } from '../popover/useEditPopoverState';
+import { ChartPointUI, FilterTag } from '../model';
 
 type EditPopover = { time: string; anchor: { x: number; y: number } } | null;
 
 export type PointClickHandler = (
-  p: ChartPoint,
+  p: ChartPointUI,
   anchor: { x: number; y: number },
 ) => void;
 
@@ -38,12 +32,12 @@ type Args = {
   setWindowStart: React.Dispatch<React.SetStateAction<number>>;
   maxWindowStart: number;
 
-  pointsRef: React.RefObject<ChartPoint[]>;
-  filteredDataRef: React.RefObject<ChartPoint[]>;
+  pointsRef: React.RefObject<ChartPointUI[]>;
+  filteredDataRef: React.RefObject<ChartPointUI[]>;
   selectedTagRef: React.RefObject<FilterTag>;
-  setPoints: React.Dispatch<React.SetStateAction<ChartPoint[]>>;
+  setPoints: React.Dispatch<React.SetStateAction<ChartPointUI[]>>;
 
-  findPointByTime: (time: string) => ChartPoint | undefined;
+  findPointByTime: (time: string) => ChartPointUI | undefined;
 
   // shared flag
   panningRef: React.RefObject<boolean>;

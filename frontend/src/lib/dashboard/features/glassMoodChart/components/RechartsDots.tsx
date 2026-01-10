@@ -1,6 +1,6 @@
-import { PointClickHandler } from '@/app/dashboard/_components/GlassMoodChart';
-import { ChartPoint } from '@/app/dashboard/_components/GlassMoodChart.model';
 import { clamp } from '@/components/post/utils';
+import { PointClickHandler } from '../ux/useGlassMoodChartUX';
+import { ChartPointUI } from '../model';
 
 type RechartsDotProps<TPayload = unknown> = {
   cx?: number;
@@ -15,7 +15,7 @@ export function GlowDot({
   value,
   payload,
   onPointClick,
-}: RechartsDotProps<ChartPoint> & { onPointClick?: PointClickHandler }) {
+}: RechartsDotProps<ChartPointUI> & { onPointClick?: PointClickHandler }) {
   if (typeof cx !== 'number' || typeof cy !== 'number') return null;
   if (typeof value !== 'number') return null;
   if (!payload || payload.isPad) return null;
@@ -51,7 +51,7 @@ export function GlowActiveDot({
   value,
   payload,
   onPointClick,
-}: RechartsDotProps<ChartPoint> & { onPointClick?: PointClickHandler }) {
+}: RechartsDotProps<ChartPointUI> & { onPointClick?: PointClickHandler }) {
   if (typeof cx !== 'number' || typeof cy !== 'number') return null;
   if (typeof value !== 'number') return null;
   if (!payload || payload.isPad) return null;

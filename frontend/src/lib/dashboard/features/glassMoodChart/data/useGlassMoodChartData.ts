@@ -10,43 +10,43 @@ import {
   THRESHOLD,
   VISIBLE,
 } from '@/lib/dashboard/features/glassMoodChart/constants';
+import { ChartPointBase, ChartPointUI, FilterTag } from '../model';
 
-// 既存の ChartPoint / FilterTag をそのまま利用（互換性優先）
-import type {
-  ChartPoint,
-  FilterTag,
-} from '@/app/dashboard/_components/GlassMoodChart.model';
-
-export type GlassMoodChartPage = {
-  items: ChartPoint[]; // 古い→新しい
+export type GlassMoodChartPage<T extends ChartPointBase> = {
+  items: T[]; // 古い→新しい
   nextBefore: number | null;
   hasMore: boolean;
 };
 
-export type FetchLatest = (stockTarget: number) => GlassMoodChartPage;
-export type FetchOlder = (before: number, need: number) => GlassMoodChartPage;
+export type FetchLatest<T extends ChartPointBase> = (
+  stockTarget: number,
+) => GlassMoodChartPage<T>;
+export type FetchOlder<T extends ChartPointBase> = (
+  before: number,
+  need: number,
+) => GlassMoodChartPage<T>;
 
-type Args = {
+type Args<T extends ChartPointBase> = {
   padStartTime: string;
   padEndTime: string;
-  fetchLatest: FetchLatest;
-  fetchOlder: FetchOlder;
+  fetchLatest: FetchLatest<T>;
+  fetchOlder: FetchOlder<T>;
   // UX 側と共有（ドラッグ中はデータ取得を抑止）
   panningRef: React.RefObject<boolean>;
 };
 
-export function useGlassMoodChartData({
+export function useGlassMoodChartData<T extends ChartPointBase>({
   padStartTime,
   padEndTime,
   fetchLatest,
   fetchOlder,
   panningRef,
-}: Args) {
-  const padStartPoint = useMemo<ChartPoint>(
+}: Args<T>) {
+  const padStartPoint = useMemo<ChartPointUI>(
     () => ({ time: padStartTime, value: null, isPad: true }),
     [padStartTime],
   );
-  const padEndPoint = useMemo<ChartPoint>(
+  const padEndPoint = useMemo<ChartPointUI>(
     () => ({ time: padEndTime, value: null, isPad: true }),
     [padEndTime],
   );
@@ -61,7 +61,7 @@ export function useGlassMoodChartData({
    * - 無限パンのため、ここは増えていく
    * - draft もここに混在する
    */
-  const [points, setPoints] = useState<ChartPoint[]>([
+  const [points, setPoints] = useState<ChartPointUI[]>([
     padStartPoint,
     padEndPoint,
   ]);
@@ -189,11 +189,11 @@ export function useGlassMoodChartData({
     panningRef,
   ]);
 
-  function findPointByTime(time: string): ChartPoint | undefined {
+  function findPointByTime(time: string): ChartPointUI | undefined {
     return points.find((p) => !p.isPad && p.time === time);
   }
 
-  function updatePointByTime(time: string, patch: Partial<ChartPoint>) {
+  function updatePointByTime(time: string, patch: Partial<ChartPointUI>) {
     setPoints((prev) =>
       prev.map((p) => {
         if (p.isPad) return p;

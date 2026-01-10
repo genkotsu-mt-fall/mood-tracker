@@ -11,24 +11,17 @@ import {
   Tooltip,
   CartesianGrid,
 } from 'recharts';
-
-import type {
-  ChartPoint,
-  FilterTag,
-} from '@/app/dashboard/_components/GlassMoodChart.model';
-
 import type { ComposedChartMouseDown } from '@/lib/dashboard/events/recharts/mouseDown.types';
 import type { PointClickHandler } from '@/lib/dashboard/features/glassMoodChart/ux/useGlassMoodChartUX';
-
 import FilterTagChips from '@/lib/dashboard/features/glassMoodChart/tags/FilterTagChips';
 import EditPointPopover from '@/lib/dashboard/features/glassMoodChart/popover/EditPointPopover';
 import UserMiniCardSlider from '@/lib/dashboard/features/glassMoodChart/components/UserMiniCardSlider';
-
 import { PillLabel } from '@/lib/dashboard/features/glassMoodChart/components/PillLabel';
 import {
   GlowActiveDot,
   GlowDot,
 } from '@/lib/dashboard/features/glassMoodChart/components/RechartsDots';
+import { ChartPointUI, FilterTag } from '../model';
 
 export type GlassMoodChartViewProps = {
   // ids
@@ -45,20 +38,20 @@ export type GlassMoodChartViewProps = {
   onSelectTag: (t: FilterTag) => void;
 
   // chart
-  filteredData: ChartPoint[];
+  filteredData: ChartPointUI[];
   onChartMouseDown: ComposedChartMouseDown;
   onPointClick: PointClickHandler;
 
   // editor
   editPopover: { time: string; anchor: { x: number; y: number } } | null;
-  editPoint: ChartPoint | undefined;
+  editPoint: ChartPointUI | undefined;
   isEditingDraft: boolean;
   onCancelEditor: () => void;
   onSaveEditor: () => void;
-  onUpdatePoint: (time: string, patch: Partial<ChartPoint>) => void;
+  onUpdatePoint: (time: string, patch: Partial<ChartPointUI>) => void;
 
   // slider
-  sliderItems: readonly ChartPoint[];
+  sliderItems: readonly ChartPointUI[];
 };
 
 export default function GlassMoodChartView(props: GlassMoodChartViewProps) {

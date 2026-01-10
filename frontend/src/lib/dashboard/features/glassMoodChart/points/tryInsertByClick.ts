@@ -1,8 +1,4 @@
 import { users } from '@/app/dashboard/_components/GlassMoodChart.dummy';
-import {
-  ChartPoint,
-  FilterTag,
-} from '@/app/dashboard/_components/GlassMoodChart.model';
 import { findValidIndexLeft } from './findValidIndexLeft';
 import { findValidIndexRight } from './findValidIndexRight';
 import { parseTimeToMs } from '../time/parseTimeToMs';
@@ -13,12 +9,13 @@ import { uniqueTags } from '../tags/uniqueTags';
 import { insertDraftPoint } from './insertDraftPoint';
 import { EditPopoverState } from '../popover/useEditPopoverState';
 import { ClickSeed } from '../interactions/click/clickSeed';
+import { ChartPointUI, FilterTag } from '../model';
 
 export type TryInsertByClickDeps = {
-  pointsRef: React.RefObject<ChartPoint[]>;
-  filteredDataRef: React.RefObject<ChartPoint[]>;
+  pointsRef: React.RefObject<ChartPointUI[]>;
+  filteredDataRef: React.RefObject<ChartPointUI[]>;
   selectedTagRef: React.RefObject<FilterTag>;
-  setPoints: React.Dispatch<React.SetStateAction<ChartPoint[]>>;
+  setPoints: React.Dispatch<React.SetStateAction<ChartPointUI[]>>;
   setEditPopover: React.Dispatch<React.SetStateAction<EditPopoverState | null>>;
 };
 
@@ -80,7 +77,7 @@ export function createTryInsertByClick(deps: TryInsertByClickDeps) {
         ? uniqueTags([...(left.tags ?? []), ...(right.tags ?? [])])
         : [selectedTag];
 
-    const draft: ChartPoint = {
+    const draft: ChartPointUI = {
       time: midTime,
       value: midValue,
       emoji: '✍️',

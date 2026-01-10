@@ -3,10 +3,14 @@
 import React from 'react';
 
 import { fetchDummyLatest, fetchDummyOlder } from './GlassMoodChart.dummy';
-import { PAD_START, PAD_END, FILTER_TAGS } from './GlassMoodChart.model';
 
 import { useGlassMoodChartController } from '@/lib/dashboard/features/glassMoodChart/controller/useGlassMoodChartController';
 import GlassMoodChartView from '@/lib/dashboard/features/glassMoodChart/ui/GlassMoodChartView';
+import {
+  PAD_START,
+  PAD_END,
+  FILTER_TAGS,
+} from '@/lib/dashboard/features/glassMoodChart/model';
 
 export default function GlassMoodChart() {
   const vm = useGlassMoodChartController({

@@ -1,6 +1,6 @@
-import { ChartPoint } from '@/app/dashboard/_components/GlassMoodChart.model';
+import { ChartPointUI } from '../model';
 
-export function UserMiniCard({ p }: { p: ChartPoint }) {
+export function UserMiniCard<T extends ChartPointUI>({ p }: { p: T }) {
   const user = p.user;
   const v = typeof p.value === 'number' ? Math.round(p.value) : null;
   const emoji = typeof p.emoji === 'string' ? p.emoji : '🙂';

@@ -1,7 +1,7 @@
-import { ChartPoint } from '@/app/dashboard/_components/GlassMoodChart.model';
+import { ChartPointUI } from '../model';
 
-export function findValidIndexRight(
-  arr: ChartPoint[],
+export function findValidIndexRight<T extends ChartPointUI>(
+  arr: T[],
   start: number,
 ): number | null {
   for (let i = start; i < arr.length; i++) {

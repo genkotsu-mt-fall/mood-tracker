@@ -1,7 +1,4 @@
-import {
-  PAD_END,
-  PAD_START,
-} from '@/app/dashboard/_components/GlassMoodChart.model';
+import { PAD_START, PAD_END } from '../model';
 
 /**
  * "yyyy/MM/dd HH:mm" を安全に parse（環境依存の Date.parse を避ける）
