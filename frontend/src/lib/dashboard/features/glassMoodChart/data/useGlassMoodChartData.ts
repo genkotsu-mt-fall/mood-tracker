@@ -32,7 +32,7 @@ type Args = {
   fetchLatest: FetchLatest;
   fetchOlder: FetchOlder;
   // UX 側と共有（ドラッグ中はデータ取得を抑止）
-  panningRef: React.MutableRefObject<boolean>;
+  panningRef: React.RefObject<boolean>;
 };
 
 export function useGlassMoodChartData({

@@ -46,7 +46,7 @@ type Args = {
   findPointByTime: (time: string) => ChartPoint | undefined;
 
   // shared flag
-  panningRef: React.MutableRefObject<boolean>;
+  panningRef: React.RefObject<boolean>;
 
   // popover
   editPopover: EditPopover;
