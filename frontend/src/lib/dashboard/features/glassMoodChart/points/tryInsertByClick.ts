@@ -1,28 +1,40 @@
-import { users } from '@/app/dashboard/_components/GlassMoodChart.dummy';
+import type React from 'react';
+import { clamp } from '@/lib/dashboard/utils/math/clamp';
+
 import { findValidIndexLeft } from './findValidIndexLeft';
 import { findValidIndexRight } from './findValidIndexRight';
-import { parseTimeToMs } from '../time/parseTimeToMs';
-import { roundToMinute } from '../time/roundToMinute';
-import { formatMsToTime } from '../time/formatMsToTime';
-import { clamp } from '@/lib/dashboard/utils/math/clamp';
 import { uniqueTags } from '../tags/uniqueTags';
 import { insertDraftPoint } from './insertDraftPoint';
-import { EditPopoverState } from '../popover/useEditPopoverState';
-import { ClickSeed } from '../interactions/click/clickSeed';
-import { ChartPointUI, FilterTag } from '../model';
 
-export type TryInsertByClickDeps = {
-  pointsRef: React.RefObject<ChartPointUI[]>;
-  filteredDataRef: React.RefObject<ChartPointUI[]>;
+import type { EditPopoverState } from '../popover/useEditPopoverState';
+import type { ClickSeed } from '../interactions/click/clickSeed';
+import type { FilterTag } from '../model';
+import type { PointKeySpec } from '../spec/pointKeySpec';
+import type { PointXSpec } from '../spec/pointXSpec';
+import type { PointDraftSpec } from '../spec/pointDraftSpec';
+import type { PointSpec } from '../spec/pointSpec';
+
+export type TryInsertByClickDeps<TPoint, X> = {
+  pointsRef: React.RefObject<TPoint[]>;
+  filteredDataRef: React.RefObject<TPoint[]>;
   selectedTagRef: React.RefObject<FilterTag>;
-  setPoints: React.Dispatch<React.SetStateAction<ChartPointUI[]>>;
+  setPoints: React.Dispatch<React.SetStateAction<TPoint[]>>;
   setEditPopover: React.Dispatch<React.SetStateAction<EditPopoverState | null>>;
+
+  xSpec: PointXSpec<TPoint, X>;
+  keySpec: PointKeySpec<TPoint>;
+  draftSpec: PointDraftSpec<TPoint, X>;
+  pointSpec: PointSpec<TPoint>;
 };
 
 /**
- * クリック（＝ドラッグでなかった場合）にだけ実行する、既存の「中間点を作る」ロジック
+ * クリック（＝ドラッグでなかった場合）にだけ実行する、中間点作成ロジック
  */
-export function createTryInsertByClick(deps: TryInsertByClickDeps) {
+export function createTryInsertByClick<TPoint, X>(
+  deps: TryInsertByClickDeps<TPoint, X>,
+) {
+  const eq = deps.xSpec.equals ?? Object.is;
+
   return function tryInsertByClick(seed: ClickSeed) {
     const points = deps.pointsRef.current;
     const filteredData = deps.filteredDataRef.current;
@@ -35,58 +47,67 @@ export function createTryInsertByClick(deps: TryInsertByClickDeps) {
     const seedLeft = rightSide ? activeIdx : activeIdx - 1;
     const seedRight = rightSide ? activeIdx + 1 : activeIdx;
 
-    const leftIdx = findValidIndexLeft(filteredData, seedLeft);
-    const rightIdx = findValidIndexRight(filteredData, seedRight);
+    const leftIdx = findValidIndexLeft(filteredData, seedLeft, deps.pointSpec);
+    const rightIdx = findValidIndexRight(
+      filteredData,
+      seedRight,
+      deps.pointSpec,
+    );
     if (leftIdx == null || rightIdx == null) return;
 
     const left = filteredData[leftIdx];
     const right = filteredData[rightIdx];
     if (!left || !right) return;
 
-    const tL = parseTimeToMs(left.time);
-    const tR = parseTimeToMs(right.time);
-    if (tL == null || tR == null) return;
-    if (tR <= tL) return;
+    // xSpec で中間Xを作る
+    const xL = deps.xSpec.getX(left);
+    const xR = deps.xSpec.getX(right);
 
-    // 中間（距離の半分）
-    const midMsRaw = (tL + tR) / 2;
-    const midMs = roundToMinute(midMsRaw);
-    const midTime = formatMsToTime(midMs);
+    const midX = deps.xSpec.mid(xL, xR);
+    if (midX == null) return;
 
-    // 丸めで左右と一致したらやめる
-    if (midTime === left.time || midTime === right.time) return;
+    // 丸め等の結果、左右と一致したらやめる
+    if (eq(midX, xL) || eq(midX, xR)) return;
 
-    const exists = points.some((p) => !p.isPad && p.time === midTime);
     const anchor = { x: activeX, y: anchorY };
 
-    if (exists) {
-      deps.setEditPopover({ time: midTime, anchor });
+    // 同じXが既にあるなら、その点の key を開く
+    const existsPoint = points.find(
+      (p) => !deps.pointSpec.isPad(p) && eq(deps.xSpec.getX(p), midX),
+    );
+
+    if (existsPoint) {
+      deps.setEditPopover({ key: deps.keySpec.getKey(existsPoint), anchor });
       return;
     }
 
     // 仮値：左右の value の平均
-    const vL = left.value;
-    const vR = right.value;
+    const vL = deps.pointSpec.getValue(left as TPoint);
+    const vR = deps.pointSpec.getValue(right as TPoint);
     const midValue =
       typeof vL === 'number' && typeof vR === 'number'
         ? clamp(Math.round((vL + vR) / 2), 0, 100)
         : 50;
 
+    const leftTags = deps.pointSpec.getTags(left as TPoint) ?? [];
+    const rightTags = deps.pointSpec.getTags(right as TPoint) ?? [];
+
     const tags =
       selectedTag === 'All'
-        ? uniqueTags([...(left.tags ?? []), ...(right.tags ?? [])])
-        : [selectedTag];
+        ? uniqueTags([...leftTags, ...rightTags])
+        : [selectedTag as unknown as string];
 
-    const draft: ChartPointUI = {
-      time: midTime,
+    // draft生成は draftSpec に任せる
+    const draft = deps.draftSpec.createDraft({
+      x: midX,
       value: midValue,
-      emoji: '✍️',
       tags,
-      user: left.user ?? right.user ?? users.u1,
-      isDraft: true,
-    };
+      left: left as TPoint,
+      right: right as TPoint,
+    });
 
-    insertDraftPoint(draft, deps.setPoints);
-    deps.setEditPopover({ time: midTime, anchor });
+    insertDraftPoint(draft, deps.setPoints, deps.xSpec, deps.pointSpec);
+
+    deps.setEditPopover({ key: deps.keySpec.getKey(draft), anchor });
   };
 }

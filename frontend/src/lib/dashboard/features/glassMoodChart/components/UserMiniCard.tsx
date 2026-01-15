@@ -1,6 +1,12 @@
 import { ChartPointUI } from '../model';
 
-export function UserMiniCard<T extends ChartPointUI>({ p }: { p: T }) {
+export function UserMiniCard<T extends ChartPointUI>({
+  p,
+  subtitle,
+}: {
+  p: T;
+  subtitle: string;
+}) {
   const user = p.user;
   const v = typeof p.value === 'number' ? Math.round(p.value) : null;
   const emoji = typeof p.emoji === 'string' ? p.emoji : '🙂';
@@ -56,8 +62,9 @@ export function UserMiniCard<T extends ChartPointUI>({ p }: { p: T }) {
 
           <div className="mt-2 flex items-center gap-2 text-xs text-white/60">
             <span className="rounded-full border border-white/10 bg-white/8 px-2 py-0.5">
-              {p.time.slice(11)}
+              {subtitle}
             </span>
+
             {Array.isArray(p.tags) && p.tags.length > 0 ? (
               <span className="truncate rounded-full border border-white/10 bg-white/8 px-2 py-0.5">
                 {p.tags.join(' · ')}

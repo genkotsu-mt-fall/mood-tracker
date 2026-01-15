@@ -16,10 +16,14 @@ import { createOnWindowMove } from '@/lib/dashboard/features/glassMoodChart/drag
 import { createOnWindowUp } from '@/lib/dashboard/features/glassMoodChart/drag/handlers/onWindowUp';
 import { createTryInsertByClick } from '@/lib/dashboard/features/glassMoodChart/points/tryInsertByClick';
 import type { ClickSeed } from '@/lib/dashboard/features/glassMoodChart/interactions/click/clickSeed';
-import { EditPopoverState } from '../popover/useEditPopoverState';
+import type { EditPopoverState } from '../popover/useEditPopoverState';
 import { ChartPointUI, FilterTag } from '../model';
+import { PointKeySpec } from '../spec/pointKeySpec';
+import type { PointXSpec } from '../spec/pointXSpec';
+import type { PointDraftSpec } from '../spec/pointDraftSpec';
+import type { PointSpec } from '../spec/pointSpec';
 
-type EditPopover = { time: string; anchor: { x: number; y: number } } | null;
+type EditPopover = EditPopoverState | null;
 
 export type PointClickHandler = (
   p: ChartPointUI,
@@ -37,12 +41,21 @@ type Args = {
   selectedTagRef: React.RefObject<FilterTag>;
   setPoints: React.Dispatch<React.SetStateAction<ChartPointUI[]>>;
 
-  findPointByTime: (time: string) => ChartPointUI | undefined;
+  // ✅ STEP-1: keySpec 注入
+  keySpec: PointKeySpec<ChartPointUI>;
 
-  // shared flag
+  xSpec: PointXSpec<ChartPointUI, string>;
+
+  // ✅ STEP-2.5
+  draftSpec: PointDraftSpec<ChartPointUI, string>;
+
+  // ✅ STEP-3
+  pointSpec: PointSpec<ChartPointUI>;
+
+  findPointByKey: (key: string) => ChartPointUI | undefined;
+
   panningRef: React.RefObject<boolean>;
 
-  // popover
   editPopover: EditPopover;
   setEditPopover: React.Dispatch<React.SetStateAction<EditPopoverState | null>>;
 };
@@ -55,7 +68,11 @@ export function useGlassMoodChartUX({
   filteredDataRef,
   selectedTagRef,
   setPoints,
-  findPointByTime,
+  keySpec,
+  xSpec,
+  draftSpec,
+  pointSpec,
+  findPointByKey,
   panningRef,
   editPopover,
   setEditPopover,
@@ -97,8 +114,22 @@ export function useGlassMoodChartUX({
       selectedTagRef,
       setPoints,
       setEditPopover,
+      xSpec,
+      keySpec,
+      draftSpec,
+      pointSpec,
     });
-  }, [pointsRef, filteredDataRef, selectedTagRef, setPoints, setEditPopover]);
+  }, [
+    pointsRef,
+    filteredDataRef,
+    selectedTagRef,
+    setPoints,
+    setEditPopover,
+    xSpec,
+    keySpec,
+    draftSpec,
+    pointSpec,
+  ]);
 
   /**
    * window move/up（deps 注入済み）
@@ -131,8 +162,10 @@ export function useGlassMoodChartUX({
   ]);
 
   const handlePointClick: PointClickHandler = (p, anchor) => {
-    if (p.isPad) return;
-    setEditPopover({ time: p.time, anchor });
+    if (pointSpec.isPad(p)) return;
+    // ✅ STEP-1: key は keySpec で決める
+    const key = keySpec.getKey(p);
+    setEditPopover({ key, anchor });
   };
 
   const handleChartMouseDown: ComposedChartMouseDown = (s, e) => {
@@ -179,30 +212,42 @@ export function useGlassMoodChartUX({
     });
   };
 
-  const editPoint = editPopover ? findPointByTime(editPopover.time) : undefined;
-  const isEditingDraft = !!editPoint?.isDraft;
+  const editPoint = editPopover ? findPointByKey(editPopover.key) : undefined;
+
+  // ✅ STEP-3: isDraft 直参照をやめる
+  const isEditingDraft = !!editPoint && pointSpec.isDraft(editPoint);
 
   function closeEditor() {
     setEditPopover(null);
   }
 
   function cancelEditor() {
-    if (isEditingDraft) {
-      setPoints((prev) => prev.filter((p) => p.time !== editPopover?.time));
+    if (isEditingDraft && editPopover) {
+      const key = editPopover.key;
+
+      // ✅ STEP-1: p.time !== key をやめ、getKey(p) !== key にする
+      setPoints((prev) =>
+        prev.filter((p) =>
+          pointSpec.isPad(p) ? true : keySpec.getKey(p) !== key,
+        ),
+      );
     }
     closeEditor();
   }
 
   function saveEditor() {
     if (!editPopover) return;
-    const t = editPopover.time;
+    const key = editPopover.key;
 
+    // ✅ STEP-1: p.time === key をやめ、getKey(p) === key にする
     setPoints((prev) =>
       prev.map((p) => {
-        if (p.isPad) return p;
-        if (p.time !== t) return p;
-        if (!p.isDraft) return p;
-        return { ...p, isDraft: false };
+        if (pointSpec.isPad(p)) return p;
+        if (keySpec.getKey(p) !== key) return p;
+        if (!pointSpec.isDraft(p)) return p;
+
+        // ✅ STEP-3: isDraft: false を直書きしない
+        return pointSpec.clearDraft(p);
       }),
     );
 

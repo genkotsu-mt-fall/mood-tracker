@@ -10,36 +10,40 @@ import {
   THRESHOLD,
   VISIBLE,
 } from '@/lib/dashboard/features/glassMoodChart/constants';
-import { ChartPointBase, ChartPointUI, FilterTag } from '../model';
+import { ChartPointUI, FilterTag } from '../model';
+import type { PointKeySpec } from '../spec/pointKeySpec';
 
-export type GlassMoodChartPage<T extends ChartPointBase> = {
+export type GlassMoodChartPage<T> = {
   items: T[]; // 古い→新しい
   nextBefore: number | null;
   hasMore: boolean;
 };
 
-export type FetchLatest<T extends ChartPointBase> = (
-  stockTarget: number,
-) => GlassMoodChartPage<T>;
-export type FetchOlder<T extends ChartPointBase> = (
+export type FetchLatest<T> = (stockTarget: number) => GlassMoodChartPage<T>;
+export type FetchOlder<T> = (
   before: number,
   need: number,
 ) => GlassMoodChartPage<T>;
 
-type Args<T extends ChartPointBase> = {
+type Args<T extends ChartPointUI> = {
   padStartTime: string;
   padEndTime: string;
   fetchLatest: FetchLatest<T>;
   fetchOlder: FetchOlder<T>;
+
+  // ✅ STEP-1: キー特定ロジックを注入
+  keySpec: PointKeySpec<T>;
+
   // UX 側と共有（ドラッグ中はデータ取得を抑止）
   panningRef: React.RefObject<boolean>;
 };
 
-export function useGlassMoodChartData<T extends ChartPointBase>({
+export function useGlassMoodChartData<T extends ChartPointUI>({
   padStartTime,
   padEndTime,
   fetchLatest,
   fetchOlder,
+  keySpec,
   panningRef,
 }: Args<T>) {
   const padStartPoint = useMemo<ChartPointUI>(
@@ -56,28 +60,16 @@ export function useGlassMoodChartData<T extends ChartPointBase>({
   const [selectedTag, setSelectedTag] = useState<FilterTag>('All');
   const selectedTagRef = useLatestRef(selectedTag);
 
-  /**
-   * points は「ロード済みの全データ（PAD含む）」を保持する
-   * - 無限パンのため、ここは増えていく
-   * - draft もここに混在する
-   */
   const [points, setPoints] = useState<ChartPointUI[]>([
     padStartPoint,
     padEndPoint,
   ]);
   const pointsRef = useLatestRef(points);
 
-  /**
-   * 無限ロード用の “擬似DBカーソル”
-   * - beforeIndex: 「この index より古いものをください」の境界（exclusive）
-   */
   const beforeIndexRef = useRef<number | null>(null);
   const hasMoreRef = useRef<boolean>(true);
   const fetchingRef = useRef<boolean>(false);
 
-  /**
-   * 1) 初回ロード：最新50件を取得し、そのうち最新10件を表示
-   */
   useEffect(() => {
     const page = fetchLatest(STOCK_TARGET);
     const core = page.items; // 古い→新しい
@@ -85,37 +77,29 @@ export function useGlassMoodChartData<T extends ChartPointBase>({
     beforeIndexRef.current = page.nextBefore;
     hasMoreRef.current = page.hasMore;
 
-    setPoints([padStartPoint, ...core, padEndPoint]);
+    setPoints([
+      padStartPoint,
+      ...(core as unknown as ChartPointUI[]),
+      padEndPoint,
+    ]);
 
     const start = Math.max(0, core.length - VISIBLE);
     setWindowStart(start);
   }, [fetchLatest, padStartPoint, padEndPoint, setWindowStart]);
 
-  /**
-   * PADを除いたロード済みデータ（draftも含む）
-   */
   const corePoints = useMemo(() => points.filter((p) => !p.isPad), [points]);
 
-  /**
-   * windowStart の範囲（0..maxStart）を保つための最大値
-   */
-  const maxWindowStart = useMemo(() => {
-    return Math.max(0, corePoints.length - VISIBLE);
-  }, [corePoints.length]);
+  const maxWindowStart = useMemo(
+    () => Math.max(0, corePoints.length - VISIBLE),
+    [corePoints.length],
+  );
 
-  /**
-   * 表示窓（PAD付き）
-   */
   const windowedPoints = useMemo(() => {
     const safeStart = clamp(windowStart, 0, maxWindowStart);
     const slice = corePoints.slice(safeStart, safeStart + VISIBLE);
     return [padStartPoint, ...slice, padEndPoint];
   }, [corePoints, windowStart, maxWindowStart, padStartPoint, padEndPoint]);
 
-  /**
-   * タグフィルタ：選択外は value:null にして点/ラベルを消し、線も切る
-   * ※“表示窓”に対して適用
-   */
   const filteredData = useMemo(() => {
     if (selectedTag === 'All') return windowedPoints;
 
@@ -129,18 +113,12 @@ export function useGlassMoodChartData<T extends ChartPointBase>({
 
   const filteredDataRef = useLatestRef(filteredData);
 
-  /**
-   * スライダー用（Pad除外 + valueがあるものだけ / draft は除外）
-   */
   const sliderItems = useMemo(() => {
     return filteredData.filter(
       (p) => !p.isPad && !p.isDraft && typeof p.value === 'number' && p.user,
     );
   }, [filteredData]);
 
-  /**
-   * 2) 無限ロード：古い側（左側）の残りが THRESHOLD 以下になったら追加取得
-   */
   useEffect(() => {
     if (panningRef.current) return;
 
@@ -172,7 +150,12 @@ export function useGlassMoodChartData<T extends ChartPointBase>({
       if (addCount > 0) {
         setPoints((prev) => {
           const prevCore = prev.filter((p) => !p.isPad);
-          return [padStartPoint, ...olderItems, ...prevCore, padEndPoint];
+          return [
+            padStartPoint,
+            ...(olderItems as unknown as ChartPointUI[]),
+            ...prevCore,
+            padEndPoint,
+          ];
         });
 
         setWindowStart((s) => s + addCount);
@@ -189,26 +172,25 @@ export function useGlassMoodChartData<T extends ChartPointBase>({
     panningRef,
   ]);
 
-  function findPointByTime(time: string): ChartPointUI | undefined {
-    return points.find((p) => !p.isPad && p.time === time);
+  // ✅ STEP-1: keySpec.getKey を使って “key で探す/更新する”
+  function findPointByKey(key: string): ChartPointUI | undefined {
+    return points.find((p) => !p.isPad && keySpec.getKey(p as T) === key);
   }
 
-  function updatePointByTime(time: string, patch: Partial<ChartPointUI>) {
+  function updatePointByKey(key: string, patch: Partial<ChartPointUI>) {
     setPoints((prev) =>
       prev.map((p) => {
         if (p.isPad) return p;
-        if (p.time !== time) return p;
+        if (keySpec.getKey(p as T) !== key) return p;
         return { ...p, ...patch };
       }),
     );
   }
 
   return {
-    // config-ish
     padStartTime,
     padEndTime,
 
-    // states
     selectedTag,
     setSelectedTag,
     selectedTagRef,
@@ -220,7 +202,6 @@ export function useGlassMoodChartData<T extends ChartPointBase>({
     windowStart,
     setWindowStart,
 
-    // derived
     corePoints,
     maxWindowStart,
     windowedPoints,
@@ -229,7 +210,10 @@ export function useGlassMoodChartData<T extends ChartPointBase>({
     sliderItems,
 
     // helpers
-    findPointByTime,
-    updatePointByTime,
+    findPointByKey,
+    updatePointByKey,
+
+    // spec を上へ返してもよい（UX側でも比較に使うため）
+    keySpec,
   };
 }

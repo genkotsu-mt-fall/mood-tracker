@@ -1,6 +1,6 @@
-import { clamp } from '@/components/post/utils';
 import { PointClickHandler } from '../ux/useGlassMoodChartUX';
 import { ChartPointUI } from '../model';
+import { clamp } from '@/lib/dashboard/utils/math/clamp';
 
 type RechartsDotProps<TPayload = unknown> = {
   cx?: number;

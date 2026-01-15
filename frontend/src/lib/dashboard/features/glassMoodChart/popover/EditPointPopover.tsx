@@ -5,7 +5,9 @@ import { clamp } from '@/lib/dashboard/utils/math/clamp';
 import { EditPopoverState } from './useEditPopoverState';
 
 export type EditPointLike = {
-  time: string;
+  /** 表示用（例: "2026/01/02 09:00" や "09:00" など） */
+  subtitle: string;
+
   value: number | null;
   emoji?: string | null;
   tags?: string[] | null;
@@ -24,7 +26,8 @@ type Props = {
   isEditingDraft: boolean;
   onCancel: () => void;
   onSave: () => void;
-  onUpdate: (time: string, patch: EditPointPatch) => void;
+  // ✅ time ではなく key
+  onUpdate: (key: string, patch: EditPointPatch) => void;
 };
 
 export default function EditPointPopover({
@@ -47,6 +50,8 @@ export default function EditPointPopover({
 
   if (!editPopover || !editPoint) return null;
 
+  const key = editPopover.key;
+
   return (
     <div
       className="
@@ -66,7 +71,9 @@ export default function EditPointPopover({
           <div className="text-xs font-semibold text-white/85">
             {isEditingDraft ? 'New point' : 'Edit point'}
           </div>
-          <div className="mt-0.5 text-xs text-white/60">{editPoint.time}</div>
+          <div className="mt-0.5 text-xs text-white/60">
+            {editPoint.subtitle}
+          </div>
         </div>
 
         <button
@@ -90,11 +97,7 @@ export default function EditPointPopover({
           <span className="text-[11px] font-semibold text-white/70">Emoji</span>
           <input
             value={editPoint.emoji ?? ''}
-            onChange={(e) =>
-              onUpdate(editPoint.time, {
-                emoji: e.target.value,
-              })
-            }
+            onChange={(e) => onUpdate(key, { emoji: e.target.value })}
             className="
               h-9 w-full rounded-xl
               border border-white/15 bg-white/10
@@ -131,7 +134,7 @@ export default function EditPointPopover({
             }
             onChange={(e) => {
               const n = Number.parseInt(e.target.value, 10);
-              onUpdate(editPoint.time, { value: clamp(n, 0, 100) });
+              onUpdate(key, { value: clamp(n, 0, 100) });
             }}
             className="w-full"
           />
