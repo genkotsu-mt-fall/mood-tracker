@@ -1,6 +1,5 @@
-import { PointClickHandler } from '../ux/useGlassMoodChartUX';
-import { ChartPointUI } from '../model';
 import { clamp } from '@/lib/dashboard/utils/math/clamp';
+import type { PointClickHandler } from '../ux/useGlassMoodChartUX';
 
 type RechartsDotProps<TPayload = unknown> = {
   cx?: number;
@@ -9,13 +8,20 @@ type RechartsDotProps<TPayload = unknown> = {
   payload?: TPayload;
 };
 
-export function GlowDot({
+// Dots が最低限必要とする payload 契約（pad 判定だけ）
+type DotPayload = {
+  isPad?: boolean;
+};
+
+export function GlowDot<TPayload extends DotPayload>({
   cx,
   cy,
   value,
   payload,
   onPointClick,
-}: RechartsDotProps<ChartPointUI> & { onPointClick?: PointClickHandler }) {
+}: RechartsDotProps<TPayload> & {
+  onPointClick?: PointClickHandler<TPayload>;
+}) {
   if (typeof cx !== 'number' || typeof cy !== 'number') return null;
   if (typeof value !== 'number') return null;
   if (!payload || payload.isPad) return null;
@@ -45,13 +51,15 @@ export function GlowDot({
   );
 }
 
-export function GlowActiveDot({
+export function GlowActiveDot<TPayload extends DotPayload>({
   cx,
   cy,
   value,
   payload,
   onPointClick,
-}: RechartsDotProps<ChartPointUI> & { onPointClick?: PointClickHandler }) {
+}: RechartsDotProps<TPayload> & {
+  onPointClick?: PointClickHandler<TPayload>;
+}) {
   if (typeof cx !== 'number' || typeof cy !== 'number') return null;
   if (typeof value !== 'number') return null;
   if (!payload || payload.isPad) return null;

@@ -5,13 +5,20 @@ import React from 'react';
 import FilterTagChips from '@/lib/dashboard/features/glassMoodChart/tags/FilterTagChips';
 import EditPointPopover, {
   type EditPointLike,
+  type EditPointPatch,
 } from '@/lib/dashboard/features/glassMoodChart/popover/EditPointPopover';
 import UserMiniCardSlider from '@/lib/dashboard/features/glassMoodChart/components/UserMiniCardSlider';
+import type { UserMiniCardPoint } from '@/lib/dashboard/features/glassMoodChart/components/UserMiniCard';
 
-import type { ChartPointUI, FilterTag } from '../model';
+import type { FilterTag } from '../model';
 import type { EditPopoverState } from '../popover/useEditPopoverState';
 
-export type GlassMoodChartViewProps = {
+type ViewPointLike = UserMiniCardPoint & {
+  isDraft?: boolean;
+  isPad?: boolean;
+};
+
+export type GlassMoodChartViewProps<TPoint extends ViewPointLike> = {
   // tag chips
   filterTags: readonly FilterTag[];
   selectedTag: FilterTag;
@@ -19,34 +26,34 @@ export type GlassMoodChartViewProps = {
 
   // editor
   editPopover: EditPopoverState | null;
-  editPoint: ChartPointUI | undefined;
-  /** popover の subtitle（UIが time を知らないために文字列注入する） */
+  editPoint: TPoint | undefined;
   editPointSubtitle: string | null;
   isEditingDraft: boolean;
   onCancelEditor: () => void;
   onSaveEditor: () => void;
-  onUpdatePoint: (key: string, patch: Partial<ChartPointUI>) => void;
+  // ✅ Popover と同じ更新契約にする
+  onUpdatePoint: (key: string, patch: EditPointPatch) => void;
 
   // slider
-  sliderItems: readonly ChartPointUI[];
-  /** slider の React key（例: keySpec.getKey） */
-  getSliderItemKey: (p: ChartPointUI) => string;
-  /** slider の subtitle（例: p.time.slice(11)） */
-  getSliderItemSubtitle: (p: ChartPointUI) => string;
+  sliderItems: readonly TPoint[];
+  getSliderItemKey: (p: TPoint) => string;
+  getSliderItemSubtitle: (p: TPoint) => string;
 
   // chart slot
   children: React.ReactNode;
 };
 
-export default function GlassMoodChartView(props: GlassMoodChartViewProps) {
+export default function GlassMoodChartView<TPoint extends ViewPointLike>(
+  props: GlassMoodChartViewProps<TPoint>,
+) {
   const popoverEditPoint: EditPointLike | undefined = props.editPoint
     ? {
         subtitle: props.editPointSubtitle ?? '',
         value: props.editPoint.value,
-        emoji: props.editPoint.emoji,
-        tags: props.editPoint.tags,
-        isDraft: props.editPoint.isDraft,
-        isPad: props.editPoint.isPad,
+        emoji: props.editPoint.emoji ?? undefined,
+        tags: props.editPoint.tags ?? undefined,
+        isDraft: !!props.editPoint.isDraft,
+        isPad: !!props.editPoint.isPad,
       }
     : undefined;
 
@@ -62,17 +69,14 @@ export default function GlassMoodChartView(props: GlassMoodChartViewProps) {
         "
       >
         <div className="h-full min-h-0 min-w-0 px-3 pb-6 pt-4 flex flex-col gap-3">
-          {/* Filter tags */}
           <FilterTagChips
             tags={props.filterTags}
             selected={props.selectedTag}
             onSelect={props.onSelectTag}
           />
 
-          {/* Chart */}
           <div className="flex-1 min-h-0">
             <div className="relative h-full cursor-grab active:cursor-grabbing">
-              {/* Editor popover */}
               <EditPointPopover
                 editPopover={props.editPopover}
                 editPoint={popoverEditPoint}
@@ -82,12 +86,10 @@ export default function GlassMoodChartView(props: GlassMoodChartViewProps) {
                 onUpdate={props.onUpdatePoint}
               />
 
-              {/* Injected chart */}
               {props.children}
             </div>
           </div>
 
-          {/* User cards slider */}
           <UserMiniCardSlider
             items={props.sliderItems}
             getKey={props.getSliderItemKey}

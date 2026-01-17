@@ -1,23 +1,21 @@
 'use client';
 
 import React from 'react';
-import { UserMiniCard } from '@/lib/dashboard/features/glassMoodChart/components/UserMiniCard';
+import { UserMiniCard, type UserMiniCardPoint } from './UserMiniCard';
 
-type Item = React.ComponentProps<typeof UserMiniCard>['p'];
-
-type Props = {
-  items: readonly Item[];
+type Props<TPoint extends UserMiniCardPoint> = {
+  items: readonly TPoint[];
   /** React key 用（例: keySpec.getKey(p) を渡す） */
-  getKey: (p: Item) => string;
+  getKey: (p: TPoint) => string;
   /** 表示用（例: p.time.slice(11) などを渡す） */
-  getSubtitle: (p: Item) => string;
+  getSubtitle: (p: TPoint) => string;
 };
 
-export default function UserMiniCardSlider({
+export default function UserMiniCardSlider<TPoint extends UserMiniCardPoint>({
   items,
   getKey,
   getSubtitle,
-}: Props) {
+}: Props<TPoint>) {
   return (
     <div className="shrink-0">
       <div className="flex items-center justify-between gap-2 px-0.5">

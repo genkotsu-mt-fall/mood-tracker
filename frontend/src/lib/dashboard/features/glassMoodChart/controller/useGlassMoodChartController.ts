@@ -1,78 +1,57 @@
 'use client';
 
-import React, { useId, useRef } from 'react';
+import { useId, useRef } from 'react';
 import { useEditPopoverState } from '@/lib/dashboard/features/glassMoodChart/popover/useEditPopoverState';
-import {
+import type {
+  DataPointLike,
   FetchLatest,
   FetchOlder,
-  useGlassMoodChartData,
 } from '@/lib/dashboard/features/glassMoodChart/data/useGlassMoodChartData';
+import { useGlassMoodChartData } from '@/lib/dashboard/features/glassMoodChart/data/useGlassMoodChartData';
 import { useGlassMoodChartUX } from '@/lib/dashboard/features/glassMoodChart/ux/useGlassMoodChartUX';
-import { ChartPointUI, FilterTag } from '../model';
-import { createTimeKeySpec, type PointKeySpec } from '../spec/pointKeySpec';
-import { createTimeXSpec, type PointXSpec } from '../spec/pointXSpec';
+import type { FilterTag } from '../model';
+import type { PointDraftSpec } from '../spec/pointDraftSpec';
+import type { PointSpec } from '../spec/pointSpec';
+import type { PointKeySpec } from '../spec/pointKeySpec';
+import type { PointXSpec } from '../spec/pointXSpec';
 
-// ✅ STEP-2.5
-import {
-  createChartPointUITimeDraftSpec,
-  type PointDraftSpec,
-} from '../spec/pointDraftSpec';
-// ✅ STEP-3
-import { createChartPointUISpec, type PointSpec } from '../spec/pointSpec';
-// fallback user（今はダミーを利用。後で本番の viewer に差し替え）
-import { users } from '@/app/dashboard/_components/GlassMoodChart.dummy';
-
-type Args = {
+type Args<TPoint, X> = {
   padStartTime: string;
   padEndTime: string;
   filterTags: readonly FilterTag[];
-  fetchLatest: FetchLatest<ChartPointUI>;
-  fetchOlder: FetchOlder<ChartPointUI>;
-  // ✅ STEP-1: 呼び出し側で差し替え可能に
-  keySpec?: PointKeySpec<ChartPointUI>;
-  xSpec?: PointXSpec<ChartPointUI, string>;
-  draftSpec?: PointDraftSpec<ChartPointUI, string>;
+  fetchLatest: FetchLatest<TPoint>;
+  fetchOlder: FetchOlder<TPoint>;
 
-  // ✅ STEP-3
-  pointSpec?: PointSpec<ChartPointUI>;
+  keySpec: PointKeySpec<TPoint>;
+  xSpec: PointXSpec<TPoint, X>;
+
+  draftSpec: PointDraftSpec<TPoint, X>;
+  pointSpec: PointSpec<TPoint>;
 };
 
-export function useGlassMoodChartController({
+export function useGlassMoodChartController<
+  TPoint extends DataPointLike,
+  X = string,
+>({
   padStartTime,
   padEndTime,
   filterTags,
   fetchLatest,
   fetchOlder,
-  keySpec: injectedKeySpec,
-  xSpec: injectedXSpec,
-  draftSpec: injectedDraftSpec,
-  pointSpec: injectedPointSpec,
-}: Args) {
+  keySpec,
+  xSpec,
+  draftSpec,
+  pointSpec,
+}: Args<TPoint, X>) {
   const uid = useId().replace(/:/g, '');
   const strokeGradId = `strokeGrad-${uid}`;
   const pillShadowId = `pillShadow-${uid}`;
 
   const { editPopover, setEditPopover } = useEditPopoverState();
 
-  // Data と共有（ドラッグ中のデータ取得抑止）
   const panningRef = useRef<boolean>(false);
 
-  // ✅ デフォルトは現状互換（time を key とする）
-  const keySpec = injectedKeySpec ?? createTimeKeySpec<ChartPointUI>();
-  const xSpec = injectedXSpec ?? createTimeXSpec<ChartPointUI>();
-
-  // ✅ STEP-2.5: デフォルト draftSpec（互換：timeにxを入れる）
-  const draftSpec =
-    injectedDraftSpec ??
-    createChartPointUITimeDraftSpec({
-      fallbackUser: users.u1,
-      emoji: '✍️',
-    });
-
-  // ✅ STEP-3: デフォルトは ChartPointUI の素直な解釈
-  const pointSpec = injectedPointSpec ?? createChartPointUISpec();
-
-  const data = useGlassMoodChartData({
+  const data = useGlassMoodChartData<TPoint>({
     padStartTime,
     padEndTime,
     fetchLatest,
@@ -81,22 +60,19 @@ export function useGlassMoodChartController({
     panningRef,
   });
 
-  const ux = useGlassMoodChartUX({
+  const ux = useGlassMoodChartUX<TPoint, X>({
     windowStart: data.windowStart,
     setWindowStart: data.setWindowStart,
     maxWindowStart: data.maxWindowStart,
 
     pointsRef: data.pointsRef,
     filteredDataRef: data.filteredDataRef,
-    selectedTagRef:
-      data.selectedTagRef as unknown as React.RefObject<FilterTag>,
+    selectedTagRef: data.selectedTagRef,
     setPoints: data.setPoints,
-    // keySpec を注入
+
     keySpec,
     xSpec,
     draftSpec,
-
-    // ✅ STEP-3
     pointSpec,
     findPointByKey: data.findPointByKey,
 
@@ -107,31 +83,26 @@ export function useGlassMoodChartController({
   });
 
   return {
-    // ids
     strokeGradId,
     pillShadowId,
 
-    // padding
     padStartTime,
     padEndTime,
 
-    // tags
     filterTags,
     selectedTag: data.selectedTag,
     onSelectTag: data.setSelectedTag,
 
-    // chart
     filteredData: data.filteredData,
     onChartMouseDown: ux.handleChartMouseDown,
     onPointClick: ux.handlePointClick,
 
-    // editor
     editPopover,
     editPoint: ux.editPoint,
     isEditingDraft: ux.isEditingDraft,
     onCancelEditor: ux.cancelEditor,
     onSaveEditor: ux.saveEditor,
-    // ✅ key版（ただし今は key===time）
+
     onUpdatePoint: data.updatePointByKey,
 
     // slider

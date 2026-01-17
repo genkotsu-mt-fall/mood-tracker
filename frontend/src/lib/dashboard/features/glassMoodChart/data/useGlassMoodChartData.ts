@@ -10,7 +10,7 @@ import {
   THRESHOLD,
   VISIBLE,
 } from '@/lib/dashboard/features/glassMoodChart/constants';
-import { ChartPointUI, FilterTag } from '../model';
+import { FilterTag, UserSummary } from '../model';
 import type { PointKeySpec } from '../spec/pointKeySpec';
 
 export type GlassMoodChartPage<T> = {
@@ -25,7 +25,16 @@ export type FetchOlder<T> = (
   need: number,
 ) => GlassMoodChartPage<T>;
 
-type Args<T extends ChartPointUI> = {
+export type DataPointLike = {
+  time: string;
+  value: number | null;
+  tags?: string[];
+  user?: UserSummary;
+  isPad?: boolean;
+  isDraft?: boolean;
+};
+
+type Args<T extends DataPointLike> = {
   padStartTime: string;
   padEndTime: string;
   fetchLatest: FetchLatest<T>;
@@ -38,7 +47,7 @@ type Args<T extends ChartPointUI> = {
   panningRef: React.RefObject<boolean>;
 };
 
-export function useGlassMoodChartData<T extends ChartPointUI>({
+export function useGlassMoodChartData<T extends DataPointLike>({
   padStartTime,
   padEndTime,
   fetchLatest,
@@ -46,12 +55,13 @@ export function useGlassMoodChartData<T extends ChartPointUI>({
   keySpec,
   panningRef,
 }: Args<T>) {
-  const padStartPoint = useMemo<ChartPointUI>(
-    () => ({ time: padStartTime, value: null, isPad: true }),
+  // ✅ pad 点も “T として” 扱う（最低限の形を作って T にキャスト）
+  const padStartPoint = useMemo<T>(
+    () => ({ time: padStartTime, value: null, isPad: true }) as unknown as T,
     [padStartTime],
   );
-  const padEndPoint = useMemo<ChartPointUI>(
-    () => ({ time: padEndTime, value: null, isPad: true }),
+  const padEndPoint = useMemo<T>(
+    () => ({ time: padEndTime, value: null, isPad: true }) as unknown as T,
     [padEndTime],
   );
 
@@ -60,10 +70,8 @@ export function useGlassMoodChartData<T extends ChartPointUI>({
   const [selectedTag, setSelectedTag] = useState<FilterTag>('All');
   const selectedTagRef = useLatestRef(selectedTag);
 
-  const [points, setPoints] = useState<ChartPointUI[]>([
-    padStartPoint,
-    padEndPoint,
-  ]);
+  // ✅ state を DataPointLike[] ではなく “T[]” にする
+  const [points, setPoints] = useState<T[]>([padStartPoint, padEndPoint]);
   const pointsRef = useLatestRef(points);
 
   const beforeIndexRef = useRef<number | null>(null);
@@ -77,11 +85,7 @@ export function useGlassMoodChartData<T extends ChartPointUI>({
     beforeIndexRef.current = page.nextBefore;
     hasMoreRef.current = page.hasMore;
 
-    setPoints([
-      padStartPoint,
-      ...(core as unknown as ChartPointUI[]),
-      padEndPoint,
-    ]);
+    setPoints([padStartPoint, ...core, padEndPoint]);
 
     const start = Math.max(0, core.length - VISIBLE);
     setWindowStart(start);
@@ -103,6 +107,7 @@ export function useGlassMoodChartData<T extends ChartPointUI>({
   const filteredData = useMemo(() => {
     if (selectedTag === 'All') return windowedPoints;
 
+    // ✅ “value null 化” は T を保つためにキャストで戻す
     return windowedPoints.map((p) => {
       if (p.isPad) return p;
       const hit = (p.tags ?? []).includes(selectedTag);
@@ -115,7 +120,7 @@ export function useGlassMoodChartData<T extends ChartPointUI>({
 
   const sliderItems = useMemo(() => {
     return filteredData.filter(
-      (p) => !p.isPad && !p.isDraft && typeof p.value === 'number' && p.user,
+      (p) => !p.isPad && !p.isDraft && typeof p.value === 'number' && !!p.user,
     );
   }, [filteredData]);
 
@@ -150,12 +155,7 @@ export function useGlassMoodChartData<T extends ChartPointUI>({
       if (addCount > 0) {
         setPoints((prev) => {
           const prevCore = prev.filter((p) => !p.isPad);
-          return [
-            padStartPoint,
-            ...(olderItems as unknown as ChartPointUI[]),
-            ...prevCore,
-            padEndPoint,
-          ];
+          return [padStartPoint, ...olderItems, ...prevCore, padEndPoint];
         });
 
         setWindowStart((s) => s + addCount);
@@ -172,17 +172,16 @@ export function useGlassMoodChartData<T extends ChartPointUI>({
     panningRef,
   ]);
 
-  // ✅ STEP-1: keySpec.getKey を使って “key で探す/更新する”
-  function findPointByKey(key: string): ChartPointUI | undefined {
-    return points.find((p) => !p.isPad && keySpec.getKey(p as T) === key);
+  function findPointByKey(key: string): T | undefined {
+    return points.find((p) => !p.isPad && keySpec.getKey(p) === key);
   }
 
-  function updatePointByKey(key: string, patch: Partial<ChartPointUI>) {
+  function updatePointByKey(key: string, patch: Partial<T>) {
     setPoints((prev) =>
       prev.map((p) => {
         if (p.isPad) return p;
-        if (keySpec.getKey(p as T) !== key) return p;
-        return { ...p, ...patch };
+        if (keySpec.getKey(p) !== key) return p;
+        return { ...p, ...patch } as T;
       }),
     );
   }
@@ -209,11 +208,9 @@ export function useGlassMoodChartData<T extends ChartPointUI>({
     filteredDataRef,
     sliderItems,
 
-    // helpers
     findPointByKey,
     updatePointByKey,
 
-    // spec を上へ返してもよい（UX側でも比較に使うため）
     keySpec,
   };
 }

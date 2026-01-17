@@ -2,7 +2,11 @@
 
 import React, { useMemo } from 'react';
 
-import { fetchDummyLatest, fetchDummyOlder } from './GlassMoodChart.dummy';
+import {
+  fetchDummyLatest,
+  fetchDummyOlder,
+  users,
+} from './GlassMoodChart.dummy';
 
 import { useGlassMoodChartController } from '@/lib/dashboard/features/glassMoodChart/controller/useGlassMoodChartController';
 import GlassMoodChartView from '@/lib/dashboard/features/glassMoodChart/ui/GlassMoodChartView';
@@ -23,6 +27,10 @@ import {
 import { createTimeKeySpec } from '@/lib/dashboard/features/glassMoodChart/spec/pointKeySpec';
 import { createTimeXSpec } from '@/lib/dashboard/features/glassMoodChart/spec/pointXSpec';
 
+// ★ 追加：Controller から剥がした既定 spec（ChartPointUI 向け）を呼び出し側で注入する
+import { createChartPointUITimeDraftSpec } from '@/lib/dashboard/features/glassMoodChart/spec/defaults/pointDraftSpec.chartPointUI';
+import { createChartPointUISpec } from '@/lib/dashboard/features/glassMoodChart/spec/defaults/pointSpec.chartPointUI';
+
 function formatTickLabel(s: string, padStart: string, padEnd: string) {
   if (s === padStart || s === padEnd) return '';
   return s.length >= 16 ? s.slice(11) : s;
@@ -39,7 +47,19 @@ export default function GlassMoodChart() {
   const keySpec = useMemo(() => createTimeKeySpec<ChartPointUI>(), []);
   const xSpec = useMemo(() => createTimeXSpec<ChartPointUI>(), []);
 
-  const vm = useGlassMoodChartController({
+  // ✅ Controller から剥がした既定値（以前は controller 内にあったもの）
+  const draftSpec = useMemo(
+    () =>
+      createChartPointUITimeDraftSpec({
+        fallbackUser: users.u1,
+        emoji: '✍️',
+      }),
+    [],
+  );
+
+  const pointSpec = useMemo(() => createChartPointUISpec(), []);
+
+  const vm = useGlassMoodChartController<ChartPointUI, string>({
     padStartTime: PAD_START,
     padEndTime: PAD_END,
     filterTags: FILTER_TAGS,
@@ -48,6 +68,8 @@ export default function GlassMoodChart() {
     // ✅ STEP-1/2.5: spec 注入（controller 内のデフォルト生成に頼らず統一）
     keySpec,
     xSpec,
+    draftSpec,
+    pointSpec,
   });
 
   const getXString = (p: ChartPointUI) => String(xSpec.getX(p));

@@ -1,6 +1,13 @@
-import { ChartPointUI } from '../model';
+import type { UserSummary } from '../model';
 
-export function UserMiniCard<T extends ChartPointUI>({
+export type UserMiniCardPoint = {
+  user?: UserSummary;
+  value: number | null;
+  emoji?: string | null;
+  tags?: string[] | null;
+};
+
+export function UserMiniCard<T extends UserMiniCardPoint>({
   p,
   subtitle,
 }: {

@@ -1,5 +1,3 @@
-import { ChartPointUI } from '../model';
-
 type RechartsLabelProps<TPayload = unknown> = {
   x?: number;
   y?: number;
@@ -11,8 +9,14 @@ type PillLabelExtraProps = {
   filterId: string;
 };
 
+// PillLabel が実際に必要とする payload はこれだけ
+type PillLabelPayload = {
+  isPad?: boolean;
+  emoji?: string | null;
+};
+
 export function PillLabel(
-  props: RechartsLabelProps<ChartPointUI> & PillLabelExtraProps,
+  props: RechartsLabelProps<PillLabelPayload> & PillLabelExtraProps,
 ) {
   const { x, y, value, payload, filterId } = props;
   if (typeof x !== 'number' || typeof y !== 'number') return null;
